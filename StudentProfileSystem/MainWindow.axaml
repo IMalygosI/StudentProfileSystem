@@ -2,8 +2,138 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
         x:Class="StudentProfileSystem.MainWindow"
+		xmlns:converters="using:StudentProfileSystem.Converters"
+		x:CompileBindings="False"
         Title="Учащиеся">
-    Welcome to Avalonia!
+	
+	<Window.Resources>
+		<converters:CollectionConverter x:Key="CollectionConverter" />
+	</Window.Resources>
+
+	<Grid ColumnDefinitions="*,*,*,*,*"
+		  RowDefinitions="0.3*,*,*,*,0.2*"
+		  ShowGridLines="False">
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="4"
+				   Grid.Column="0">
+			
+			<TextBox Watermark="Поиск:"
+					 Width="500"
+					 Name="SearchTextN"
+					 TextChanged="TextBox_TextChanged"
+					 Height="35"/>
+			
+		</DockPanel>
+		
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="4"
+				   Grid.Column="0"
+				   Grid.Row="4">
+
+			<TextBlock Text="!КНОПКА!"
+					   Foreground="Red"/>
+
+		</DockPanel>
+
+		<ListBox Grid.ColumnSpan="5"
+				 Grid.RowSpan="3"
+				 Grid.Row="1"
+				 Margin="20"
+				 BorderThickness="2"
+				 BorderBrush="Gray"
+				 Name="ListBox_Student">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Border BorderThickness="2"
+							BorderBrush="Gray">
+						<Grid ColumnDefinitions="*"
+							  RowDefinitions="*"
+							  Margin="10">
+
+							<StackPanel>
+								
+								<DockPanel Margin="5 10 0 0">
+									
+									<TextBlock Text="ФИО:"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding LastName}"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding FirstName}"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding Patronymic}"
+											   Margin="5 0 0 0"/>
+									
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+
+									<TextBlock Text="Школа:"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding School.Name}"
+											   Margin="5 0 0 0"/>
+
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+
+									<TextBlock Text="Номер школы:"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding School.SchoolNumber}"
+											   Margin="5 0 0 0"/>
+
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+
+									<TextBlock Text="Класс:"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding Class.ClassesNumber}"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding Class.Letter}"
+											   Margin="0 0 0 0"/>
+
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+									
+									<TextBlock Text="ГИА:" Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
+											   Margin="5 0 0 0"
+											   TextWrapping="Wrap"/>
+									
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+									
+									<TextBlock Text="Олимпиады:" Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding StudentOlympiadParticipations, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
+											   Margin="5 0 0 0"
+											   TextWrapping="Wrap"/>
+									
+								</DockPanel>
+								
+
+								
+								
+								
+								
+								
+								
+								
+								
+							</StackPanel>
+							
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</Grid>
 </Window>

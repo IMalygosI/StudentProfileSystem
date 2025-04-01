@@ -20,6 +20,8 @@
 			<Setter Property="Height" Value="700"/>
 			<Setter Property="Width" Value="1200"/>
 			
+						
+			
 		</Style>
 		
         <FluentTheme />

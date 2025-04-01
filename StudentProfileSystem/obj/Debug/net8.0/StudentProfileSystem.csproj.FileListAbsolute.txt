@@ -166,3 +166,14 @@ C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentProfileSystem.sourcelink.json
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\ExcelDataReader.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\ExcelDataReader.DataSet.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\RBush.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\System.IO.Packaging.dll
