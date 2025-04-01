@@ -1,0 +1,27 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="StudentProfileSystem.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+
+		<Style Selector="Window">
+			
+			<!-- Выравнивание окна и настройки открытия -->
+			<Setter Property="WindowState" Value="Maximized"/>
+			<Setter Property="WindowStartupLocation" Value="CenterScreen"/>
+
+			<!-- Минимальные размеры окна -->
+			<Setter Property="MinHeight" Value="400"/>
+			<Setter Property="MinWidth" Value="400"/>
+
+			<!-- Стандартные размеры окна -->
+			<Setter Property="Height" Value="700"/>
+			<Setter Property="Width" Value="1200"/>
+			
+		</Style>
+		
+        <FluentTheme />
+    </Application.Styles>
+</Application>
