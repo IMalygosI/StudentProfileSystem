@@ -26,6 +26,8 @@ public partial class ImcContext : DbContext
 
     public virtual DbSet<Olympiad> Olympiads { get; set; }
 
+    public virtual DbSet<OlympiadsType> OlympiadsTypes { get; set; }
+
     public virtual DbSet<School> Schools { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
@@ -105,13 +107,29 @@ public partial class ImcContext : DbContext
             entity.Property(e => e.Id)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("ID");
-            entity.Property(e => e.Olympiads).HasMaxLength(100);
             entity.Property(e => e.OlympiadsItems).HasColumnName("Olympiads_Items");
+
+            entity.HasOne(d => d.OlympiadsNavigation).WithMany(p => p.Olympiads)
+                .HasForeignKey(d => d.Olympiads)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("olympiads_olympiads_type_fk");
 
             entity.HasOne(d => d.OlympiadsItemsNavigation).WithMany(p => p.Olympiads)
                 .HasForeignKey(d => d.OlympiadsItems)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("olympiads_items_fk");
+        });
+
+        modelBuilder.Entity<OlympiadsType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("olympiads_type_pk");
+
+            entity.ToTable("Olympiads_Type");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasMaxLength(100);
         });
 
         modelBuilder.Entity<School>(entity =>

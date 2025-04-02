@@ -27,6 +27,39 @@
 					 Name="SearchTextN"
 					 TextChanged="TextBox_TextChanged"
 					 Height="35"/>
+
+			<ComboBox Name="ComboBoxGia"
+					  Margin="10 0 0 0"
+					  MinWidth="150"
+					  Height="35">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding GiaSubjectsNavigation.Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Name="ComboBoxOlimpiad"
+					  Margin="10 0 0 0"
+					  MinWidth="150"
+					  Height="35">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding OlympiadsNavigation.Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Name="ComboBoxGiaType"
+					  Margin="10 0 0 0"
+					  MinWidth="100"
+					  Height="35">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding GiaType.Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
 			
 		</DockPanel>
 		
@@ -119,17 +152,7 @@
 									
 								</DockPanel>
 								
-
-								
-								
-								
-								
-								
-								
-								
-								
 							</StackPanel>
-							
 						</Grid>
 					</Border>
 				</DataTemplate>

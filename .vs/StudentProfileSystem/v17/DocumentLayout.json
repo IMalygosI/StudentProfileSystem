@@ -21,6 +21,19 @@
           "SelectedChildIndex": 3,
           "Children": [
             {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainWindow.axaml",
+              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
+              "RelativeDocumentMoniker": "StudentProfileSystem\\MainWindow.axaml",
+              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
+              "RelativeToolTip": "StudentProfileSystem\\MainWindow.axaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-02T19:31:30.159Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
@@ -30,26 +43,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MainWindow.axaml",
-              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
-              "RelativeDocumentMoniker": "StudentProfileSystem\\MainWindow.axaml",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
-              "RelativeToolTip": "StudentProfileSystem\\MainWindow.axaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-01T14:50:22.4Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "MainWindow.axaml.cs",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml.cs",
               "RelativeDocumentMoniker": "StudentProfileSystem\\MainWindow.axaml.cs",
               "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml.cs",
               "RelativeToolTip": "StudentProfileSystem\\MainWindow.axaml.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAgwCEAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAHcAAAAAAAAAAADwv6cAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-01T14:50:22.93Z",
+              "WhenOpened": "2025-04-02T19:31:30.759Z",
               "EditorCaption": ""
             }
           ]
