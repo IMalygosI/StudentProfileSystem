@@ -6,22 +6,25 @@
         x:Class="StudentProfileSystem.MainWindow"
 		xmlns:converters="using:StudentProfileSystem.Converters"
 		x:CompileBindings="False"
+        xmlns:media="clr-namespace:Avalonia.Media;assembly=Avalonia.Visuals"
+        Background="Transparent"
         Title="Учащиеся">
-	
+
 	<Window.Resources>
 		<converters:CollectionConverter x:Key="CollectionConverter" />
 	</Window.Resources>
 
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.2*"
-		  ShowGridLines="False">
+		  ShowGridLines="True"
+		  Background="White">
 
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
 				   Margin="20 0 0 0"
 				   Grid.ColumnSpan="4"
 				   Grid.Column="0">
-			
+
 			<TextBox Watermark="Поиск:"
 					 Width="500"
 					 Name="SearchTextN"
@@ -60,18 +63,44 @@
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
 			</ComboBox>
-			
+
 		</DockPanel>
-		
+
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
 				   Margin="20 0 0 0"
-				   Grid.ColumnSpan="4"
+				   Grid.ColumnSpan="2"
 				   Grid.Column="0"
 				   Grid.Row="4">
 
-			<TextBlock Text="!КНОПКА!"
-					   Foreground="Red"/>
+			<Button Background="Green"
+					Name="AddStudents"
+					Click="Button_Click_AddStudents">
+				<TextBlock Text="Добавление"
+						   Foreground="White"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Background="Green"
+					Margin="5 0 0 0"
+					Name="Load_data"
+					Click="Button_Click_Load_data">
+				<TextBlock Text="Загрузить данные"
+						   Foreground="White"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Background="Green"
+					Margin="5 0 0 0"
+					Name="Upload_data"
+					Click="Button_Click_Upload_data">
+				<TextBlock Text="Выгрузить данные"
+						   Foreground="White"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
 
 		</DockPanel>
 
@@ -79,9 +108,18 @@
 				 Grid.RowSpan="3"
 				 Grid.Row="1"
 				 Margin="20"
+				 DoubleTapped="ListBox_DoubleTapped_Button_Redact"
 				 BorderThickness="2"
 				 BorderBrush="Gray"
 				 Name="ListBox_Student">
+
+			<ListBox.ContextMenu>
+				<ContextMenu>
+					<MenuItem Header="Удалить"
+							  Click="MenuItem_Click_Delete"/>
+				</ContextMenu>
+			</ListBox.ContextMenu>
+
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border BorderThickness="2"
@@ -91,9 +129,9 @@
 							  Margin="10">
 
 							<StackPanel>
-								
+
 								<DockPanel Margin="5 10 0 0">
-									
+
 									<TextBlock Text="ФИО:"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding LastName}"
@@ -102,7 +140,7 @@
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding Patronymic}"
 											   Margin="5 0 0 0"/>
-									
+
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
@@ -135,28 +173,29 @@
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-									
+
 									<TextBlock Text="ГИА:" Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
 											   Margin="5 0 0 0"
 											   TextWrapping="Wrap"/>
-									
+
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-									
+
 									<TextBlock Text="Олимпиады:" Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding StudentOlympiadParticipations, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
 											   Margin="5 0 0 0"
 											   TextWrapping="Wrap"/>
-									
+
 								</DockPanel>
-								
+
 							</StackPanel>
 						</Grid>
 					</Border>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
+
 	</Grid>
 </Window>

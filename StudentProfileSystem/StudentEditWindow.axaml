@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="900"
+		MaxWidth="1300" MaxHeight="900"
+		WindowState="Normal"
+        x:Class="StudentProfileSystem.StudentEditWindow"
+        Title="">
+
+	<Grid ShowGridLines="True"
+		  ColumnDefinitions="*,*,*,*,*"
+		  RowDefinitions="*,*,*,*,*">
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="4"
+				   Grid.Column="0"
+				   Grid.Row="4">
+
+			<Button Background="Green"
+					Name="Exit"
+					Click="Button_Click_Close">
+				<TextBlock Text="Закрыть"
+						   Foreground="White"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+
+
+	</Grid>
+	
+</Window>

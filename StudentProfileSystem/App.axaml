@@ -7,7 +7,7 @@
     <Application.Styles>
 
 		<Style Selector="Window">
-			
+
 			<!-- Выравнивание окна и настройки открытия -->
 			<Setter Property="WindowState" Value="Maximized"/>
 			<Setter Property="WindowStartupLocation" Value="CenterScreen"/>
@@ -20,10 +20,16 @@
 			<Setter Property="Height" Value="700"/>
 			<Setter Property="Width" Value="1200"/>
 			
-						
-			
 		</Style>
-		
-        <FluentTheme />
+
+		<!-- Эффект размытия -->
+		<Style Selector="Window.blur-effect">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Effect">
+				<BlurEffect Radius="5"/>
+			</Setter>
+		</Style>
+
+		<FluentTheme />
     </Application.Styles>
 </Application>
