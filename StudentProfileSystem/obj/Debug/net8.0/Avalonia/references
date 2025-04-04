@@ -24,6 +24,7 @@ C:\Users\dimau\.nuget\packages\avalonia.win32\11.2.6\lib\net8.0\Avalonia.Win32.d
 C:\Users\dimau\.nuget\packages\avalonia.x11\11.2.6\lib\net8.0\Avalonia.X11.dll
 C:\Users\dimau\.nuget\packages\closedxml\0.104.2\lib\netstandard2.1\ClosedXML.dll
 C:\Users\dimau\.nuget\packages\closedxml.parser\1.2.0\lib\netstandard2.1\ClosedXML.Parser.dll
+C:\Users\dimau\.nuget\packages\dialoghost.avalonia\0.8.1\lib\netstandard2.0\DialogHost.Avalonia.dll
 C:\Users\dimau\.nuget\packages\documentformat.openxml\3.1.1\lib\net8.0\DocumentFormat.OpenXml.dll
 C:\Users\dimau\.nuget\packages\documentformat.openxml.framework\3.1.1\lib\net8.0\DocumentFormat.OpenXml.Framework.dll
 C:\Users\dimau\.nuget\packages\exceldatareader.dataset\3.7.0\lib\netstandard2.1\ExcelDataReader.DataSet.dll
@@ -48,6 +49,7 @@ C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Micros
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.VisualBasic.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.Win32.Primitives.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.Win32.Registry.dll
+C:\Users\dimau\.nuget\packages\messagebox.avalonia\3.2.0\lib\netstandard2.0\MsBox.Avalonia.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\mscorlib.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\netstandard.dll
 C:\Users\dimau\.nuget\packages\npgsql\9.0.3\lib\net8.0\Npgsql.dll

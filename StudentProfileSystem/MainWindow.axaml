@@ -16,7 +16,7 @@
 
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.2*"
-		  ShowGridLines="True"
+		  ShowGridLines="False"
 		  Background="White">
 
 		<DockPanel HorizontalAlignment="Left"

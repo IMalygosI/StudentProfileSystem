@@ -4,7 +4,17 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Microsoft.EntityFrameworkCore;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia;
 using StudentProfileSystem.Models;
+using Avalonia.Media;
+using MsBox.Avalonia.ViewModels.Commands;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Layout;
+using DocumentFormat.OpenXml.Drawing;
+
 
 namespace StudentProfileSystem
 {
@@ -204,7 +214,8 @@ namespace StudentProfileSystem
 
                 return searchTerms.All(term => fullName.Contains(term) ||
                                                student.School.Name.ToLower().Contains(term) ||
-                                               student.School.SchoolNumber.ToLower().Contains(term));
+                                               student.School.SchoolNumber.ToLower().Contains(term) ||
+                                               student.Class.ClassesNumber.Contains(term));
             }).ToList();
         }
 
@@ -248,16 +259,208 @@ namespace StudentProfileSystem
             }
         }
 
+
         /// <summary>
-        /// Удаление Student
+        /// Вывод диалогового окна с подтверждением Удаления Stidents
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MenuItem_Click_Delete(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private async void MenuItem_Click_Delete(object sender, RoutedEventArgs e)
         {
+            var stud = ListBox_Student.SelectedItem as Student;
+            if (stud == null) return;
 
+            var Yes_Button = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "Да",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                Height = 30,
+                Background = Brushes.Green,
+                Margin = new Thickness(5)
+            };
 
+            var No_Button = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "Нет",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                Height = 30,
+                Background = Brushes.Red,
+                Margin = new Thickness(5)
+            };
 
+            // Создание окна
+            var DeleteConfirmationWindow = new Window
+            {
+                Title = "Подтверждение удаления",
+                Width = 550,
+                Height = 250,
+                MinHeight = 250,
+                WindowState = WindowState.Normal,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = false,
+                Content = new Border
+                {
+                    BorderBrush = Brushes.Red,
+                    BorderThickness = new Thickness(2),
+                    Child = new Grid
+                    {
+                        Margin = new Thickness(15),
+                        Children =
+                {
+                    new StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
+                        {
+                            new TextBlock
+                            {
+                                Text = $"Вы точно хотите удалить ученика: {stud.LastName} {stud.FirstName} {stud.Patronymic}?",
+                                TextWrapping = TextWrapping.Wrap,
+
+                                TextAlignment = TextAlignment.Center,
+                                Margin = new Thickness(0, 0, 0, 20),
+                                FontSize = 16
+                            },
+                            new DockPanel
+                            {
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                LastChildFill = false,
+                                Children =
+                                {
+                                    Yes_Button,
+                                    No_Button
+                                }
+                            }
+                        }
+                    }
+                }
+                    }
+                }
+            };
+
+            // Флаг для отслеживания подтверждения удаления
+            bool isConfirmed = false;
+
+            Yes_Button.Click += async (s, args) =>
+            {
+                isConfirmed = true; // подтверждение удаления
+                DeleteConfirmationWindow.Close();
+            };
+
+            No_Button.Click += (s, args) =>
+            {
+                DeleteConfirmationWindow.Close();
+            };
+
+            await DeleteConfirmationWindow.ShowDialog(this);
+
+            // Если пользователь не подтвердил удаление выход
+            if (!isConfirmed) return;
+
+            using (var transaction = Helper.DateBase.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Удаление связанных записей ГИА
+                    var giaResults = Helper.DateBase.StudentGiaResults
+                        .Where(x => x.IdStudents == stud.Id);
+                    Helper.DateBase.StudentGiaResults.RemoveRange(giaResults);
+
+                    // Удаление связанных записей Олимпиады
+                    var olympiads = Helper.DateBase.StudentOlympiadParticipations
+                        .Where(x => x.IdStudents == stud.Id);
+                    Helper.DateBase.StudentOlympiadParticipations.RemoveRange(olympiads);
+
+                    // Удаление Students
+                    Helper.DateBase.Students.Remove(stud);
+
+                    await Helper.DateBase.SaveChangesAsync();
+                    transaction.Commit();
+
+                    LoadStudents();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    await ShowErrorDialog(ex.Message, this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Вывод диалогового окна с сообщением об ошибке
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="owner"></param>
+        /// <returns></returns>
+        private async Task ShowErrorDialog(string message, Window owner)
+        {
+            var Ok_Button = new Button
+            {
+                Content = "OK",
+                Width = 100,
+                Height = 30,
+                Margin = new Thickness(5),
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            var ErrorWindowDialog = new Window
+            {
+                Title = "Ошибка",
+                Width = 550,
+                Height = 250,
+                MinHeight = 250,
+                WindowState = WindowState.Normal,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = false,
+                Content = new Border
+                {
+                    BorderBrush = Brushes.Red,
+                    BorderThickness = new Thickness(2),
+                    Child = new Grid
+                    {
+                        Margin = new Thickness(15),
+                        Children =
+                {
+                    new StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
+                        {
+                            new TextBlock
+                            {
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                FontSize = 14,
+                                Margin = new Thickness(0, 0, 0, 20)  // Отступ снизу
+                            },
+                            Ok_Button
+                        }
+                    }
+                }
+                    }
+                }
+            };
+
+            Ok_Button.Click += (s, args) => ErrorWindowDialog.Close();
+            await ErrorWindowDialog.ShowDialog(owner);
         }
 
         /// <summary>

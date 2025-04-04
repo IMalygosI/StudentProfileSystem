@@ -177,3 +177,5 @@ C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\RBush.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\SixLabors.Fonts.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\System.IO.Packaging.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\DialogHost.Avalonia.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\MsBox.Avalonia.dll
