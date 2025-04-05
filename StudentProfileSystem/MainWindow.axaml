@@ -17,7 +17,7 @@
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.2*"
 		  ShowGridLines="False"
-		  Background="White">
+		  Background="#E8F5E9">
 
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
@@ -26,7 +26,9 @@
 				   Grid.Column="0">
 
 			<TextBox Watermark="Поиск:"
+					 CornerRadius="10"
 					 Width="500"
+					 Background="#FFF8E1"
 					 Name="SearchTextN"
 					 TextChanged="TextBox_TextChanged"
 					 Height="35"/>
@@ -36,16 +38,32 @@
 					  MinWidth="150"
 					  Height="35">
 				<ComboBox.ItemTemplate>
-					<DataTemplate>
+					<DataTemplate> 
 						<TextBlock Text="{Binding GiaSubjectsNavigation.Name}"/>
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
 			</ComboBox>
 
+			<Button Width="35"
+					Height="35"
+					Margin="5 0 0 0"
+					Click="Button_Click_ComboBoxGia_Setting"
+					BorderThickness="0"
+					Background="Transparent"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center">
+
+				<Image Source="avares://MsBox.Avalonia/Assets/setting.png" 
+					   Width="35"
+					   Height="35"/>				
+			</Button>
+
 			<ComboBox Name="ComboBoxOlimpiad"
+					  CornerRadius="10"
 					  Margin="10 0 0 0"
 					  MinWidth="150"
-					  Height="35">
+					  Height="35"
+					  Background="#FFF8E1">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
 						<TextBlock Text="{Binding OlympiadsNavigation.Name}"/>
@@ -53,10 +71,26 @@
 				</ComboBox.ItemTemplate>
 			</ComboBox>
 
+			<Button Width="35"
+					Height="35"
+					Margin="5 0 0 0"
+					Click="Button_Click_ComboBoxOlimpiad_Setting"
+					BorderThickness="0"
+					Background="Transparent"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center">
+
+				<Image Source="avares://MsBox.Avalonia/Assets/setting.png"
+					   Width="35"
+					   Height="35"/>
+			</Button>
+
 			<ComboBox Name="ComboBoxGiaType"
+					  CornerRadius="10"
 					  Margin="10 0 0 0"
 					  MinWidth="100"
-					  Height="35">
+					  Height="35"
+					  Background="#FFF8E1">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
 						<TextBlock Text="{Binding GiaType.Name}"/>
@@ -73,31 +107,25 @@
 				   Grid.Column="0"
 				   Grid.Row="4">
 
-			<Button Background="Green"
-					Name="AddStudents"
+			<Button Name="AddStudents"
 					Click="Button_Click_AddStudents">
 				<TextBlock Text="Добавление"
-						   Foreground="White"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
 
-			<Button Background="Green"
-					Margin="5 0 0 0"
+			<Button Margin="5 0 0 0"
 					Name="Load_data"
 					Click="Button_Click_Load_data">
 				<TextBlock Text="Загрузить данные"
-						   Foreground="White"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
 
-			<Button Background="Green"
-					Margin="5 0 0 0"
+			<Button Margin="5 0 0 0"
 					Name="Upload_data"
 					Click="Button_Click_Upload_data">
 				<TextBlock Text="Выгрузить данные"
-						   Foreground="White"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
@@ -108,13 +136,15 @@
 				 Grid.RowSpan="3"
 				 Grid.Row="1"
 				 Margin="20"
+				 CornerRadius="10"
 				 DoubleTapped="ListBox_DoubleTapped_Button_Redact"
 				 BorderThickness="2"
 				 BorderBrush="Gray"
+				 Background="#FFF8E1"
 				 Name="ListBox_Student">
 
 			<ListBox.ContextMenu>
-				<ContextMenu>
+				<ContextMenu Background="#FFF8E1">
 					<MenuItem Header="Удалить"
 							  Click="MenuItem_Click_Delete"/>
 				</ContextMenu>
@@ -123,7 +153,9 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border BorderThickness="2"
-							BorderBrush="Gray">
+							BorderBrush="Gray"
+							CornerRadius="10"
+							Background="#E8F5E9">
 						<Grid ColumnDefinitions="*"
 							  RowDefinitions="*"
 							  Margin="10">
@@ -133,6 +165,7 @@
 								<DockPanel Margin="5 10 0 0">
 
 									<TextBlock Text="ФИО:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding LastName}"
 											   Margin="5 0 0 0"/>
@@ -146,6 +179,7 @@
 								<DockPanel Margin="5 5 0 0">
 
 									<TextBlock Text="Школа:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding School.Name}"
 											   Margin="5 0 0 0"/>
@@ -155,6 +189,7 @@
 								<DockPanel Margin="5 5 0 0">
 
 									<TextBlock Text="Номер школы:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding School.SchoolNumber}"
 											   Margin="5 0 0 0"/>
@@ -164,6 +199,7 @@
 								<DockPanel Margin="5 5 0 0">
 
 									<TextBlock Text="Класс:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding Class.ClassesNumber}"
 											   Margin="5 0 0 0"/>
@@ -173,23 +209,28 @@
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-
-									<TextBlock Text="ГИА:" Margin="5 0 0 0"/>
-									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
-											   Margin="5 0 0 0"
-											   TextWrapping="Wrap"/>
-
+									
+									<TextBlock Text="ГИА:" 
+											   FontWeight="Bold" 
+											   Margin="5 0 0 5"/>
+									
+									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}}"
+											   Margin="5 0 0 0"/>
+									
 								</DockPanel>
-
-								<DockPanel Margin="5 5 0 0">
-
-									<TextBlock Text="Олимпиады:" Margin="5 0 0 0"/>
+								
+								<DockPanel Margin="5 0 0 0">
+									
+									<TextBlock Text="Олимпиады:" 
+											   FontWeight="Bold" 
+											   Margin="5 0 0 0"/>
+									
 									<TextBlock Text="{Binding StudentOlympiadParticipations, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
 											   Margin="5 0 0 0"
 											   TextWrapping="Wrap"/>
-
 								</DockPanel>
 
+							
 							</StackPanel>
 						</Grid>
 					</Border>

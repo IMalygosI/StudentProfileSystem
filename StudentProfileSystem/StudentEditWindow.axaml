@@ -5,32 +5,33 @@
         mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="900"
 		MaxWidth="1300" MaxHeight="900"
 		WindowState="Normal"
+		x:CompileBindings="False"
         x:Class="StudentProfileSystem.StudentEditWindow"
         Title="">
 
 	<Grid ShowGridLines="True"
-		  ColumnDefinitions="*,*,*,*,*"
-		  RowDefinitions="*,*,*,*,*">
+		  Name="OkkoRedactAdd"
+		  ColumnDefinitions="0.2*,*,*,*,*,0.2*"
+		  RowDefinitions="0.2*,*,*,*,0.2*">
 
 		<DockPanel HorizontalAlignment="Left"
-				   VerticalAlignment="Center"
-				   Margin="20 0 0 0"
-				   Grid.ColumnSpan="4"
+				   VerticalAlignment="Bottom"
+				   Margin="20 0 0 10"
+				   Grid.ColumnSpan="2"
 				   Grid.Column="0"
-				   Grid.Row="4">
+				   Grid.Row="3"
+				   Grid.RowSpan="2">
 
-			<Button Background="Green"
-					Name="Exit"
+			<Button Name="Exit"
 					Click="Button_Click_Close">
 				<TextBlock Text="Закрыть"
-						   Foreground="White"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
 
 		</DockPanel>
 
+		
 
 	</Grid>
-	
 </Window>

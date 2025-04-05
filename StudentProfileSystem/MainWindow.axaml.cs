@@ -54,17 +54,22 @@ namespace StudentProfileSystem
         public void LoadStudents()
         {
             students = Helper.DateBase.Students.Include(z => z.Class)
-                                                .Include(z => z.School)
-                                                .Include(x => x.StudentGiaResults)
-                                                    .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
-                                                    .ThenInclude(x3 => x3.GiaSubjectsNavigation)
+                                               .Include(z => z.School)
+                                               .Include(x => x.StudentGiaResults)
+                                                   .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                   .ThenInclude(x3 => x3.GiaSubjectsNavigation)
+                                               .Include(x => x.StudentGiaResults)
+                                                   .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                   .ThenInclude(x3 => x3.GiaType)
                                                 .Include(a => a.StudentOlympiadParticipations)
-                                                    .ThenInclude(a2 => a2.IdOlympiadsNavigation)
-                                                    .ThenInclude(a3 => a3.OlympiadsItemsNavigation)
+                                                   .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                   .ThenInclude(a3 => a3.OlympiadsNavigation)
+                                                .Include(a => a.StudentOlympiadParticipations)
+                                                   .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                   .ThenInclude(a3 => a3.OlympiadsItemsNavigation)
                                                 .ToList();
 
             Filter_students = new List<Student>(students);
-
             Filters();
         }
 
@@ -258,7 +263,6 @@ namespace StudentProfileSystem
                 this.Classes.Remove("blur-effect");
             }
         }
-
 
         /// <summary>
         /// Вывод диалогового окна с подтверждением Удаления Stidents
@@ -464,6 +468,57 @@ namespace StudentProfileSystem
         }
 
         /// <summary>
+        /// Меню с ГИА
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void Button_Click_ComboBoxGia_Setting(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            this.Classes.Add("blur-effect");
+
+            try
+            {
+                string olymp = "ГИА";
+                SettingGiaOlimpiad settingGiaOlimpiad = new SettingGiaOlimpiad(olymp);
+                await settingGiaOlimpiad.ShowDialog(this);
+            }
+            finally
+            {
+                this.Classes.Remove("blur-effect");
+            }
+
+            LoadStudents();
+        }
+
+        /// <summary>
+        /// Меню с Олимпиадами
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void Button_Click_ComboBoxOlimpiad_Setting(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+
+            this.Classes.Add("blur-effect");
+
+            try
+            {
+                string olymp = "Олимпиады";
+                SettingGiaOlimpiad settingGiaOlimpiad = new SettingGiaOlimpiad(olymp);
+                await settingGiaOlimpiad.ShowDialog(this);
+            }
+            finally
+            {
+                this.Classes.Remove("blur-effect");
+            }
+
+            LoadStudents();
+        }
+
+
+
+
+
+        /// <summary>
         /// Выгрузка данных в формате Exel
         /// </summary>
         /// <param name="sender"></param>
@@ -480,5 +535,6 @@ namespace StudentProfileSystem
         private void Button_Click_Load_data(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
         }
+
     }
 }

@@ -17,17 +17,21 @@ public partial class StudentEditWindow : Window
         InitializeComponent();
         Student1 = new Student();
 
+        OkkoRedactAdd.DataContext = Student1;
+
         Title = "Добавление";
     }
 
     /// <summary>
-    /// Редактирование
+    /// Редактирование student
     /// </summary>
     /// <param name="student"></param>
     public StudentEditWindow(Student student)
     {
         InitializeComponent();
         Student1 = student;
+
+        OkkoRedactAdd.DataContext = Student1;
 
         Title = "Редактирование";
 

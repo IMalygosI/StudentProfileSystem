@@ -13,30 +13,27 @@ namespace StudentProfileSystem.Converters
     /// </summary>
     public class CollectionConverter : IValueConverter
     {
-        /// <summary>
-        /// Преобразует коллекцию в строку
-        /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Разделитель по умолчанию - запятая
             const string defaultSeparator = ", ";
             string separator = parameter as string ?? defaultSeparator;
 
             switch (value)
             {
-                // Обработка предметов ГИА
                 case IEnumerable<StudentGiaResult> giaResults:
-                    return string.Join(separator,
-                        giaResults.Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
+                    return string.Join(Environment.NewLine, // Используем перенос строки вместо запятой
+                        giaResults.Select(g =>
+                            $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name} " +
+                            $"({g.IdGiaSubjectsNavigation?.GiaType?.Name})")
                                   .Where(name => !string.IsNullOrEmpty(name)));
 
-                // Обработка олимпиад
                 case IEnumerable<StudentOlympiadParticipation> olympiads:
-                    return string.Join(separator,
-                        olympiads.Select(o => o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name)
+                    return string.Join(Environment.NewLine,
+                        olympiads.Select(o =>
+                            $"{o.IdOlympiadsNavigation?.OlympiadsNavigation?.Name} " +
+                            $"({o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name})")
                                  .Where(name => !string.IsNullOrEmpty(name)));
 
-                // Общий случай для любых коллекций
                 case IEnumerable collection when !(collection is string):
                     return string.Join(separator,
                         collection.Cast<object>()
@@ -48,9 +45,6 @@ namespace StudentProfileSystem.Converters
             }
         }
 
-        /// <summary>
-        /// Обратное преобразование не поддерживается
-        /// </summary>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException();

@@ -1,0 +1,181 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="900"
+		MaxWidth="1300" MaxHeight="900"
+		WindowState="Normal"
+		x:CompileBindings="False"
+        x:Class="StudentProfileSystem.SettingGiaOlimpiad"
+        Title="">
+
+	<Grid ShowGridLines="False"
+		  ColumnDefinitions="*,*,*,*,*"
+		  RowDefinitions="0.3*,*,*,*,0.2*">
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Grid.ColumnSpan="2"
+				   Grid.Column="0"
+				   Grid.Row="0"
+				   Margin="10 0 0 0">
+
+			<Button Name="Items_Button"
+					IsVisible="False"
+					Click="Button_Click_Items_Button">
+				<TextBlock Text="Предметы"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="Examen_Gia"
+					Margin="5 0 0 0"
+					IsVisible="False"
+					Click="Button_Click_Examen_Gia">
+				<TextBlock Text="Экзамены ГИА"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+		
+		
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="4"
+				   Grid.Column="0"
+				   Grid.Row="4">
+
+			<Button Name="AddGiaBut"
+					IsVisible="False"
+					Click="Click_Add_Gia">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="AddOlympBut"
+					IsVisible="False"
+					Click="Click_Add_Olymp">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="Exit"
+					Margin="5 0 0 0"
+					Click="Button_Click_Close">
+				<TextBlock Text="Закрыть"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+
+		<Border Name="BorderListOlymp"
+				IsVisible="False"
+				Grid.ColumnSpan="5"
+				Grid.RowSpan="3"
+				Grid.Row="1"
+				Margin="20">
+
+			<ListBox CornerRadius="10"
+					 DoubleTapped="ListBox_DoubleTapped_Redact_Olymp"
+					 BorderThickness="2"
+					 BorderBrush="Gray"
+					 Background="#FFF8E1"
+					 Name="ListBox_Olymp">
+
+				<ListBox.ContextMenu>
+					<ContextMenu Background="#FFF8E1">
+						<MenuItem Header="Удалить"
+								  Click="MenuItem_Click_Delete_Olymp"/>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderThickness="2"
+								BorderBrush="Gray"
+								CornerRadius="10"
+								Background="#E8F5E9">
+							<Grid ColumnDefinitions="*"
+								  RowDefinitions="*"
+								  Margin="10">
+
+								<StackPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="Олимпиада:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+								</StackPanel>
+
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+		</Border>
+
+		<Border Name="BorderListGia"
+				IsVisible="False"
+				Grid.ColumnSpan="5"
+				Grid.RowSpan="3"
+				Grid.Row="1"
+				Margin="20">
+
+			<ListBox CornerRadius="10"
+					 DoubleTapped="ListBox_DoubleTapped_Redact_Gia"
+					 BorderThickness="2"
+					 BorderBrush="Gray"
+					 Background="#FFF8E1"
+					 Name="ListBox_Gia">
+
+				<ListBox.ContextMenu>
+					<ContextMenu Background="#FFF8E1">
+						<MenuItem Header="Удалить"
+								  Click="MenuItem_Click_Delete_Gia"/>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderThickness="2"
+								BorderBrush="Gray"
+								CornerRadius="10"
+								Background="#E8F5E9">
+							<Grid ColumnDefinitions="*"
+								  RowDefinitions="*"
+								  Margin="10">
+
+
+								<StackPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="Предмет:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+								</StackPanel>
+
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+		</Border>
+	</Grid>
+</Window>
