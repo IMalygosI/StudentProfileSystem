@@ -10,24 +10,44 @@ using Microsoft.EntityFrameworkCore;
 using StudentProfileSystem.Models;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
+using System.Collections.Generic;
 
 namespace StudentProfileSystem;
 
 public partial class AddAdnRedactOlympGia : Window
 {
     private Item _giaItem1;
+    private GiaSubject _giaSubject;
     private OlympiadsType _olympiadsType1;
-    private string OlympAndGia1;
     private Item _originalGiaItem;
     private OlympiadsType _originalOlympiad;
+
     private bool _isSaved = false;
+    private string OlympAndGia1;
+
+    List<GiaType> giaTypes1 = new List<GiaType>();
+    List<Item> items1 = new List<Item>();
 
     public AddAdnRedactOlympGia()
     {
         InitializeComponent();
         _giaItem1 = new Item();
         _olympiadsType1 = new OlympiadsType();
+        _giaSubject = new GiaSubject();
         OkkoRedactAdd.DataContext = _giaItem1;
+        LoadComboBoxGia();
+    }
+
+    public AddAdnRedactOlympGia(GiaSubject giaSubject) : this()
+    {
+        InitializeComponent();
+        Title = "Смена ГИА";
+        OlympAndGia1 = "Смена ГИА";
+
+        _giaSubject = giaSubject;
+        OkkoRedactAdd.DataContext = _giaSubject;
+        BorderGiaSubject.IsVisible = true;
+        LoadComboBoxGia();
     }
 
     /// <summary>
@@ -36,6 +56,7 @@ public partial class AddAdnRedactOlympGia : Window
     /// <param name="OlympAndGia"></param>
     public AddAdnRedactOlympGia(string OlympAndGia) : this()
     {
+        InitializeComponent();
         OlympAndGia1 = OlympAndGia;
 
         if (OlympAndGia1 == "ГИА")
@@ -43,7 +64,11 @@ public partial class AddAdnRedactOlympGia : Window
             _giaItem1 = new Item();
             _originalGiaItem = _giaItem1;
             OkkoRedactAdd.DataContext = _giaItem1;
+
             BorderGiaRedAdd.IsVisible = true;
+            BorderGiaSubject.IsVisible = false;
+            BorderOlympRedAdd.IsVisible = false;
+
             Title = "Добавление предмета ГИА";
         }
         else if (OlympAndGia1 == "Олимпиады")
@@ -51,9 +76,22 @@ public partial class AddAdnRedactOlympGia : Window
             _olympiadsType1 = new OlympiadsType();
             _originalOlympiad = _olympiadsType1;
             OkkoRedactAdd.DataContext = _olympiadsType1;
+
+            BorderGiaRedAdd.IsVisible = false;
+            BorderGiaSubject.IsVisible = false;
             BorderOlympRedAdd.IsVisible = true;
+
             Title = "Добавление Олимпиады";
         }
+        else if (OlympAndGia1 == "Настройка ГИА")
+        {
+            BorderGiaRedAdd.IsVisible = false;
+            BorderOlympRedAdd.IsVisible = false;
+            BorderGiaSubject.IsVisible = true;
+
+            Title = "Настройка ГИА";
+        }
+        LoadComboBoxGia();
     }
 
     /// <summary>
@@ -62,16 +100,17 @@ public partial class AddAdnRedactOlympGia : Window
     /// <param name="olympiadsType"></param>
     public AddAdnRedactOlympGia(OlympiadsType olympiadsType) : this()
     {
+        InitializeComponent();
         OlympAndGia1 = "Олимпиады";
-        _olympiadsType1 = new OlympiadsType
-        {
-            Id = olympiadsType.Id,
-            Name = olympiadsType.Name
-        };
+
+        _olympiadsType1 = olympiadsType;
+
         _originalOlympiad = olympiadsType;
         OkkoRedactAdd.DataContext = _olympiadsType1;
+
         BorderOlympRedAdd.IsVisible = true;
         Title = "Редактирование Олимпиады";
+        LoadComboBoxGia();
     }
 
     /// <summary>
@@ -80,17 +119,56 @@ public partial class AddAdnRedactOlympGia : Window
     /// <param name="giaItem"></param>
     public AddAdnRedactOlympGia(Item giaItem) : this()
     {
+        InitializeComponent();
         OlympAndGia1 = "ГИА";
-        _giaItem1 = new Item
-        {
-            Id = giaItem.Id,
-            Name = giaItem.Name
-        };
+
+        _giaItem1 = giaItem;
+
         _originalGiaItem = giaItem;
         OkkoRedactAdd.DataContext = _giaItem1;
+
         BorderGiaRedAdd.IsVisible = true;
         Title = "Редактирование ГИА";
+        LoadComboBoxGia();
     }
+
+
+    /// <summary>
+    /// Загрузка данных в ComboBox ГИА
+    /// </summary>
+    public void LoadComboBoxGia()
+    {
+        try
+        {
+            items1 = Helper.DateBase.Items.ToList();
+            giaTypes1 = Helper.DateBase.GiaTypes.ToList();
+
+            if (_giaSubject.Id != 0)
+            {
+                Box_GiaSubject.ItemsSource = items1.OrderByDescending(g => g.Id == _giaSubject.GiaSubjects);
+                Box_Type_GiaSubject.ItemsSource = giaTypes1.OrderByDescending(g => g.Id == _giaSubject.GiaTypeId);
+
+                Box_Type_GiaSubject.SelectedIndex = 0;
+                Box_GiaSubject.SelectedIndex = 0;
+            }
+            else
+            {
+                items1.Add(new Item() { Name = "Название предмета" });
+                giaTypes1.Add(new GiaType() { Name = "Тип ГИА" });
+
+                Box_GiaSubject.ItemsSource = items1.OrderByDescending(g => g.Name == "Название предмета");
+                Box_Type_GiaSubject.ItemsSource = giaTypes1.OrderByDescending(g => g.Name == "Тип ГИА");
+
+                Box_Type_GiaSubject.SelectedIndex = 0;
+                Box_GiaSubject.SelectedIndex = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке ComboBox: {ex.Message}");
+        }
+    }
+
 
     /// <summary>
     /// Закрытие окна

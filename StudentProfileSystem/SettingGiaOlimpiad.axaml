@@ -38,14 +38,86 @@
 			</Button>
 
 		</DockPanel>
+
 		
 		
+		
+		
+		<Border Name="Border_List_GiaSubject"
+				IsVisible="False"
+				Grid.ColumnSpan="5"
+				Grid.RowSpan="3"
+				Grid.Row="1"
+				Margin="20">
+
+			<ListBox CornerRadius="10"
+					 DoubleTapped="ListBox_DoubleTapped_GiaSubject"
+					 BorderThickness="2"
+					 BorderBrush="Gray"
+					 Background="#FFF8E1"
+					 Name="ListBox_GiaSubject">
+
+				<ListBox.ContextMenu>
+					<ContextMenu Background="#FFF8E1">
+						<MenuItem Header="Удалить"
+								  Click="MenuItem_Click_Delete_GiaSubject"/>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderThickness="2"
+								BorderBrush="Gray"
+								CornerRadius="10"
+								Background="#E8F5E9">
+							<Grid ColumnDefinitions="*"
+								  RowDefinitions="*"
+								  Margin="10">
+
+								<StackPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="ГИА:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding GiaType.Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="Предмет:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding GiaSubjectsNavigation.Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+								</StackPanel>
+
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+		</Border>
+
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
 				   Margin="20 0 0 0"
 				   Grid.ColumnSpan="4"
 				   Grid.Column="0"
 				   Grid.Row="4">
+
+			<Button Name="Add_GiaSubject"
+					IsVisible="False"
+					Click="Button_Click_Add_GiaSubject">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
 
 			<Button Name="AddGiaBut"
 					IsVisible="False"
@@ -177,5 +249,6 @@
 			</ListBox>
 
 		</Border>
+	
 	</Grid>
 </Window>

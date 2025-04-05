@@ -20,6 +20,10 @@ public partial class SettingGiaOlimpiad : Window
 {
     List<Item> items = new List<Item>();
     List<OlympiadsType> olympiadType = new List<OlympiadsType>();
+
+    List<GiaSubject> giaSubjects1 = new List<GiaSubject>();
+    List<Olympiad> olympiada1 = new List<Olympiad>();
+
     private string OlympAndGia1;
 
     public SettingGiaOlimpiad()
@@ -30,7 +34,7 @@ public partial class SettingGiaOlimpiad : Window
     public SettingGiaOlimpiad(string OlympAndGia)
     {
         InitializeComponent();
-
+        
         OlympAndGia1 = OlympAndGia;
         Title = OlympAndGia1;
 
@@ -50,6 +54,16 @@ public partial class SettingGiaOlimpiad : Window
             BorderListOlymp.IsVisible = true;
             olympiadType = Helper.DateBase.OlympiadsTypes.ToList();
             ListBox_Olymp.ItemsSource = olympiadType;
+        }
+        else if (OlympAndGia1 == "Добавление ГИА")
+        {
+            AddOlympBut.IsVisible = false;
+            BorderListOlymp.IsVisible = false;
+            BorderListGia.IsVisible = false;
+
+            Border_List_GiaSubject.IsVisible = true;
+            giaSubjects1 = Helper.DateBase.GiaSubjects.ToList();
+            ListBox_GiaSubject.ItemsSource = giaSubjects1;
         }
     }
 
@@ -125,6 +139,7 @@ public partial class SettingGiaOlimpiad : Window
         this.Classes.Add("blur-effect");
         try
         {
+            OlympAndGia1 = "ГИА";
             var dialog = new AddAdnRedactOlympGia(OlympAndGia1);
             await dialog.ShowDialog(this);
 
@@ -147,6 +162,7 @@ public partial class SettingGiaOlimpiad : Window
         this.Classes.Add("blur-effect");
         try
         {
+            OlympAndGia1 = "Олимпиады";
             var dialog = new AddAdnRedactOlympGia(OlympAndGia1);
             await dialog.ShowDialog<bool>(this);
 
@@ -160,14 +176,149 @@ public partial class SettingGiaOlimpiad : Window
     }
 
 
+
     /// <summary>
-    /// Отображение предметов
+    /// Редактирование Олимпиады "Смена предмета и самой олимпиады"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ListBox_DoubleTapped_ListOlympiads(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+    }
+
+    /// <summary>
+    /// Удаление олимпиады "Связи в таблице Olympiad"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void MenuItem_Click_Delete_ListOlympiads(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Редактирование ГИА "Смена предмета и самого тип ГИА"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void ListBox_DoubleTapped_GiaSubject(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+        var selected = ListBox_GiaSubject.SelectedItem as GiaSubject;
+        if (selected == null) return;
+
+        this.Classes.Add("blur-effect");
+        try
+        {
+            var dialog = new AddAdnRedactOlympGia(selected);
+            await dialog.ShowDialog(this);
+
+            // Обновляем список
+            olympiadType = Helper.DateBase.OlympiadsTypes.ToList();
+            ListBox_Olymp.ItemsSource = olympiadType;
+        }
+        finally
+        {
+            this.Classes.Remove("blur-effect");
+        }
+    }
+
+
+    /// <summary>
+    /// Добавление новой связи в GiaSubject
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void Button_Click_Add_GiaSubject(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        this.Classes.Add("blur-effect");
+        try
+        {
+            OlympAndGia1 = "Настройка ГИА";
+            var dialog = new AddAdnRedactOlympGia(OlympAndGia1);
+            await dialog.ShowDialog(this);
+
+            giaSubjects1 = Helper.DateBase.GiaSubjects.Include(a => a.GiaSubjectsNavigation)
+                                                     .Include(a => a.GiaType).ToList();
+            ListBox_Gia.ItemsSource = giaSubjects1;
+        }
+        finally
+        {
+            this.Classes.Remove("blur-effect");
+        }
+    }
+
+
+
+
+
+    /// <summary>
+    /// Удаление ГИА "Связи в таблице GiaSubject"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void MenuItem_Click_Delete_GiaSubject(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var gia = ListBox_GiaSubject.SelectedItem as GiaSubject;
+        if (gia == null) return;
+
+        // Проверяем, есть ли связанные записи в StudentGiaResults
+        bool hasRelations = Helper.DateBase.StudentGiaResults.Any(sgr => sgr.IdGiaSubjects == gia.Id);
+
+        if (hasRelations)
+        {
+            await ShowCannotDeleteDialog("Этот ГИА удалить нельзя, так как он связан с результатами студентов.");
+            return;
+        }
+
+        var confirm = await ShowDeleteConfirmationDialog($"Вы уверены, что хотите удалить ГИА?");
+        if (!confirm) return;
+
+        try
+        {
+            Helper.DateBase.GiaSubjects.Remove(gia);
+            await Helper.DateBase.SaveChangesAsync();
+
+            // Обновляем список
+            giaSubjects1 = Helper.DateBase.GiaSubjects.Include(a => a.GiaSubjectsNavigation)
+                                                      .Include(a => a.GiaType)
+                                                      .ToList();
+            ListBox_GiaSubject.ItemsSource = giaSubjects1;
+
+            await ShowSuccessDialog("Связь ГИА успешно удалена");
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при удалении: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Отображение предметов 
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void Button_Click_Items_Button(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        AddGiaBut.IsVisible = true;
+        BorderListGia.IsVisible = true;
+        
+        Add_GiaSubject.IsVisible = false;
+        Border_List_GiaSubject.IsVisible = false;
 
+        items = Helper.DateBase.Items.ToList();
+        ListBox_Gia.ItemsSource = items;
     }
 
     /// <summary>
@@ -177,10 +328,15 @@ public partial class SettingGiaOlimpiad : Window
     /// <param name="e"></param>
     private void Button_Click_Examen_Gia(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        Add_GiaSubject.IsVisible = true;
+        Border_List_GiaSubject.IsVisible = true;
 
+        AddGiaBut.IsVisible = false;
+        BorderListGia.IsVisible = false;
+
+        giaSubjects1 = Helper.DateBase.GiaSubjects.Include(a => a.GiaSubjectsNavigation).Include(a => a.GiaType).ToList();
+        ListBox_GiaSubject.ItemsSource = giaSubjects1;
     }
-
-
 
     /// <summary>
     /// Удаление Предмета ГИА
@@ -529,4 +685,5 @@ public partial class SettingGiaOlimpiad : Window
         button.Click += (s, e) => (button.GetVisualRoot() as Window)?.Close();
         return button;
     }
+
 }
