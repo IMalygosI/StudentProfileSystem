@@ -9,8 +9,8 @@
         x:Class="StudentProfileSystem.StudentEditWindow"
         Title="">
 
-	<Grid ShowGridLines="True"
-		  Name="OkkoRedactAdd"
+	<Grid ShowGridLines="False"
+		  Name="OkkoRedactAndAdd"
 		  ColumnDefinitions="0.2*,*,*,*,*,0.2*"
 		  RowDefinitions="0.2*,*,*,*,0.2*">
 
@@ -22,7 +22,15 @@
 				   Grid.Row="3"
 				   Grid.RowSpan="2">
 
+			<Button Name="Save"
+					Click="Button_Click_Save">
+				<TextBlock Text="Сохранить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
 			<Button Name="Exit"
+					Margin="5 0 0 0"
 					Click="Button_Click_Close">
 				<TextBlock Text="Закрыть"
 						   HorizontalAlignment="Center"
@@ -31,7 +39,268 @@
 
 		</DockPanel>
 
-		
+		<Border BorderThickness="2"
+				BorderBrush="Gray"
+				Grid.Column="3"
+				Grid.Row="1"
+				Grid.ColumnSpan="2"
+				Grid.RowSpan="5"
+				Margin="10"
+				CornerRadius="10">
+			<Grid ShowGridLines="False"
+				  ColumnDefinitions="*,4*"
+				  RowDefinitions="0.2*,0.2*,0.1*,*,0.2*,0.2*,0.1*,*">
 
+				<TextBlock Text="Олимпиады:"
+						   Grid.Column="0"
+						   Grid.Row="0"
+						   FontWeight="Bold"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<TextBlock Text="Олимпиады:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="2"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<ComboBox Grid.Column="1"
+						  Grid.Row="0"
+						  MinWidth="350"
+						  MaxWidth="350"
+						  VerticalAlignment="Center"
+						  Margin="5 0 5 0"
+						  Name="ComboBox_Olympiad">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+
+				<DockPanel Grid.Column="1"
+						   Grid.Row="1">
+
+					<Button Click="Button_AddOlympiad_Click"
+							Margin="5">
+						<TextBlock Text="Добавить олимпиаду"/>
+					</Button>
+
+					<Button Click="Button_RemoveOlympiad_Click"
+							Margin="5">
+						<TextBlock Text="Удалить олимпиаду"/>
+					</Button>
+
+				</DockPanel>
+
+				<ListBox Grid.Column="0"
+						 Grid.Row="3"
+						 Grid.ColumnSpan="2"
+						 Name="ListBox_Olympiads"
+						 Margin="10"
+						 BorderThickness="2"
+						 BorderBrush="Gray">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding OlympiadsNavigation.Name}" Margin="0,0,5,0"/>
+								<TextBlock Text=" - "/>
+								<TextBlock Text="{Binding OlympiadsItemsNavigation.Name}"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+				<TextBlock Text="ГИА:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="4"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<ComboBox Grid.Column="1"
+						  Grid.Row="4"
+						  MinWidth="350"
+						  MaxWidth="350"
+						  VerticalAlignment="Center"
+						  Margin="5 0 5 0"
+						  Name="ComboBox_Gia">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+
+				<DockPanel Grid.Column="1"
+						   Grid.Row="5">
+
+					<Button Click="Button_AddGia_Click"
+							Margin="5">
+						<TextBlock Text="Добавить ГИА"/>
+					</Button>
+
+					<Button Click="Button_RemoveGia_Click"
+							Margin="5">
+						<TextBlock Text="Удалить ГИА"/>
+					</Button>
+
+				</DockPanel>
+
+				<TextBlock Text="ГИА"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="6"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+				
+				<ListBox Grid.Column="0"
+						 Grid.Row="7"
+						 Grid.ColumnSpan="2"
+						 Name="ListBox_Gias"
+						 Margin="10"
+						 BorderThickness="2"
+						 BorderBrush="Gray">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding GiaSubjectsNavigation.Name}" Margin="0,0,5,0"/>
+								<TextBlock Text=" - "/>
+								<TextBlock Text="{Binding GiaType.Name}"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Grid>
+			
+		</Border>
+
+		<Border BorderThickness="2"
+				BorderBrush="Gray"
+				Grid.Column="1"
+				Grid.Row="1"
+				Grid.ColumnSpan="2"
+				Grid.RowSpan="1"
+				Margin="10"
+				CornerRadius="10">
+
+			<Grid ShowGridLines="False"
+				  ColumnDefinitions="*,2*"
+				  RowDefinitions="*,*,*,*,*">
+
+				<TextBlock Text="Фамилия:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<TextBox HorizontalAlignment="Left"
+						 MinWidth="350"
+						 MaxWidth="350"
+						 VerticalAlignment="Center"
+						 Grid.Column="1"
+						 Grid.Row="0"
+						 Margin="5 0 0 0"
+						 TextInput="TextBox_TextInput"
+						 Watermark="Фамилия"
+						 Name="LastName"
+						 Text="{Binding LastName}"
+						 CornerRadius="10"/>
+
+				<TextBlock Text="Имя:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="1"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<TextBox HorizontalAlignment="Left"
+						 MinWidth="350"
+						 MaxWidth="350"
+						 VerticalAlignment="Center"
+						 Grid.Column="1"
+						 Grid.Row="1"
+						 Margin="5 0 0 0"
+						 TextInput="TextBox_TextInput"
+						 CornerRadius="10"
+						 Name="FirstName"
+						 Text="{Binding FirstName}"
+						 Watermark="Имя"/>
+
+				<TextBlock Text="Отчество:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="2"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<TextBox HorizontalAlignment="Left"
+						 MinWidth="350"
+						 MaxWidth="350"
+						 VerticalAlignment="Center"
+						 Grid.Column="1"
+						 Grid.Row="2"
+						 Margin="5 0 0 0"
+						 TextInput="TextBox_TextInput"
+						 CornerRadius="10"
+						 Name="Patronymic"
+						 Text="{Binding Patronymic}"
+						 Watermark="Отчество"/>
+
+				<TextBlock Text="Школа:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="3"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<ComboBox Grid.Column="1"
+						  Grid.Row="3"
+						  MinWidth="350"
+						  MaxWidth="350"
+						  VerticalAlignment="Center"
+						  Margin="5 0 5 0"
+						  Name="ComboBox_School">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+
+				<TextBlock Text="Класс:"
+						   FontWeight="Bold"
+						   Grid.Column="0"
+						   Grid.Row="4"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   Margin="0 0 5 0"/>
+
+				<ComboBox Grid.Column="1"
+						  Grid.Row="4"
+						  MinWidth="350"
+						  MaxWidth="350"
+						  VerticalAlignment="Center"
+						  Margin="5 0 5 0"
+						  Name="ComboBox_Class">
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding ClassesNumber}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+
+			</Grid>
+		</Border>
 	</Grid>
+
 </Window>

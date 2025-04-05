@@ -41,8 +41,7 @@ public partial class AddAdnRedactOlympGia : Window
 
         OkkoRedactAdd.DataContext = _giaItem1;
 
-        LoadComboBoxGia();
-        LoadComboBoxOlympiad();
+        LoadComboBoxData();
     }
 
     /// <summary>
@@ -60,8 +59,7 @@ public partial class AddAdnRedactOlympGia : Window
         OkkoRedactAdd.DataContext = _giaSubject;
         BorderGiaSubject.IsVisible = true;
 
-        LoadComboBoxGia();
-        LoadComboBoxOlympiad();
+        LoadComboBoxData();
 
         if (_giaSubject.Id != 0)
         {
@@ -85,8 +83,7 @@ public partial class AddAdnRedactOlympGia : Window
         OkkoRedactAdd.DataContext = _Olympiad;
         BorderOlympiad.IsVisible = true;
 
-        LoadComboBoxGia();
-        LoadComboBoxOlympiad();
+        LoadComboBoxData();
 
         if (_Olympiad.Id != 0)
         {
@@ -154,8 +151,7 @@ public partial class AddAdnRedactOlympGia : Window
 
             Title = "Настройка Олимпиад";
         }
-        LoadComboBoxGia();
-        LoadComboBoxOlympiad();
+        LoadComboBoxData();
     }
 
     /// <summary>
@@ -173,8 +169,7 @@ public partial class AddAdnRedactOlympGia : Window
 
         BorderOlympRedAdd.IsVisible = true;
         Title = "Редактирование Олимпиады";
-        LoadComboBoxGia();
-        LoadComboBoxOlympiad();
+        LoadComboBoxData();
     }
 
     /// <summary>
@@ -192,6 +187,14 @@ public partial class AddAdnRedactOlympGia : Window
 
         BorderGiaRedAdd.IsVisible = true;
         Title = "Редактирование ГИА";
+        LoadComboBoxData();
+    }
+
+    /// <summary>
+    /// Загрузка комбобоксов
+    /// </summary>
+    public void LoadComboBoxData()
+    {
         LoadComboBoxGia();
         LoadComboBoxOlympiad();
     }

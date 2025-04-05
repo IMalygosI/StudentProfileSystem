@@ -50,9 +50,8 @@ public partial class ImcContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("ID");
             entity.Property(e => e.ClassesNumber)
-                .HasMaxLength(100)
+                .HasMaxLength(10)
                 .HasColumnName("Classes_Number");
-            entity.Property(e => e.Letter).HasMaxLength(10);
         });
 
         modelBuilder.Entity<GiaSubject>(entity =>
