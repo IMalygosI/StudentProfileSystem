@@ -18,6 +18,7 @@ public partial class AddAdnRedactOlympGia : Window
 {
     private Item _giaItem1;
     private GiaSubject _giaSubject;
+    private Olympiad _Olympiad;
     private OlympiadsType _olympiadsType1;
     private Item _originalGiaItem;
     private OlympiadsType _originalOlympiad;
@@ -27,15 +28,21 @@ public partial class AddAdnRedactOlympGia : Window
 
     List<GiaType> giaTypes1 = new List<GiaType>();
     List<Item> items1 = new List<Item>();
+    List<OlympiadsType> _OlympiadsTypes = new List<OlympiadsType>();
 
     public AddAdnRedactOlympGia()
     {
         InitializeComponent();
+
         _giaItem1 = new Item();
         _olympiadsType1 = new OlympiadsType();
         _giaSubject = new GiaSubject();
+        _Olympiad = new Olympiad();
+
         OkkoRedactAdd.DataContext = _giaItem1;
+
         LoadComboBoxGia();
+        LoadComboBoxOlympiad();
     }
 
     /// <summary>
@@ -45,18 +52,46 @@ public partial class AddAdnRedactOlympGia : Window
     public AddAdnRedactOlympGia(GiaSubject giaSubject) : this()
     {
         InitializeComponent();
+
         Title = "Смена ГИА";
         OlympAndGia1 = "Смена ГИА";
 
         _giaSubject = giaSubject ?? new GiaSubject();
         OkkoRedactAdd.DataContext = _giaSubject;
         BorderGiaSubject.IsVisible = true;
+
         LoadComboBoxGia();
+        LoadComboBoxOlympiad();
 
         if (_giaSubject.Id != 0)
         {
             Box_GiaSubject.SelectedItem = items1.FirstOrDefault(i => i.Id == _giaSubject.GiaSubjects);
             Box_Type_GiaSubject.SelectedItem = giaTypes1.FirstOrDefault(g => g.Id == _giaSubject.GiaTypeId);
+        }
+    }
+
+    /// <summary>
+    /// Конструктор для смены Олимпиады
+    /// </summary>
+    /// <param name="olympiad"></param>
+    public AddAdnRedactOlympGia(Olympiad olympiad) : this()
+    {
+        InitializeComponent();
+
+        Title = "Смена олимпиады";
+        OlympAndGia1 = "Смена олимпиады";
+
+        _Olympiad = olympiad ?? new Olympiad();
+        OkkoRedactAdd.DataContext = _Olympiad;
+        BorderOlympiad.IsVisible = true;
+
+        LoadComboBoxGia();
+        LoadComboBoxOlympiad();
+
+        if (_Olympiad.Id != 0)
+        {
+            Box_Olympiad.SelectedItem = _OlympiadsTypes.FirstOrDefault(o => o.Id == _Olympiad.Olympiads);
+            Box_Type_Olympiad.SelectedItem = items1.FirstOrDefault(i => i.Id == _Olympiad.OlympiadsItems);
         }
     }
 
@@ -75,9 +110,10 @@ public partial class AddAdnRedactOlympGia : Window
             _originalGiaItem = _giaItem1;
             OkkoRedactAdd.DataContext = _giaItem1;
 
-            BorderGiaRedAdd.IsVisible = true;
             BorderGiaSubject.IsVisible = false;
             BorderOlympRedAdd.IsVisible = false;
+            BorderOlympiad.IsVisible = false;
+            BorderGiaRedAdd.IsVisible = true;
 
             Title = "Добавление предмета ГИА";
         }
@@ -89,6 +125,7 @@ public partial class AddAdnRedactOlympGia : Window
 
             BorderGiaRedAdd.IsVisible = false;
             BorderGiaSubject.IsVisible = false;
+            BorderOlympiad.IsVisible = false;
             BorderOlympRedAdd.IsVisible = true;
 
             Title = "Добавление Олимпиады";
@@ -100,11 +137,25 @@ public partial class AddAdnRedactOlympGia : Window
 
             BorderGiaRedAdd.IsVisible = false;
             BorderOlympRedAdd.IsVisible = false;
+            BorderOlympiad.IsVisible = false;
             BorderGiaSubject.IsVisible = true;
 
             Title = "Настройка ГИА";
         }
+        else if (OlympAndGia1 == "Настройка Олимпиад")
+        {
+            _Olympiad = new Olympiad();
+            OkkoRedactAdd.DataContext = _Olympiad;
+
+            BorderGiaRedAdd.IsVisible = false;
+            BorderOlympRedAdd.IsVisible = false;
+            BorderGiaSubject.IsVisible = false;
+            BorderOlympiad.IsVisible = true;
+
+            Title = "Настройка Олимпиад";
+        }
         LoadComboBoxGia();
+        LoadComboBoxOlympiad();
     }
 
     /// <summary>
@@ -123,6 +174,7 @@ public partial class AddAdnRedactOlympGia : Window
         BorderOlympRedAdd.IsVisible = true;
         Title = "Редактирование Олимпиады";
         LoadComboBoxGia();
+        LoadComboBoxOlympiad();
     }
 
     /// <summary>
@@ -141,6 +193,46 @@ public partial class AddAdnRedactOlympGia : Window
         BorderGiaRedAdd.IsVisible = true;
         Title = "Редактирование ГИА";
         LoadComboBoxGia();
+        LoadComboBoxOlympiad();
+    }
+
+    /// <summary>
+    /// Загрузка данных в ComboBox для олимпиад
+    /// </summary>
+    public void LoadComboBoxOlympiad()
+    {
+        try
+        {
+            items1 = Helper.DateBase.Items.ToList();
+            _OlympiadsTypes = Helper.DateBase.OlympiadsTypes.ToList();
+
+            if (_Olympiad.Id != 0)
+            {
+                Box_Olympiad.ItemsSource = _OlympiadsTypes.OrderBy(o => o.Name);
+                Box_Type_Olympiad.ItemsSource = items1.OrderBy(i => i.Name);
+
+                Box_Olympiad.SelectedItem = _OlympiadsTypes.FirstOrDefault(o => o.Id == _Olympiad.Olympiads);
+                Box_Type_Olympiad.SelectedItem = items1.FirstOrDefault(i => i.Id == _Olympiad.OlympiadsItems);
+            }
+            else
+            {
+                var tempTypes = new List<OlympiadsType>(_OlympiadsTypes);
+                tempTypes.Insert(0, new OlympiadsType() { Id = 0, Name = "Тип олимпиады" });
+
+                var tempItems = new List<Item>(items1);
+                tempItems.Insert(0, new Item() { Id = 0, Name = "Название предмета" });
+
+                Box_Olympiad.ItemsSource = tempTypes.OrderByDescending(o => o.Id == 0);
+                Box_Type_Olympiad.ItemsSource = tempItems.OrderByDescending(i => i.Id == 0);
+
+                Box_Olympiad.SelectedIndex = 0;
+                Box_Type_Olympiad.SelectedIndex = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке ComboBox: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -163,7 +255,6 @@ public partial class AddAdnRedactOlympGia : Window
             }
             else
             {
-                // Добавляем пустые элементы для подсказки
                 var tempItems = new List<Item>(items1);
                 tempItems.Insert(0, new Item() { Id = 0, Name = "Название предмета" });
 
@@ -182,8 +273,6 @@ public partial class AddAdnRedactOlympGia : Window
             Console.WriteLine($"Ошибка при загрузке ComboBox: {ex.Message}");
         }
     }
-
-
 
     /// <summary>
     /// Закрытие окна
@@ -220,6 +309,10 @@ public partial class AddAdnRedactOlympGia : Window
             else if (OlympAndGia1 == "Смена ГИА" || OlympAndGia1 == "Настройка ГИА")
             {
                 saveResult = await SaveGiaSubject();
+            }
+            else if (OlympAndGia1 == "Смена олимпиады" || OlympAndGia1 == "Настройка Олимпиад")
+            {
+                saveResult = await SaveOlympiad();
             }
 
             if (saveResult)
@@ -300,41 +393,51 @@ public partial class AddAdnRedactOlympGia : Window
     }
 
     /// <summary>
-    /// Сохраняет изменения олимпиады в базу данных
+    /// Сохраняет настройки олимпиады (связь предмета и типа олимпиады)
     /// </summary>
     /// <returns>Результат операции сохранения</returns>
-    private async Task<bool> SaveOlympiadItem()
+    private async Task<bool> SaveOlympiad()
     {
-        if (string.IsNullOrWhiteSpace(_olympiadsType1.Name))
-        {
-            await ShowErrorDialog("Название олимпиады не может быть пустым");
-            return false;
-        }
-
-        if (_olympiadsType1.Name.Length > 100)
-        {
-            await ShowErrorDialog("Название олимпиады должно быть не длиннее 100 символов");
-            return false;
-        }
-
         try
         {
-            if (_originalOlympiad.Id == 0)
+            var selectedType = Box_Olympiad.SelectedItem as OlympiadsType;
+            var selectedItem = Box_Type_Olympiad.SelectedItem as Item;
+
+            // Проверка что выбраны не подсказки (Id != 0)
+            if (selectedType == null || selectedType.Id == 0 ||
+                selectedItem == null || selectedItem.Id == 0)
+            { await ShowErrorDialog("Выберите тип олимпиады и предмет из списка!"); return false; }
+
+            // Проверка что выбраны реальные элементы (не подсказки)
+            if (selectedType.Name == "Тип олимпиады" ||
+                selectedItem.Name == "Название предмета")
+            { await ShowErrorDialog("Выберите тип олимпиады и предмет из списка!"); return false; }
+
+            _Olympiad.Olympiads = selectedType.Id;
+            _Olympiad.OlympiadsItems = selectedItem.Id;
+
+            // Проверка на существование такой же связи (для нового или измененного)
+            bool exists = Helper.DateBase.Olympiads
+                .Any(o => o.Olympiads == selectedType.Id &&
+                         o.OlympiadsItems == selectedItem.Id &&
+                         o.Id != _Olympiad.Id); // Исключаем текущую запись при редактировании
+
+            if (exists)
             {
-                Helper.DateBase.OlympiadsTypes.Add(new OlympiadsType { Name = _olympiadsType1.Name });
+                await ShowErrorDialog("Такая связь уже существует!");
+                return false;
+            }
+
+            if (_Olympiad.Id == 0)
+            {
+                Helper.DateBase.Olympiads.Add(_Olympiad);
             }
             else
             {
-                _originalOlympiad.Name = _olympiadsType1.Name;
-                Helper.DateBase.OlympiadsTypes.Update(_originalOlympiad);
+                Helper.DateBase.Olympiads.Update(_Olympiad);
             }
 
             return await Helper.DateBase.SaveChangesAsync() > 0;
-        }
-        catch (DbUpdateException dbEx)
-        {
-            await ShowErrorDialog($"Ошибка базы данных: {dbEx.InnerException?.Message ?? dbEx.Message}");
-            return false;
         }
         catch (Exception ex)
         {
@@ -343,10 +446,6 @@ public partial class AddAdnRedactOlympGia : Window
         }
     }
 
-    /// <summary>
-    /// Сохраняет настройки предмета ГИА
-    /// </summary>
-    /// <returns>Результат операции сохранения</returns>
     /// <summary>
     /// Сохраняет настройки предмета ГИА (связь предмета и типа ГИА)
     /// </summary>
@@ -358,7 +457,7 @@ public partial class AddAdnRedactOlympGia : Window
             var selectedItem = Box_GiaSubject.SelectedItem as Item;
             var selectedType = Box_Type_GiaSubject.SelectedItem as GiaType;
 
-            // Проверка что выбраны не подсказки (Id != 0)
+            // Проверка что выбраны не нулевые значения (Id != 0)
             if (selectedItem == null || selectedItem.Id == 0 ||
                 selectedType == null || selectedType.Id == 0)
             {
@@ -398,6 +497,50 @@ public partial class AddAdnRedactOlympGia : Window
             }
 
             return await Helper.DateBase.SaveChangesAsync() > 0;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при сохранении: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Сохраняет изменения олимпиады в базу данных
+    /// </summary>
+    /// <returns>Результат операции сохранения</returns>
+    private async Task<bool> SaveOlympiadItem()
+    {
+        if (string.IsNullOrWhiteSpace(_olympiadsType1.Name))
+        {
+            await ShowErrorDialog("Название олимпиады не может быть пустым");
+            return false;
+        }
+
+        if (_olympiadsType1.Name.Length > 100)
+        {
+            await ShowErrorDialog("Название олимпиады должно быть не длиннее 100 символов");
+            return false;
+        }
+
+        try
+        {
+            if (_originalOlympiad.Id == 0)
+            {
+                Helper.DateBase.OlympiadsTypes.Add(new OlympiadsType { Name = _olympiadsType1.Name });
+            }
+            else
+            {
+                _originalOlympiad.Name = _olympiadsType1.Name;
+                Helper.DateBase.OlympiadsTypes.Update(_originalOlympiad);
+            }
+
+            return await Helper.DateBase.SaveChangesAsync() > 0;
+        }
+        catch (DbUpdateException dbEx)
+        {
+            await ShowErrorDialog($"Ошибка базы данных: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            return false;
         }
         catch (Exception ex)
         {

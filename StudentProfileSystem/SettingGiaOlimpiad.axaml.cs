@@ -44,6 +44,7 @@ public partial class SettingGiaOlimpiad : Window
             Examen_Gia.IsVisible = true;
             AddGiaBut.IsVisible = true;
             BorderListGia.IsVisible = true;
+
             items = Helper.DateBase.Items.ToList();
             ListBox_Gia.ItemsSource = items;
 
@@ -52,6 +53,9 @@ public partial class SettingGiaOlimpiad : Window
         {
             AddOlympBut.IsVisible = true;
             BorderListOlymp.IsVisible = true;
+            Olympiad_Button.IsVisible = true;
+            Type_Olympiad.IsVisible = true;
+
             olympiadType = Helper.DateBase.OlympiadsTypes.ToList();
             ListBox_Olymp.ItemsSource = olympiadType;
         }
@@ -60,8 +64,22 @@ public partial class SettingGiaOlimpiad : Window
             AddOlympBut.IsVisible = false;
             BorderListOlymp.IsVisible = false;
             BorderListGia.IsVisible = false;
-
             Border_List_GiaSubject.IsVisible = true;
+
+            giaSubjects1 = Helper.DateBase.GiaSubjects.ToList();
+            ListBox_GiaSubject.ItemsSource = giaSubjects1;
+        }
+        else if (OlympAndGia1 == "Добавление Олимпиады")
+        {
+            AddOlympBut.IsVisible = false;
+            BorderListOlymp.IsVisible = false;
+            BorderListGia.IsVisible = false;
+            Border_List_GiaSubject.IsVisible = false;
+
+            Add_Olympiad.IsVisible = true;
+            Border_List_Olympiad.IsVisible = true;
+
+
             giaSubjects1 = Helper.DateBase.GiaSubjects.ToList();
             ListBox_GiaSubject.ItemsSource = giaSubjects1;
         }
@@ -178,26 +196,6 @@ public partial class SettingGiaOlimpiad : Window
 
 
     /// <summary>
-    /// Редактирование Олимпиады "Смена предмета и самой олимпиады"
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ListBox_DoubleTapped_ListOlympiads(object? sender, Avalonia.Input.TappedEventArgs e)
-    {
-    }
-
-    /// <summary>
-    /// Удаление олимпиады "Связи в таблице Olympiad"
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void MenuItem_Click_Delete_ListOlympiads(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-
-    }
-
-
-    /// <summary>
     /// Редактирование ГИА "Смена предмета и самого тип ГИА"
     /// </summary>
     /// <param name="sender">Источник события</param>
@@ -298,6 +296,152 @@ public partial class SettingGiaOlimpiad : Window
         {
             await ShowErrorDialog($"Ошибка при удалении: {ex.Message}");
         }
+    }
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Редактирование олимпиады "Смена предмета и типа олимпиады"
+    /// </summary>
+    /// <param name="sender">Источник события</param>
+    /// <param name="e">Аргументы события</param>
+    private async void ListBox_DoubleTapped_ListOlympiads(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+        var selected = ListBox_Olympiad.SelectedItem as Olympiad;
+        if (selected == null) return;
+
+        this.Classes.Add("blur-effect");
+        try
+        {
+            var dialog = new AddAdnRedactOlympGia(selected);
+            bool result = await dialog.ShowDialog(this);
+
+            // Обновляем списки после редактирования
+            if (result)
+            {
+                olympiada1 = Helper.DateBase.Olympiads
+                    .Include(a => a.OlympiadsNavigation)
+                    .Include(a => a.OlympiadsItemsNavigation)
+                    .ToList();
+                ListBox_Olympiad.ItemsSource = olympiada1;
+            }
+        }
+        finally
+        {
+            this.Classes.Remove("blur-effect");
+        }
+    }
+
+    /// <summary>
+    /// Добавление новой связи в Olympiad (предмет + тип олимпиады)
+    /// </summary>
+    /// <param name="sender">Источник события</param>
+    /// <param name="e">Аргументы события</param>
+    private async void Button_Click_Add_Olympiad(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        this.Classes.Add("blur-effect");
+        try
+        {
+            OlympAndGia1 = "Настройка Олимпиад";
+            var dialog = new AddAdnRedactOlympGia(OlympAndGia1);
+            bool result = await dialog.ShowDialog(this);
+
+            // Обновляем списки после добавления
+            if (result)
+            {
+                olympiada1 = Helper.DateBase.Olympiads
+                    .Include(a => a.OlympiadsNavigation)
+                    .Include(a => a.OlympiadsItemsNavigation)
+                    .ToList();
+                ListBox_Olympiad.ItemsSource = olympiada1;
+            }
+        }
+        finally
+        {
+            this.Classes.Remove("blur-effect");
+        }
+    }
+
+    /// <summary>
+    /// Удаление олимпиады "Связи в таблице Olympiad"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void MenuItem_Click_Delete_Olympiad(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var olympiad = ListBox_Olympiad.SelectedItem as Olympiad;
+        if (olympiad == null) return;
+
+        // Проверяем, есть ли связанные записи в StudentOlympiadParticipations
+        bool hasRelations = Helper.DateBase.StudentOlympiadParticipations.Any(sop => sop.IdOlympiads == olympiad.Id);
+
+        if (hasRelations)
+        {
+            await ShowCannotDeleteDialog("Эту олимпиаду удалить нельзя, так как она связана с участием студентов.");
+            return;
+        }
+
+        var confirm = await ShowDeleteConfirmationDialog($"Вы уверены, что хотите удалить олимпиаду?");
+        if (!confirm) return;
+
+        try
+        {
+            Helper.DateBase.Olympiads.Remove(olympiad);
+            await Helper.DateBase.SaveChangesAsync();
+
+            // Обновляем список
+            olympiada1 = Helper.DateBase.Olympiads
+                .Include(a => a.OlympiadsNavigation)
+                .Include(a => a.OlympiadsItemsNavigation)
+                .ToList();
+            ListBox_Olympiad.ItemsSource = olympiada1;
+
+            await ShowSuccessDialog("Связь олимпиады успешно удалена");
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при удалении: {ex.Message}");
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// Показываем окно с Олимпиадами, связь с предметами
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Button_Click_Type_Olympiad(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        AddOlympBut.IsVisible = false;
+        BorderListOlymp.IsVisible = false;
+        Add_Olympiad.IsVisible = true;
+        Border_List_Olympiad.IsVisible = true;
+
+        olympiada1 = Helper.DateBase.Olympiads.Include(a => a.OlympiadsNavigation).Include(a => a.OlympiadsItemsNavigation).ToList();
+        ListBox_Olympiad.ItemsSource = olympiada1;
+    }
+
+    /// <summary>
+    /// Показываем Олимпиады
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Button_Click_Olympiad_Button(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        AddOlympBut.IsVisible = true;
+        BorderListOlymp.IsVisible = true;
+        Add_Olympiad.IsVisible = false;
+        Border_List_Olympiad.IsVisible = false;
+
+        olympiadType = Helper.DateBase.OlympiadsTypes.ToList();
+        ListBox_Olymp.ItemsSource = olympiadType;
     }
 
     /// <summary>
@@ -681,4 +825,5 @@ public partial class SettingGiaOlimpiad : Window
         button.Click += (s, e) => (button.GetVisualRoot() as Window)?.Close();
         return button;
     }
+
 }

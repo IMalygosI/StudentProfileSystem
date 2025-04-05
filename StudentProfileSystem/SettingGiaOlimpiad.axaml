@@ -15,6 +15,55 @@
 
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="4"
+				   Grid.Column="0"
+				   Grid.Row="4">
+
+			<Button Name="Add_Olympiad"
+					IsVisible="False"
+					Click="Button_Click_Add_Olympiad">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="Add_GiaSubject"
+					IsVisible="False"
+					Click="Button_Click_Add_GiaSubject">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="AddGiaBut"
+					IsVisible="False"
+					Click="Click_Add_Gia">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="AddOlympBut"
+					IsVisible="False"
+					Click="Click_Add_Olymp">
+				<TextBlock Text="Добавить"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="Exit"
+					Margin="5 0 0 0"
+					Click="Button_Click_Close">
+				<TextBlock Text="Закрыть"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
 				   Grid.ColumnSpan="2"
 				   Grid.Column="0"
 				   Grid.Row="0"
@@ -37,11 +86,88 @@
 						   VerticalAlignment="Center"/>
 			</Button>
 
+
+
+			<Button Name="Olympiad_Button"
+					IsVisible="False"
+					Click="Button_Click_Olympiad_Button">
+				<TextBlock Text="Олимпиады"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Name="Type_Olympiad"
+					Margin="5 0 0 0"
+					IsVisible="False"
+					Click="Button_Click_Type_Olympiad">
+				<TextBlock Text="Олимпиады - Предметы"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+
 		</DockPanel>
 
-		
-		
-		
+		<Border Name="Border_List_Olympiad"
+				IsVisible="False"
+				Grid.ColumnSpan="5"
+				Grid.RowSpan="3"
+				Grid.Row="1"
+				Margin="20">
+
+			<ListBox CornerRadius="10"
+					 DoubleTapped="ListBox_DoubleTapped_ListOlympiads"
+					 BorderThickness="2"
+					 BorderBrush="Gray"
+					 Background="#FFF8E1"
+					 Name="ListBox_Olympiad">
+
+				<ListBox.ContextMenu>
+					<ContextMenu Background="#FFF8E1">
+						<MenuItem Header="Удалить"
+								  Click="MenuItem_Click_Delete_Olympiad"/>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderThickness="2"
+								BorderBrush="Gray"
+								CornerRadius="10"
+								Background="#E8F5E9">
+							<Grid ColumnDefinitions="*"
+								  RowDefinitions="*"
+								  Margin="10">
+
+								<StackPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="Олимпиада:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding OlympiadsNavigation.Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+									<DockPanel Margin="5 10 0 0">
+
+										<TextBlock Text="Предмет:"
+												   Margin="5 0 0 0"/>
+										<TextBlock Text="{Binding OlympiadsItemsNavigation.Name}"
+												   Margin="5 0 0 0"/>
+
+									</DockPanel>
+
+								</StackPanel>
+
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+		</Border>
 		
 		<Border Name="Border_List_GiaSubject"
 				IsVisible="False"
@@ -103,47 +229,6 @@
 			</ListBox>
 
 		</Border>
-
-		<DockPanel HorizontalAlignment="Left"
-				   VerticalAlignment="Center"
-				   Margin="20 0 0 0"
-				   Grid.ColumnSpan="4"
-				   Grid.Column="0"
-				   Grid.Row="4">
-
-			<Button Name="Add_GiaSubject"
-					IsVisible="False"
-					Click="Button_Click_Add_GiaSubject">
-				<TextBlock Text="Добавить"
-						   HorizontalAlignment="Center"
-						   VerticalAlignment="Center"/>
-			</Button>
-
-			<Button Name="AddGiaBut"
-					IsVisible="False"
-					Click="Click_Add_Gia">
-				<TextBlock Text="Добавить"
-						   HorizontalAlignment="Center"
-						   VerticalAlignment="Center"/>
-			</Button>
-
-			<Button Name="AddOlympBut"
-					IsVisible="False"
-					Click="Click_Add_Olymp">
-				<TextBlock Text="Добавить"
-						   HorizontalAlignment="Center"
-						   VerticalAlignment="Center"/>
-			</Button>
-
-			<Button Name="Exit"
-					Margin="5 0 0 0"
-					Click="Button_Click_Close">
-				<TextBlock Text="Закрыть"
-						   HorizontalAlignment="Center"
-						   VerticalAlignment="Center"/>
-			</Button>
-
-		</DockPanel>
 
 		<Border Name="BorderListOlymp"
 				IsVisible="False"
