@@ -197,22 +197,11 @@ public partial class SettingGiaOlimpiad : Window
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Редактирование ГИА "Смена предмета и самого тип ГИА"
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    /// <param name="sender">Источник события</param>
+    /// <param name="e">Аргументы события</param>
     private async void ListBox_DoubleTapped_GiaSubject(object? sender, Avalonia.Input.TappedEventArgs e)
     {
         var selected = ListBox_GiaSubject.SelectedItem as GiaSubject;
@@ -222,11 +211,17 @@ public partial class SettingGiaOlimpiad : Window
         try
         {
             var dialog = new AddAdnRedactOlympGia(selected);
-            await dialog.ShowDialog(this);
+            bool result = await dialog.ShowDialog(this);
 
-            // Обновляем список
-            olympiadType = Helper.DateBase.OlympiadsTypes.ToList();
-            ListBox_Olymp.ItemsSource = olympiadType;
+            // Обновляем списки после редактирования
+            if (result)
+            {
+                giaSubjects1 = Helper.DateBase.GiaSubjects
+                    .Include(a => a.GiaSubjectsNavigation)
+                    .Include(a => a.GiaType)
+                    .ToList();
+                ListBox_GiaSubject.ItemsSource = giaSubjects1;
+            }
         }
         finally
         {
@@ -234,12 +229,11 @@ public partial class SettingGiaOlimpiad : Window
         }
     }
 
-
     /// <summary>
-    /// Добавление новой связи в GiaSubject
+    /// Добавление новой связи в GiaSubject (предмет + тип ГИА)
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    /// <param name="sender">Источник события</param>
+    /// <param name="e">Аргументы события</param>
     private async void Button_Click_Add_GiaSubject(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         this.Classes.Add("blur-effect");
@@ -247,21 +241,23 @@ public partial class SettingGiaOlimpiad : Window
         {
             OlympAndGia1 = "Настройка ГИА";
             var dialog = new AddAdnRedactOlympGia(OlympAndGia1);
-            await dialog.ShowDialog(this);
+            bool result = await dialog.ShowDialog(this);
 
-            giaSubjects1 = Helper.DateBase.GiaSubjects.Include(a => a.GiaSubjectsNavigation)
-                                                     .Include(a => a.GiaType).ToList();
-            ListBox_Gia.ItemsSource = giaSubjects1;
+            // Обновляем списки после добавления
+            if (result)
+            {
+                giaSubjects1 = Helper.DateBase.GiaSubjects
+                    .Include(a => a.GiaSubjectsNavigation)
+                    .Include(a => a.GiaType)
+                    .ToList();
+                ListBox_GiaSubject.ItemsSource = giaSubjects1;
+            }
         }
         finally
         {
             this.Classes.Remove("blur-effect");
         }
     }
-
-
-
-
 
     /// <summary>
     /// Удаление ГИА "Связи в таблице GiaSubject"
@@ -685,5 +681,4 @@ public partial class SettingGiaOlimpiad : Window
         button.Click += (s, e) => (button.GetVisualRoot() as Window)?.Close();
         return button;
     }
-
 }
