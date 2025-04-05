@@ -7,7 +7,7 @@
 		WindowState="Normal"
         x:Class="StudentProfileSystem.AddAdnRedactOlympGia"
 		x:CompileBindings="False"
-        Title="AddAdnRedactOlympGia">
+        Title="">
 
 	<Grid ShowGridLines="False"
 		  Name="OkkoRedactAdd"

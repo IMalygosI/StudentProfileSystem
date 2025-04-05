@@ -3,20 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\addadnredactolympgia.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\addadnredactolympgia.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\addadnredactolympgia.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
-      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\addadnredactolympgia.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
+      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\settinggiaolimpiad.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\settinggiaolimpiad.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\settinggiaolimpiad.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
       "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\settinggiaolimpiad.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\settinggiaolimpiad.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\settinggiaolimpiad.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -39,31 +31,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AddAdnRedactOlympGia.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\AddAdnRedactOlympGia.axaml.cs",
-              "RelativeDocumentMoniker": "StudentProfileSystem\\AddAdnRedactOlympGia.axaml.cs",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\AddAdnRedactOlympGia.axaml.cs",
-              "RelativeToolTip": "StudentProfileSystem\\AddAdnRedactOlympGia.axaml.cs",
-              "ViewState": "AgIAAOsAAAAAAAAAAAAwwBUBAAAgAAAAAAAAAA==",
+              "Title": "SettingGiaOlimpiad.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
+              "RelativeDocumentMoniker": "StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
+              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
+              "RelativeToolTip": "StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAArwGkAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-05T00:47:27.314Z",
+              "WhenOpened": "2025-04-04T21:10:24.225Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AddAdnRedactOlympGia.axaml",
-              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\AddAdnRedactOlympGia.axaml",
-              "RelativeDocumentMoniker": "StudentProfileSystem\\AddAdnRedactOlympGia.axaml",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\AddAdnRedactOlympGia.axaml",
-              "RelativeToolTip": "StudentProfileSystem\\AddAdnRedactOlympGia.axaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-05T00:47:25.611Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "SettingGiaOlimpiad.axaml",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\SettingGiaOlimpiad.axaml",
               "RelativeDocumentMoniker": "StudentProfileSystem\\SettingGiaOlimpiad.axaml",
@@ -71,19 +51,6 @@
               "RelativeToolTip": "StudentProfileSystem\\SettingGiaOlimpiad.axaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-04-04T21:25:21.153Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SettingGiaOlimpiad.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
-              "RelativeDocumentMoniker": "StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
-              "RelativeToolTip": "StudentProfileSystem\\SettingGiaOlimpiad.axaml.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-04T21:10:24.225Z",
               "EditorCaption": ""
             }
           ]

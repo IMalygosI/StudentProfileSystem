@@ -20,6 +20,7 @@ public partial class AddAdnRedactOlympGia : Window
     private string OlympAndGia1;
     private Item _originalGiaItem;
     private OlympiadsType _originalOlympiad;
+    private bool _isSaved = false;
 
     public AddAdnRedactOlympGia()
     {
@@ -29,6 +30,10 @@ public partial class AddAdnRedactOlympGia : Window
         OkkoRedactAdd.DataContext = _giaItem1;
     }
 
+    /// <summary>
+    /// Добавление предмета ГИА или Олимпиады
+    /// </summary>
+    /// <param name="OlympAndGia"></param>
     public AddAdnRedactOlympGia(string OlympAndGia) : this()
     {
         OlympAndGia1 = OlympAndGia;
@@ -36,7 +41,7 @@ public partial class AddAdnRedactOlympGia : Window
         if (OlympAndGia1 == "ГИА")
         {
             _giaItem1 = new Item();
-            _originalGiaItem = _giaItem1; // Инициализируем оригинальный объект
+            _originalGiaItem = _giaItem1;
             OkkoRedactAdd.DataContext = _giaItem1;
             BorderGiaRedAdd.IsVisible = true;
             Title = "Добавление предмета ГИА";
@@ -44,20 +49,24 @@ public partial class AddAdnRedactOlympGia : Window
         else if (OlympAndGia1 == "Олимпиады")
         {
             _olympiadsType1 = new OlympiadsType();
-            _originalOlympiad = _olympiadsType1; // Инициализируем оригинальный объект
+            _originalOlympiad = _olympiadsType1;
             OkkoRedactAdd.DataContext = _olympiadsType1;
             BorderOlympRedAdd.IsVisible = true;
             Title = "Добавление Олимпиады";
         }
     }
 
+    /// <summary>
+    /// Редактирование Олимпиад
+    /// </summary>
+    /// <param name="olympiadsType"></param>
     public AddAdnRedactOlympGia(OlympiadsType olympiadsType) : this()
     {
+        OlympAndGia1 = "Олимпиады";
         _olympiadsType1 = new OlympiadsType
         {
             Id = olympiadsType.Id,
             Name = olympiadsType.Name
-            // Копируем остальные свойства
         };
         _originalOlympiad = olympiadsType;
         OkkoRedactAdd.DataContext = _olympiadsType1;
@@ -65,13 +74,17 @@ public partial class AddAdnRedactOlympGia : Window
         Title = "Редактирование Олимпиады";
     }
 
+    /// <summary>
+    /// Редактирование ГИА
+    /// </summary>
+    /// <param name="giaItem"></param>
     public AddAdnRedactOlympGia(Item giaItem) : this()
     {
+        OlympAndGia1 = "ГИА";
         _giaItem1 = new Item
         {
             Id = giaItem.Id,
             Name = giaItem.Name
-            // Копируем остальные свойства
         };
         _originalGiaItem = giaItem;
         OkkoRedactAdd.DataContext = _giaItem1;
@@ -79,11 +92,21 @@ public partial class AddAdnRedactOlympGia : Window
         Title = "Редактирование ГИА";
     }
 
+    /// <summary>
+    /// Закрытие окна
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Button_Click_Close(object? sender, RoutedEventArgs e)
     {
-        Close();
+        Close(false);
     }
 
+    /// <summary>
+    /// Сохранение изменений
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private async void Button_Click_Save(object? sender, RoutedEventArgs e)
     {
         var confirm = await ShowConfirmationDialog();
@@ -104,16 +127,47 @@ public partial class AddAdnRedactOlympGia : Window
 
             if (saveResult)
             {
+                // Обновляем оригинальные объекты
+                if (_originalGiaItem != null)
+                {
+                    _originalGiaItem.Name = _giaItem1.Name;
+                }
+                if (_originalOlympiad != null)
+                {
+                    _originalOlympiad.Name = _olympiadsType1.Name;
+                }
+
                 await ShowSuccessDialog("Данные успешно сохранены!");
-                Close();
+                Close(true);
             }
         }
         catch (Exception ex)
         {
-            await ShowErrorDialog($"Критическая ошибка: {ex.Message}");
+            await ShowErrorDialog($"Ошибка при сохранении: {ex.Message}");
         }
     }
 
+    /// <summary>
+    /// Показывает модальное диалоговое окно и возвращает результат сохранения
+    /// </summary>
+    /// <param name="owner"></param>
+    /// <returns></returns>
+    public new async Task<bool> ShowDialog(Window owner)
+    {
+        await base.ShowDialog(owner);
+        return _isSaved;
+    }
+
+    public void Close(bool result)
+    {
+        _isSaved = result;
+        base.Close();
+    }
+
+    /// <summary>
+    /// Показывает диалоговое окно с подтверждением сохранения
+    /// </summary>
+    /// <returns></returns>
     private async Task<bool> ShowConfirmationDialog()
     {
         var message = OlympAndGia1 == "ГИА"
@@ -125,7 +179,7 @@ public partial class AddAdnRedactOlympGia : Window
 
         Button CreateDialogButton(string text, IBrush background, bool dialogResult)
         {
-            var button = new Button
+            return new Button
             {
                 Content = new TextBlock
                 {
@@ -135,19 +189,18 @@ public partial class AddAdnRedactOlympGia : Window
                     VerticalAlignment = VerticalAlignment.Center
                 },
                 Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Center,
                 Height = 30,
                 Background = background,
                 Margin = new Thickness(5)
             };
-
-            button.Click += (s, e) =>
-            {
-                result = dialogResult;
-                dialog?.Close();
-            };
-
-            return button;
         }
+
+        var yesButton = CreateDialogButton("Да", Brushes.Green, true);
+        var noButton = CreateDialogButton("Нет", Brushes.Red, false);
+
+        yesButton.Click += (s, e) => { result = true; dialog?.Close(); };
+        noButton.Click += (s, e) => { result = false; dialog?.Close(); };
 
         dialog = new Window
         {
@@ -182,14 +235,14 @@ public partial class AddAdnRedactOlympGia : Window
                                     Margin = new Thickness(0, 0, 0, 20),
                                     FontSize = 16
                                 },
-                                new DockPanel
+                                new StackPanel
                                 {
+                                    Orientation = Orientation.Horizontal,
                                     HorizontalAlignment = HorizontalAlignment.Center,
-                                    LastChildFill = false,
                                     Children =
                                     {
-                                        CreateDialogButton("Да", Brushes.Green, true),
-                                        CreateDialogButton("Нет", Brushes.Red, false)
+                                        yesButton,
+                                        noButton
                                     }
                                 }
                             }
@@ -203,6 +256,10 @@ public partial class AddAdnRedactOlympGia : Window
         return result;
     }
 
+    /// <summary>
+    /// Сохраняет изменения Предмета ГИА в базу данных
+    /// </summary>
+    /// <returns></returns>
     private async Task<bool> SaveGiaItem()
     {
         if (string.IsNullOrWhiteSpace(_giaItem1.Name))
@@ -221,11 +278,7 @@ public partial class AddAdnRedactOlympGia : Window
         {
             if (_originalGiaItem.Id == 0)
             {
-                var newItem = new Item
-                {
-                    Name = _giaItem1.Name
-                };
-                Helper.DateBase.Items.Add(newItem);
+                Helper.DateBase.Items.Add(new Item { Name = _giaItem1.Name });
             }
             else
             {
@@ -233,8 +286,7 @@ public partial class AddAdnRedactOlympGia : Window
                 Helper.DateBase.Items.Update(_originalGiaItem);
             }
 
-            int changes = await Helper.DateBase.SaveChangesAsync();
-            return changes > 0;
+            return await Helper.DateBase.SaveChangesAsync() > 0;
         }
         catch (DbUpdateException dbEx)
         {
@@ -248,6 +300,10 @@ public partial class AddAdnRedactOlympGia : Window
         }
     }
 
+    /// <summary>
+    /// Сохраняет изменения олимпиады в базу данных
+    /// </summary>
+    /// <returns></returns>
     private async Task<bool> SaveOlympiadItem()
     {
         if (string.IsNullOrWhiteSpace(_olympiadsType1.Name))
@@ -266,11 +322,7 @@ public partial class AddAdnRedactOlympGia : Window
         {
             if (_originalOlympiad.Id == 0)
             {
-                var newOlympiad = new OlympiadsType
-                {
-                    Name = _olympiadsType1.Name
-                };
-                Helper.DateBase.OlympiadsTypes.Add(newOlympiad);
+                Helper.DateBase.OlympiadsTypes.Add(new OlympiadsType { Name = _olympiadsType1.Name });
             }
             else
             {
@@ -278,8 +330,7 @@ public partial class AddAdnRedactOlympGia : Window
                 Helper.DateBase.OlympiadsTypes.Update(_originalOlympiad);
             }
 
-            int changes = await Helper.DateBase.SaveChangesAsync();
-            return changes > 0;
+            return await Helper.DateBase.SaveChangesAsync() > 0;
         }
         catch (DbUpdateException dbEx)
         {
@@ -293,18 +344,29 @@ public partial class AddAdnRedactOlympGia : Window
         }
     }
 
+    /// <summary>
+    /// Обработчик закрытия окна, отменяет несохраненные изменения в базе данных
+    /// </summary>
+    /// <param name="e"></param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        // Отменяем изменения если пользователь закрыл форму без сохранения
-        if (_originalGiaItem != null && _originalGiaItem.Id != 0)
-            Helper.DateBase.Entry(_originalGiaItem).State = EntityState.Unchanged;
+        if (!_isSaved)
+        {
+            if (_originalGiaItem != null && _originalGiaItem.Id != 0)
+                Helper.DateBase.Entry(_originalGiaItem).State = EntityState.Unchanged;
 
-        if (_originalOlympiad != null && _originalOlympiad.Id != 0)
-            Helper.DateBase.Entry(_originalOlympiad).State = EntityState.Unchanged;
+            if (_originalOlympiad != null && _originalOlympiad.Id != 0)
+                Helper.DateBase.Entry(_originalOlympiad).State = EntityState.Unchanged;
+        }
 
         base.OnClosing(e);
     }
 
+    /// <summary>
+    /// Показывает диалоговое окно с сообщением об ошибке
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
     private async Task ShowErrorDialog(string message)
     {
         var dialog = new Window
@@ -340,7 +402,14 @@ public partial class AddAdnRedactOlympGia : Window
                                     FontSize = 14,
                                     Margin = new Thickness(0, 0, 0, 20)
                                 },
-                                CreateDialogButton("OK", Brushes.Gray)
+                                new Grid
+                                {
+                                    HorizontalAlignment = HorizontalAlignment.Center,
+                                    Children =
+                                    {
+                                        CreateDialogButton("OK", Brushes.Gray)
+                                    }
+                                }
                             }
                         }
                     }
@@ -351,6 +420,11 @@ public partial class AddAdnRedactOlympGia : Window
         await dialog.ShowDialog(this);
     }
 
+    /// <summary>
+    /// Показывает диалоговое окно с сообщением об успешном выполнении
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
     private async Task ShowSuccessDialog(string message)
     {
         var dialog = new Window
@@ -386,7 +460,14 @@ public partial class AddAdnRedactOlympGia : Window
                                     FontSize = 14,
                                     Margin = new Thickness(0, 0, 0, 20)
                                 },
-                                CreateDialogButton("OK", Brushes.Green)
+                                new Grid
+                                {
+                                    HorizontalAlignment = HorizontalAlignment.Center,
+                                    Children =
+                                    {
+                                        CreateDialogButton("OK", Brushes.Green)
+                                    }
+                                }
                             }
                         }
                     }
@@ -397,6 +478,12 @@ public partial class AddAdnRedactOlympGia : Window
         await dialog.ShowDialog(this);
     }
 
+    /// <summary>
+    /// Создает кнопку для диалоговых окон, ОК
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="background"></param>
+    /// <returns></returns>
     private Button CreateDialogButton(string text, IBrush background)
     {
         var button = new Button
@@ -409,6 +496,7 @@ public partial class AddAdnRedactOlympGia : Window
                 VerticalAlignment = VerticalAlignment.Center
             },
             Width = 100,
+            HorizontalAlignment = HorizontalAlignment.Center,
             Height = 30,
             Background = background,
             Margin = new Thickness(5)
