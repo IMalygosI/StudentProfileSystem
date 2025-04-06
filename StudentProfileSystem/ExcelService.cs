@@ -12,6 +12,7 @@ using StudentProfileSystem.Models;
 using StudentProfileSystem.Context;
 using Microsoft.EntityFrameworkCore;
 using Avalonia.VisualTree;
+using Avalonia.Controls.Primitives;
 
 namespace StudentProfileSystem.Services
 {
@@ -32,7 +33,7 @@ namespace StudentProfileSystem.Services
         }
 
         /// <summary>
-        /// Экспорт данных из БД в Exel
+        /// Экспорт данных из БД в Exel с поддержкой нескольких ГИА и олимпиад
         /// </summary>
         /// <param name="parentWindow"></param>
         /// <param name="students"></param>
@@ -42,7 +43,7 @@ namespace StudentProfileSystem.Services
             try
             {
                 // Подтверждение экспорта
-                var confirm = await ShowConfirmationDialog( parentWindow, "Подтверждение экспорта", "Вы уверены, что хотите экспортировать данные в Excel?");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение экспорта", "Вы уверены, что хотите экспортировать данные в Excel?");
 
                 if (!confirm) return;
 
@@ -61,20 +62,20 @@ namespace StudentProfileSystem.Services
                     var worksheet = workbook.Worksheets.Add("Ученики");
 
                     // Заголовки
-                    var headers = new[] 
-                    { 
-                        "Фамилия", 
-                        "Имя", 
-                        "Отчество", 
-                        "Класс", 
-                        "Школа", 
-                        "Номер школы", 
-                        "Район", 
-                        "Город", 
-                        "Тип ГИА", 
-                        "Предмет ГИА", 
-                        "Тип Олимпиады", 
-                        "Предмет Олимпиады" 
+                    var headers = new[]
+                    {
+                        "Фамилия",
+                        "Имя",
+                        "Отчество",
+                        "Класс",
+                        "Школа",
+                        "Номер школы",
+                        "Район",
+                        "Город",
+                        "Тип ГИА",
+                        "Предмет ГИА",
+                        "Тип Олимпиады",
+                        "Предмет Олимпиады"
                     };
 
                     for (int i = 0; i < headers.Length; i++)
@@ -96,19 +97,19 @@ namespace StudentProfileSystem.Services
                         worksheet.Cell(row, 7).Value = student.School?.District;
                         worksheet.Cell(row, 8).Value = student.School?.City;
 
-                        var gia = student.StudentGiaResults.FirstOrDefault();
-                        if (gia != null)
-                        {
-                            worksheet.Cell(row, 9).Value = gia.IdGiaSubjectsNavigation?.GiaType?.Name;
-                            worksheet.Cell(row, 10).Value = gia.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name;
-                        }
+                        // Обработка нескольких ГИА
+                        var giaResults = student.StudentGiaResults.Select(g => $"{g.IdGiaSubjectsNavigation?.GiaType?.Name}:" +
+                                                                               $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name}").Distinct();
 
-                        var olympiad = student.StudentOlympiadParticipations.FirstOrDefault();
-                        if (olympiad != null)
-                        {
-                            worksheet.Cell(row, 11).Value = olympiad.IdOlympiadsNavigation?.OlympiadsNavigation?.Name;
-                            worksheet.Cell(row, 12).Value = olympiad.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name;
-                        }
+                        worksheet.Cell(row, 9).Value = string.Join(",", giaResults.Select(g => g.Split(':')[0]));
+                        worksheet.Cell(row, 10).Value = string.Join(",", giaResults.Select(g => g.Split(':')[1]));
+
+                        // Обработка нескольких олимпиад
+                        var olympiads = student.StudentOlympiadParticipations.Select(o => $"{o.IdOlympiadsNavigation?.OlympiadsNavigation?.Name}:" +
+                                                                                          $"{o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name}").Distinct();
+
+                        worksheet.Cell(row, 11).Value = string.Join(",", olympiads.Select(o => o.Split(':')[0]));
+                        worksheet.Cell(row, 12).Value = string.Join(",", olympiads.Select(o => o.Split(':')[1]));
 
                         row++;
                     }
@@ -126,7 +127,7 @@ namespace StudentProfileSystem.Services
         }
 
         /// <summary>
-        /// Импорт данных в БД
+        /// Импорт данных в БД с проверкой ошибок
         /// </summary>
         /// <param name="parentWindow"></param>
         /// <returns></returns>
@@ -134,8 +135,7 @@ namespace StudentProfileSystem.Services
         {
             try
             {
-                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение импорта", 
-                "Вы уверены, что хотите импортировать данные из Excel? Существующие данные не будут удалены.");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение импорта", "Вы уверены, что хотите импортировать данные из Excel?");
 
                 if (!confirm) return false;
 
@@ -149,6 +149,29 @@ namespace StudentProfileSystem.Services
                 var filePaths = await openDialog.ShowAsync(parentWindow);
                 if (filePaths == null || filePaths.Length == 0) return false;
 
+                try
+                {            
+                    // Пытаемся открыть файл для чтения, чтобы проверить, не заблокирован ли он
+                    using (var fileStream = new FileStream(filePaths[0], FileMode.Open, FileAccess.Read, FileShare.None))
+                    {
+                        fileStream.Close();
+                    }
+                }
+                catch (IOException)
+                {
+                    await ShowCustomMessage(parentWindow, "Ошибка", "Необходимо закрыть импортируемый файл Excel", Brushes.Red);
+                    return false;
+                }
+
+                // Проверяем данные
+                var validationResult = await ValidateExcelData(filePaths[0], parentWindow);
+                if (!validationResult.IsValid)
+                {
+                    await ShowCustomMessage(parentWindow, "Ошибка валидации", $"Обнаружены ошибки в данных:\n{string.Join("\n", validationResult.Errors)}", Brushes.Red);
+                    return false;
+                }
+
+                // Если проверка пройдена - импортируем
                 using (var workbook = new XLWorkbook(filePaths[0]))
                 {
                     var worksheet = workbook.Worksheet(1);
@@ -167,11 +190,7 @@ namespace StudentProfileSystem.Services
                         School school = null;
                         if (!string.IsNullOrEmpty(schoolName) && !schoolsCache.TryGetValue(schoolName, out school))
                         {
-                            school = await GetOrCreateSchoolAsync(
-                                name: schoolName,
-                                number: row.Cell(6).GetString(),
-                                district: row.Cell(7).GetString(),
-                                city: row.Cell(8).GetString());
+                            school = await GetOrCreateSchoolAsync(name: schoolName, number: row.Cell(6).GetString(), district: row.Cell(7).GetString(), city: row.Cell(8).GetString());
                             schoolsCache[schoolName] = school;
                         }
 
@@ -196,31 +215,140 @@ namespace StudentProfileSystem.Services
                         await AddStudentAsync(student);
 
                         // Обработка ГИА
-                        var giaTypeName = row.Cell(9).GetString();
-                        var giaSubjectName = row.Cell(10).GetString();
-                        if (!string.IsNullOrEmpty(giaTypeName) && !string.IsNullOrEmpty(giaSubjectName))
+                        var giaTypes = row.Cell(9).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var giaSubjects = row.Cell(10).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (giaTypes != null && giaSubjects != null && giaTypes.Length == giaSubjects.Length)
                         {
-                            var giaSubject = await GetOrCreateGiaSubjectAsync(giaTypeName, giaSubjectName);
-                            await AddGiaResultAsync(student.Id, giaSubject.Id);
+                            for (int i = 0; i < giaTypes.Length; i++)
+                            {
+                                var giaTypeName = giaTypes[i].Trim();
+                                var giaSubjectName = giaSubjects[i].Trim();
+
+                                if (!string.IsNullOrEmpty(giaTypeName) && !string.IsNullOrEmpty(giaSubjectName))
+                                {
+                                    var giaSubject = await GetOrCreateGiaSubjectAsync(giaTypeName, giaSubjectName);
+                                    await AddGiaResultAsync(student.Id, giaSubject.Id);
+                                }
+                            }
                         }
 
                         // Обработка олимпиад
-                        var olympiadTypeName = row.Cell(11).GetString();
-                        var olympiadSubjectName = row.Cell(12).GetString();
-                        if (!string.IsNullOrEmpty(olympiadTypeName) && !string.IsNullOrEmpty(olympiadSubjectName))
+                        var olympiadTypes = row.Cell(11).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var olympiadSubjects = row.Cell(12).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (olympiadTypes != null && olympiadSubjects != null && olympiadTypes.Length == olympiadSubjects.Length)
                         {
-                            var olympiad = await GetOrCreateOlympiadAsync(olympiadTypeName, olympiadSubjectName);
-                            await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
+                            for (int i = 0; i < olympiadTypes.Length; i++)
+                            {
+                                var olympiadTypeName = olympiadTypes[i].Trim();
+                                var olympiadSubjectName = olympiadSubjects[i].Trim();
+
+                                if (!string.IsNullOrEmpty(olympiadTypeName) && !string.IsNullOrEmpty(olympiadSubjectName))
+                                {
+                                    var olympiad = await GetOrCreateOlympiadAsync(olympiadTypeName, olympiadSubjectName);
+                                    await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
+                                }
+                            }
                         }
                     }
                 }
 
-                await ShowCustomMessage(parentWindow, "Импорт завершен", "Данные успешно импортированы из Excel!", Brushes.Green); return true;
+                await ShowCustomMessage(parentWindow, "Импорт завершен", "Данные успешно импортированы из Excel!", Brushes.Green);
+                return true;
             }
             catch (Exception ex)
             {
-                await ShowCustomMessage(parentWindow, "Ошибка импорта", $"Произошла ошибка: {ex.Message}", Brushes.Red); return false;
+                await ShowCustomMessage(parentWindow, "Ошибка импорта", $"Произошла ошибка: {ex.Message}", Brushes.Red);
+                return false;
             }
+        }
+
+        /// <summary>
+        /// Проверка данных в Excel файле перед импортом (добавлена проверка пустых значений)
+        /// </summary>
+        private async Task<ValidationResult> ValidateExcelData(string filePath, Window parentWindow)
+        {
+            var result = new ValidationResult { IsValid = true, Errors = new List<string>() };
+
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var rows = worksheet.RowsUsed().Skip(1);
+
+                    int rowNum = 2;
+                    foreach (var row in rows)
+                    {
+                        // Проверка обязательных полей
+                        if (string.IsNullOrWhiteSpace(row.Cell(1).GetString()))
+                            result.Errors.Add($"Строка {rowNum}: Не указана фамилия");
+
+                        if (string.IsNullOrWhiteSpace(row.Cell(2).GetString()))
+                            result.Errors.Add($"Строка {rowNum}: Не указано имя");
+
+                        // Улучшенная проверка ГИА
+                        var giaTypes = row.Cell(9).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var giaSubjects = row.Cell(10).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (giaTypes != null && giaSubjects != null)
+                        {
+                            if (giaTypes.Length != giaSubjects.Length)
+                            {
+                                result.Errors.Add($"Строка {rowNum}: Количество типов ГИА ({giaTypes.Length}) не соответствует количеству предметов ({giaSubjects.Length})");
+                            }
+
+                            // Дополнительная проверка на пустые значения
+                            if (giaTypes.Any(string.IsNullOrWhiteSpace) || giaSubjects.Any(string.IsNullOrWhiteSpace))
+                            {
+                                result.Errors.Add($"Строка {rowNum}: Обнаружены пустые значения в типах ГИА или предметах");
+                            }
+                        }
+
+                        // Улучшенная проверка олимпиад
+                        var olympiadTypes = row.Cell(11).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var olympiadSubjects = row.Cell(12).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (olympiadTypes != null && olympiadSubjects != null)
+                        {
+                            if (olympiadTypes.Length != olympiadSubjects.Length)
+                            {
+                                result.Errors.Add($"Строка {rowNum}: Количество типов олимпиад ({olympiadTypes.Length}) не соответствует количеству предметов ({olympiadSubjects.Length})");
+                            }
+
+                            // Дополнительная проверка на пустые значения
+                            if (olympiadTypes.Any(string.IsNullOrWhiteSpace) || olympiadSubjects.Any(string.IsNullOrWhiteSpace))
+                            {
+                                result.Errors.Add($"Строка {rowNum}: Обнаружены пустые значения в типах олимпиад или предметах");
+                            }
+                        }
+
+                        rowNum++;
+                    }
+                }
+
+                if (result.Errors.Any())
+                {
+                    result.IsValid = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.IsValid = false;
+                result.Errors.Add($"Ошибка при проверке файла: {ex.Message}");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Результат валидации Excel файла, служит для хранения результатов проверки данных в Excel-файле перед их импортом в базу данных.
+        /// </summary>
+        private class ValidationResult
+        {
+            public bool IsValid { get; set; }
+            public List<string> Errors { get; set; } = new List<string>();
         }
 
         /// <summary>
@@ -297,18 +425,21 @@ namespace StudentProfileSystem.Services
         }
 
         /// <summary>
-        /// Показывает информационное сообщение с кнопкой OK
+        /// Показывает информационное сообщение с возможностью прокрутки для ошибок
         /// </summary>
-        /// <param name="parentWindow">Родительское окно</param>
-        /// <param name="title">Заголовок окна</param>
-        /// <param name="message">Текст сообщения</param>
+        /// <param name="parentWindow"></param>
+        /// <param name="title"></param>
+        /// <param name="message"></param>
         /// <param name="borderBrush"></param>
         /// <returns></returns>
         private async Task ShowCustomMessage(Window parentWindow, string title, string message, IBrush borderBrush)
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            var okButton = new Button
+            // Определяем, нужно ли большое окно с прокруткой (для ошибок валидации)
+            bool isErrorWindow = borderBrush == Brushes.Red && message.Contains("Обнаружены ошибки");
+
+            Button okButton = new Button
             {
                 Content = new TextBlock
                 {
@@ -324,44 +455,68 @@ namespace StudentProfileSystem.Services
                 Margin = new Thickness(5)
             };
 
+            Control content;
+
+            if (isErrorWindow)
+            {
+                // Окно с прокруткой для ошибок
+                var scrollViewer = new ScrollViewer
+                {
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    Content = new TextBlock
+                    {
+                        Text = message,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontSize = 14
+                    },
+                    MaxHeight = 300
+                };
+
+                content = new StackPanel
+                {
+                    Children = { scrollViewer, okButton },
+                    Margin = new Thickness(15)
+                };
+            }
+            else
+            {
+                // окно для обычных сообщений
+                content = new StackPanel
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Children =
+            {
+                new TextBlock
+                {
+                    Text = message,
+                    TextWrapping = TextWrapping.Wrap,
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 20)
+                },
+                okButton
+            }
+                };
+            }
+
             var dialog = new Window
             {
                 Title = title,
-                Width = 550,
-                Height = 250,
+                Width = isErrorWindow ? 600 : 550,
+                Height = isErrorWindow ? 400 : 250,
                 MinHeight = 250,
                 WindowState = WindowState.Normal,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 SizeToContent = SizeToContent.Manual,
-                CanResize = false,
+                CanResize = isErrorWindow,
                 Content = new Border
                 {
                     BorderBrush = borderBrush,
                     BorderThickness = new Thickness(2),
-                    Child = new Grid
-                    {
-                        Margin = new Thickness(15),
-                        Children =
-                {
-                    new StackPanel
-                    {
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Children =
-                        {
-                            new TextBlock
-                            {
-                                Text = message,
-                                TextWrapping = TextWrapping.Wrap,
-                                TextAlignment = TextAlignment.Center,
-                                FontSize = 14,
-                                Margin = new Thickness(0, 0, 0, 20)
-                            },
-                            okButton
-                        }
-                    }
-                }
-                    }
+                    Child = content,
+                    Padding = new Thickness(15)
                 }
             };
 
