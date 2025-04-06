@@ -143,6 +143,7 @@
 				 BorderThickness="2"
 				 BorderBrush="Gray"
 				 Background="#FFF8E1"
+				 SelectionMode="Multiple"
 				 Name="ListBox_Student">
 
 			<ListBox.ContextMenu>

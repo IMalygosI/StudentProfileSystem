@@ -270,14 +270,18 @@ namespace StudentProfileSystem
         }
 
         /// <summary>
-        /// Вывод диалогового окна с подтверждением Удаления Stidents
+        /// Удаления Stidents и данных что с ним связанны
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private async void MenuItem_Click_Delete(object sender, RoutedEventArgs e)
         {
-            var stud = ListBox_Student.SelectedItem as Student;
-            if (stud == null) return;
+            var selectedStudents = ListBox_Student.SelectedItems.Cast<Student>().ToList();
+            if (!selectedStudents.Any()) return;
+
+            var message = selectedStudents.Count == 1
+                ? $"Вы точно хотите удалить ученика: {selectedStudents[0].LastName} {selectedStudents[0].FirstName} {selectedStudents[0].Patronymic}?"
+                : $"Вы точно хотите удалить {selectedStudents.Count} выбранных учеников?";
 
             var Yes_Button = new Button
             {
@@ -309,7 +313,6 @@ namespace StudentProfileSystem
                 Margin = new Thickness(5)
             };
 
-            // Создание окна
             var DeleteConfirmationWindow = new Window
             {
                 Title = "Подтверждение удаления",
@@ -337,9 +340,8 @@ namespace StudentProfileSystem
                         {
                             new TextBlock
                             {
-                                Text = $"Вы точно хотите удалить ученика: {stud.LastName} {stud.FirstName} {stud.Patronymic}?",
+                                Text = message,
                                 TextWrapping = TextWrapping.Wrap,
-
                                 TextAlignment = TextAlignment.Center,
                                 Margin = new Thickness(0, 0, 0, 20),
                                 FontSize = 16
@@ -361,12 +363,11 @@ namespace StudentProfileSystem
                 }
             };
 
-            // Флаг для отслеживания подтверждения удаления
             bool isConfirmed = false;
 
             Yes_Button.Click += async (s, args) =>
             {
-                isConfirmed = true; // подтверждение удаления
+                isConfirmed = true;
                 DeleteConfirmationWindow.Close();
             };
 
@@ -377,25 +378,27 @@ namespace StudentProfileSystem
 
             await DeleteConfirmationWindow.ShowDialog(this);
 
-            // Если пользователь не подтвердил удаление выход
             if (!isConfirmed) return;
 
             using (var transaction = Helper.DateBase.Database.BeginTransaction())
             {
                 try
                 {
-                    // Удаление связанных записей ГИА
-                    var giaResults = Helper.DateBase.StudentGiaResults
-                        .Where(x => x.IdStudents == stud.Id);
-                    Helper.DateBase.StudentGiaResults.RemoveRange(giaResults);
+                    foreach (var stud in selectedStudents)
+                    {
+                        // Удаление связанных записей ГИА
+                        var giaResults = Helper.DateBase.StudentGiaResults
+                            .Where(x => x.IdStudents == stud.Id);
+                        Helper.DateBase.StudentGiaResults.RemoveRange(giaResults);
 
-                    // Удаление связанных записей Олимпиады
-                    var olympiads = Helper.DateBase.StudentOlympiadParticipations
-                        .Where(x => x.IdStudents == stud.Id);
-                    Helper.DateBase.StudentOlympiadParticipations.RemoveRange(olympiads);
+                        // Удаление связанных записей Олимпиады
+                        var olympiads = Helper.DateBase.StudentOlympiadParticipations
+                            .Where(x => x.IdStudents == stud.Id);
+                        Helper.DateBase.StudentOlympiadParticipations.RemoveRange(olympiads);
 
-                    // Удаление Students
-                    Helper.DateBase.Students.Remove(stud);
+                        // Удаление Students
+                        Helper.DateBase.Students.Remove(stud);
+                    }
 
                     await Helper.DateBase.SaveChangesAsync();
                     transaction.Commit();

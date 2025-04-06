@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\mainwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\mainwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
+      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\mainwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -18,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 334,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -31,12 +35,24 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "MainWindow.axaml",
+              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
+              "RelativeDocumentMoniker": "StudentProfileSystem\\MainWindow.axaml",
+              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml",
+              "RelativeToolTip": "StudentProfileSystem\\MainWindow.axaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-06T19:24:04.125Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ExcelService.cs",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\ExcelService.cs",
               "RelativeDocumentMoniker": "StudentProfileSystem\\ExcelService.cs",
               "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\ExcelService.cs",
               "RelativeToolTip": "StudentProfileSystem\\ExcelService.cs",
-              "ViewState": "AgIAAHsBAAAAAAAAAAAuwMMBAAA7AAAAAAAAAA==",
+              "ViewState": "AgIAAOEAAAAAAAAAAAAcwIMBAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-06T18:14:29.621Z",
               "EditorCaption": ""
@@ -49,7 +65,7 @@
               "RelativeDocumentMoniker": "StudentProfileSystem\\MainWindow.axaml.cs",
               "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\MainWindow.axaml.cs",
               "RelativeToolTip": "StudentProfileSystem\\MainWindow.axaml.cs",
-              "ViewState": "AgIAANkBAAAAAAAAAAAswAgCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAMAAAAAAAAAAAAAkwBABAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-06T17:22:28.052Z",
               "EditorCaption": ""
