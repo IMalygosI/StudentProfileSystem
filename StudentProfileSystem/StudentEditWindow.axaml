@@ -74,9 +74,16 @@
 						  VerticalAlignment="Center"
 						  Margin="5 0 5 0"
 						  Name="ComboBox_Olympiad">
+					
 					<ComboBox.ItemTemplate>
 						<DataTemplate>
-							<TextBlock Text="{Binding Name}"/>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding OlympiadsNavigation.Name}"/>
+								<TextBlock Text="-" 
+										   Margin="1 0 1 0"/>
+								<TextBlock Text="{Binding OlympiadsItemsNavigation.Name}"
+										   Margin="5 0 0 0"/>
+							</StackPanel>
 						</DataTemplate>
 					</ComboBox.ItemTemplate>
 				</ComboBox>
@@ -103,12 +110,15 @@
 						 Margin="10"
 						 BorderThickness="2"
 						 BorderBrush="Gray">
+					
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
 								<TextBlock Text="{Binding OlympiadsNavigation.Name}" Margin="0,0,5,0"/>
-								<TextBlock Text=" - "/>
-								<TextBlock Text="{Binding OlympiadsItemsNavigation.Name}"/>
+								<TextBlock Text="-" 
+										   Margin="1 0 1 0"/>
+								<TextBlock Text="{Binding OlympiadsItemsNavigation.Name}"
+										   Margin="5 0 0 0"/>
 							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
@@ -121,7 +131,7 @@
 						   HorizontalAlignment="Right"
 						   VerticalAlignment="Center"
 						   Margin="0 0 5 0"/>
-
+				
 				<ComboBox Grid.Column="1"
 						  Grid.Row="4"
 						  MinWidth="350"
@@ -129,9 +139,16 @@
 						  VerticalAlignment="Center"
 						  Margin="5 0 5 0"
 						  Name="ComboBox_Gia">
+					
 					<ComboBox.ItemTemplate>
 						<DataTemplate>
-							<TextBlock Text="{Binding Name}"/>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock Text="{Binding GiaSubjectsNavigation.Name}"/>
+								<TextBlock Text="-"
+										   Margin="1 0 1 0"/>
+								<TextBlock Text="{Binding GiaType.Name}"
+										   Margin="5 0 0 0"/>
+							</StackPanel>
 						</DataTemplate>
 					</ComboBox.ItemTemplate>
 				</ComboBox>
@@ -165,12 +182,15 @@
 						 Margin="10"
 						 BorderThickness="2"
 						 BorderBrush="Gray">
+					
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
 								<TextBlock Text="{Binding GiaSubjectsNavigation.Name}" Margin="0,0,5,0"/>
-								<TextBlock Text=" - "/>
-								<TextBlock Text="{Binding GiaType.Name}"/>
+								<TextBlock Text="-" 
+										   Margin="1 0 1 0"/>
+								<TextBlock Text="{Binding GiaType.Name}"
+										   Margin="5 0 0 0"/>
 							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>

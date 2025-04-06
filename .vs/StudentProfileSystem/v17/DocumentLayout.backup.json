@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\studenteditwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\studenteditwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\studenteditwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
       "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\studenteditwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\studenteditwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\studenteditwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\models\\olympiad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\models\\olympiad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,20 +34,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "Olympiad.cs",
+              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\Models\\Olympiad.cs",
+              "RelativeDocumentMoniker": "StudentProfileSystem\\Models\\Olympiad.cs",
+              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\Models\\Olympiad.cs",
+              "RelativeToolTip": "StudentProfileSystem\\Models\\Olympiad.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-05T22:00:32.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "StudentEditWindow.axaml.cs",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml.cs",
               "RelativeDocumentMoniker": "StudentProfileSystem\\StudentEditWindow.axaml.cs",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml.cs",
-              "RelativeToolTip": "StudentProfileSystem\\StudentEditWindow.axaml.cs",
-              "ViewState": "AgIAAFQCAAAAAAAAAAAAwH0CAAABAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml.cs*",
+              "RelativeToolTip": "StudentProfileSystem\\StudentEditWindow.axaml.cs*",
+              "ViewState": "AgIAAGsCAAAAAAAAAAAAwI4CAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-05T19:08:11.202Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "StudentEditWindow.axaml",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml",
               "RelativeDocumentMoniker": "StudentProfileSystem\\StudentEditWindow.axaml",

@@ -70,10 +70,10 @@ public partial class StudentEditWindow : Window
     {
         LoadComboBoxClass();
         LoadComboBoxSchool();
-        LoadComboBoxOlympiad(); // Добавлена загрузка олимпиад
-        LoadComboBoxGia();      // Добавлена загрузка ГИА
-        LoadStudentOlympiads();  // Загрузка олимпиад студента
-        LoadStudentGias();       // Загрузка ГИА студента
+        LoadComboBoxOlympiad();
+        LoadComboBoxGia();
+        LoadStudentOlympiads();
+        LoadStudentGias();
     }
 
     /// <summary>
@@ -221,12 +221,22 @@ public partial class StudentEditWindow : Window
             var participation = new StudentOlympiadParticipation
             {
                 IdStudents = Student1.Id,
-                IdOlympiads = selectedOlympiad.Id
+                IdOlympiads = selectedOlympiad.Id,
+                IdOlympiadsNavigation = selectedOlympiad // Добавляем навигационное свойство
             };
 
             studentOlympiads.Add(participation);
-            ListBox_Olympiads.ItemsSource = studentOlympiads.Select(sop => sop.IdOlympiadsNavigation).ToList();
+            UpdateOlympiadListBox();
         }
+    }
+
+    /// <summary>
+    /// Обновление списка олимпиад
+    /// </summary>
+    private void UpdateOlympiadListBox()
+    {
+        ListBox_Olympiads.ItemsSource = null;
+        ListBox_Olympiads.ItemsSource = studentOlympiads.Select(sop => sop.IdOlympiadsNavigation).ToList();
     }
 
     /// <summary>
@@ -241,7 +251,7 @@ public partial class StudentEditWindow : Window
         if (participation != null)
         {
             studentOlympiads.Remove(participation);
-            ListBox_Olympiads.ItemsSource = studentOlympiads.Select(sop => sop.IdOlympiadsNavigation).ToList();
+            UpdateOlympiadListBox();
         }
     }
 
@@ -258,12 +268,22 @@ public partial class StudentEditWindow : Window
             var result = new StudentGiaResult
             {
                 IdStudents = Student1.Id,
-                IdGiaSubjects = selectedGia.Id
+                IdGiaSubjects = selectedGia.Id,
+                IdGiaSubjectsNavigation = selectedGia // Добавляем навигационное свойство
             };
 
             studentGias.Add(result);
-            ListBox_Gias.ItemsSource = studentGias.Select(sgr => sgr.IdGiaSubjectsNavigation).ToList();
+            UpdateGiaListBox();
         }
+    }
+
+    /// <summary>
+    /// Обновление списка ГИА
+    /// </summary>
+    private void UpdateGiaListBox()
+    {
+        ListBox_Gias.ItemsSource = null;
+        ListBox_Gias.ItemsSource = studentGias.Select(sgr => sgr.IdGiaSubjectsNavigation).ToList();
     }
 
     /// <summary>
@@ -278,15 +298,13 @@ public partial class StudentEditWindow : Window
         if (result != null)
         {
             studentGias.Remove(result);
-            ListBox_Gias.ItemsSource = studentGias.Select(sgr => sgr.IdGiaSubjectsNavigation).ToList();
+            UpdateGiaListBox();
         }
     }
 
     /// <summary>
     /// Сохранение данных после редактирования
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private async void Button_Click_Save(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Валидация текстовых полей
@@ -338,44 +356,47 @@ public partial class StudentEditWindow : Window
                 Helper.DateBase.Students.Update(Student1);
             }
 
-            // Сохраняем олимпиады
+            // Получаем текущие записи из БД
             var existingOlympiads = Helper.DateBase.StudentOlympiadParticipations
                 .Where(sop => sop.IdStudents == Student1.Id)
                 .ToList();
 
-            // Удаляем удаленные
+            var existingGias = Helper.DateBase.StudentGiaResults
+                .Where(sgr => sgr.IdStudents == Student1.Id)
+                .ToList();
+
+            // Удаляем записи, которые есть в БД, но нет в текущем списке
             foreach (var existing in existingOlympiads)
             {
-                if (!studentOlympiads.Any(sop => sop.Id == existing.Id))
+                if (!studentOlympiads.Any(sop => sop.IdOlympiads == existing.IdOlympiads))
                 {
                     Helper.DateBase.StudentOlympiadParticipations.Remove(existing);
                 }
             }
 
-            // Добавляем новые
-            foreach (var newParticipation in studentOlympiads.Where(sop => sop.Id == 0))
-            {
-                Helper.DateBase.StudentOlympiadParticipations.Add(newParticipation);
-            }
-
-            // Сохраняем ГИА
-            var existingGias = Helper.DateBase.StudentGiaResults
-                .Where(sgr => sgr.IdStudents == Student1.Id)
-                .ToList();
-
-            // Удаляем удаленные
             foreach (var existing in existingGias)
             {
-                if (!studentGias.Any(sgr => sgr.Id == existing.Id))
+                if (!studentGias.Any(sgr => sgr.IdGiaSubjects == existing.IdGiaSubjects))
                 {
                     Helper.DateBase.StudentGiaResults.Remove(existing);
                 }
             }
 
-            // Добавляем новые
-            foreach (var newResult in studentGias.Where(sgr => sgr.Id == 0))
+            // Добавляем новые записи
+            foreach (var newParticipation in studentOlympiads)
             {
-                Helper.DateBase.StudentGiaResults.Add(newResult);
+                if (!existingOlympiads.Any(eo => eo.IdOlympiads == newParticipation.IdOlympiads))
+                {
+                    Helper.DateBase.StudentOlympiadParticipations.Add(newParticipation);
+                }
+            }
+
+            foreach (var newResult in studentGias)
+            {
+                if (!existingGias.Any(eg => eg.IdGiaSubjects == newResult.IdGiaSubjects))
+                {
+                    Helper.DateBase.StudentGiaResults.Add(newResult);
+                }
             }
 
             await Helper.DateBase.SaveChangesAsync();
@@ -613,8 +634,6 @@ public partial class StudentEditWindow : Window
     /// <summary>
     /// Блокирует ввод цифр в ФИО
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void TextBox_TextInput(object? sender, TextInputEventArgs e)
     {
         if (sender is TextBox textBox)
@@ -629,8 +648,6 @@ public partial class StudentEditWindow : Window
     /// <summary>
     /// Закрытие окна редактирования/добавления Student
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void Button_Click_Close(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close();
