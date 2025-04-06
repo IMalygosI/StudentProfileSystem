@@ -38,6 +38,9 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/RedactSchoolAndClass.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/SettingGiaOlimpiad.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 

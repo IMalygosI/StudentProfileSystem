@@ -14,6 +14,126 @@
 		  ColumnDefinitions="0.2*,*,*,0.2*"
 		  RowDefinitions="0.2*,*,0.2*">
 
+		<Border Grid.Column="1"
+				Grid.Row="1"
+				Grid.RowSpan="1"
+				Grid.ColumnSpan="2"
+				IsVisible="False"
+				BorderThickness="2"
+				BorderBrush="Gray"
+				CornerRadius="20"
+				Name="BorderRedactSchool">
+
+			<Grid ShowGridLines="False"
+				  ColumnDefinitions="*,2*"
+				  RowDefinitions="*,*,*,*,*,*,*,*">
+
+				<TextBlock Text="Школа:"
+						   Grid.Row="1"
+						   Margin="0 0 5 0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"/>
+
+				<TextBox Text="{Binding Name}"
+						 Name="School"
+						 Grid.Column="1"
+						 Grid.Row="1"
+						 Margin="5 0 0 0"
+						 Width="500"
+						 MaxLength="50"
+						 CornerRadius="10"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Center"/>
+
+				<TextBlock Text="Номер Школы:"
+						   Grid.Row="2"
+						   Margin="0 0 5 0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"/>
+
+				<TextBox Text="{Binding SchoolNumber}"
+						 Name="SchoolNumber"
+						 Grid.Column="1"
+						 Grid.Row="2"
+						 Margin="5 0 0 0"
+						 Width="500"
+						 MaxLength="50"
+						 CornerRadius="10"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Center"/>
+
+				<TextBlock Text="Район Школы:"
+						   Grid.Row="3"
+						   Margin="0 0 5 0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"/>
+
+				<TextBox Text="{Binding District}"
+						 Name="District"
+						 Grid.Column="1"
+						 Grid.Row="3"
+						 Margin="5 0 0 0"
+						 Width="500"
+						 MaxLength="50"
+						 CornerRadius="10"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Center"/>
+
+				<TextBlock Text="Город Школы:"
+						   Grid.Row="4"
+						   Margin="0 0 5 0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"/>
+
+				<TextBox Text="{Binding City}"
+						 Name="City"
+						 Grid.Column="1"
+						 Grid.Row="4"
+						 Margin="5 0 0 0"
+						 Width="500"
+						 MaxLength="50"
+						 CornerRadius="10"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Center"/>
+
+			</Grid>
+			
+		</Border>
+
+		<Border Grid.Column="1"
+				Grid.Row="1"
+				Grid.RowSpan="1"
+				Grid.ColumnSpan="2"
+				IsVisible="False"
+				BorderThickness="2"
+				BorderBrush="Gray"
+				CornerRadius="20"
+				Name="BorderRedactClass">
+
+			<Grid ShowGridLines="False"
+				  ColumnDefinitions="*,2*"
+				  RowDefinitions="*,*,*,*,*,*,*,*">
+
+				<TextBlock Text="Класс:"
+						   Grid.Row="1"
+						   Margin="0 0 5 0"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"/>
+
+				<TextBox Text="{Binding ClassesNumber}"
+						 Name="ClassesNumber"
+						 Grid.Column="1"
+						 Grid.Row="1"
+						 Margin="5 0 0 0"
+						 Width="50"
+						 MaxLength="50"
+						 CornerRadius="10"
+						 HorizontalAlignment="Left"
+						 VerticalAlignment="Center"/>
+			</Grid>
+
+		</Border>
+
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
 				   Grid.ColumnSpan="2"

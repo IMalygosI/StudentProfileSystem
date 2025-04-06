@@ -15,6 +15,30 @@
 		  RowDefinitions="0.2*,*,*,*,0.2*">
 
 		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Top"
+				   Margin="20 0 0 10"
+				   Grid.ColumnSpan="2"
+				   Grid.Column="1"
+				   Grid.Row="2"
+				   Grid.RowSpan="0">
+
+			<Button Click="Button_Click_Redact_School">
+				<TextBlock Text='Редактировать "Школы"'
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Margin="5 0 0 0"
+					Click="Button_Click_Redact_Class">
+				<TextBlock Text='Редактировать "Классы"'
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+			
+		</DockPanel>
+		
+		
+		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Bottom"
 				   Margin="20 0 0 10"
 				   Grid.ColumnSpan="2"
@@ -47,6 +71,7 @@
 				Grid.RowSpan="5"
 				Margin="10"
 				CornerRadius="10">
+			
 			<Grid ShowGridLines="False"
 				  ColumnDefinitions="*,4*"
 				  RowDefinitions="0.2*,0.2*,0.1*,*,0.2*,0.2*,0.1*,*">
@@ -321,6 +346,7 @@
 
 			</Grid>
 		</Border>
+	
 	</Grid>
 
 </Window>

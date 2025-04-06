@@ -16,19 +16,21 @@ namespace StudentProfileSystem;
 
 public partial class AddAdnRedactOlympGia : Window
 {
-    private Item _giaItem1;
-    private GiaSubject _giaSubject;
-    private Olympiad _Olympiad;
-    private OlympiadsType _olympiadsType1;
-    private Item _originalGiaItem;
-    private OlympiadsType _originalOlympiad;
-
-    private bool _isSaved = false;
-    private string OlympAndGia1;
-
     List<GiaType> giaTypes1 = new List<GiaType>();
     List<Item> items1 = new List<Item>();
     List<OlympiadsType> _OlympiadsTypes = new List<OlympiadsType>();
+
+    private OlympiadsType _originalOlympiad;
+    private OlympiadsType _olympiadsType1;
+    private Item _giaItem1;
+    private Item _originalGiaItem;
+    private GiaSubject _giaSubject;
+    private Olympiad _Olympiad;
+    private Class _class;
+    private School _School;
+
+    private bool _isSaved = false;
+    private string OlympAndGia1;
 
     public AddAdnRedactOlympGia()
     {
@@ -42,6 +44,36 @@ public partial class AddAdnRedactOlympGia : Window
         OkkoRedactAdd.DataContext = _giaItem1;
 
         LoadComboBoxData();
+    }
+
+    /// <summary>
+    /// Конструктор для редактирования школы
+    /// </summary>
+    public AddAdnRedactOlympGia(School school) : this()
+    {
+        InitializeComponent();
+
+        _School = school ?? new School();
+        OkkoRedactAdd.DataContext = _School;
+
+        BorderRedactSchool.IsVisible = true;
+
+        Title = school.Id == 0 ? "Добавление школы" : "Редактирование школы";
+    }
+
+    /// <summary>
+    /// Конструктор для редактирования Классов
+    /// </summary>
+    public AddAdnRedactOlympGia(Class _Class) : this()
+    {
+        InitializeComponent();
+
+        _class = _Class ?? new Class();
+        OkkoRedactAdd.DataContext = _class;
+
+        BorderRedactClass.IsVisible = true;
+
+        Title = _Class.Id == 0 ? "Добавление класса" : "Редактирование класса";
     }
 
     /// <summary>
@@ -301,7 +333,15 @@ public partial class AddAdnRedactOlympGia : Window
         {
             bool saveResult = false;
 
-            if (OlympAndGia1 == "ГИА")
+            if (BorderRedactSchool.IsVisible)
+            {
+                saveResult = await SaveSchool();
+            }
+            else if (BorderRedactClass.IsVisible)
+            {
+                saveResult = await SaveClass();
+            }
+            else if (OlympAndGia1 == "ГИА")
             {
                 saveResult = await SaveGiaItem();
             }
@@ -558,9 +598,22 @@ public partial class AddAdnRedactOlympGia : Window
     /// <returns>Результат подтверждения пользователя</returns>
     private async Task<bool> ShowConfirmationDialog()
     {
-        var message = OlympAndGia1 == "ГИА"
-            ? "Вы уверены, что хотите сохранить изменения предмета ГИА?"
-            : "Вы уверены, что хотите сохранить изменения олимпиады?";
+        string message;
+
+        if (BorderRedactSchool.IsVisible)
+        {
+            message = "Вы уверены, что хотите сохранить изменения школы?";
+        }
+        else if (BorderRedactClass.IsVisible)
+        {
+            message = "Вы уверены, что хотите сохранить изменения класса?";
+        }
+        else
+        {
+            message = OlympAndGia1 == "ГИА"
+                ? "Вы уверены, что хотите сохранить изменения предмета ГИА?"
+                : "Вы уверены, что хотите сохранить изменения олимпиады?";
+        }
 
         bool result = false;
         Window dialog = null;
@@ -608,34 +661,34 @@ public partial class AddAdnRedactOlympGia : Window
                 {
                     Margin = new Thickness(15),
                     Children =
+                {
+                    new StackPanel
                     {
-                        new StackPanel
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
                         {
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Children =
+                            new TextBlock
                             {
-                                new TextBlock
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                Margin = new Thickness(0, 0, 0, 20),
+                                FontSize = 16
+                            },
+                            new StackPanel
+                            {
+                                Orientation = Orientation.Horizontal,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Children =
                                 {
-                                    Text = message,
-                                    TextWrapping = TextWrapping.Wrap,
-                                    TextAlignment = TextAlignment.Center,
-                                    Margin = new Thickness(0, 0, 0, 20),
-                                    FontSize = 16
-                                },
-                                new StackPanel
-                                {
-                                    Orientation = Orientation.Horizontal,
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    Children =
-                                    {
-                                        yesButton,
-                                        noButton
-                                    }
+                                    yesButton,
+                                    noButton
                                 }
                             }
                         }
                     }
+                }
                 }
             }
         };
@@ -804,5 +857,111 @@ public partial class AddAdnRedactOlympGia : Window
 
         button.Click += (s, e) => (button.GetVisualRoot() as Window)?.Close();
         return button;
+    }
+
+    /// <summary>
+    /// Сохраняет изменения школы в базу данных
+    /// </summary>
+    /// <returns>Результат операции сохранения</returns>
+    private async Task<bool> SaveSchool()
+    {
+        // Проверка обязательных полей
+        if (string.IsNullOrWhiteSpace(_School.Name))
+        {
+            await ShowErrorDialog("Название школы не может быть пустым");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_School.SchoolNumber))
+        {
+            await ShowErrorDialog("Номер школы не может быть пустым");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_School.District))
+        {
+            await ShowErrorDialog("Район не может быть пустым");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_School.City))
+        {
+            await ShowErrorDialog("Город не может быть пустым");
+            return false;
+        }
+
+        try
+        {
+            // Извлекаем только цифры из номера 
+            string numberDigits = Helper.ExtractDigits(_School.SchoolNumber);
+
+            // Проверяем дублирование по цифрам
+            bool exists = Helper.DateBase.Schools.AsEnumerable().Any(s => Helper.ExtractDigits(s.SchoolNumber) == numberDigits && s.Id != _School.Id);
+
+            if (exists)
+            {
+                await ShowErrorDialog("Школа с таким номером уже существует!");
+                return false;
+            }
+
+            if (_School.Id == 0)
+                Helper.DateBase.Schools.Add(_School);
+            else
+                Helper.DateBase.Schools.Update(_School);
+
+            return await Helper.DateBase.SaveChangesAsync() > 0;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Сохраняет изменения класса
+    /// </summary>
+    /// <returns>Результат операции сохранения</returns>
+    private async Task<bool> SaveClass()
+    {
+        // Проверка обязательных полей
+        if (string.IsNullOrWhiteSpace(_class.ClassesNumber))
+        {
+            await ShowErrorDialog("Номер класса не может быть пустым");
+            return false;
+        }
+
+        try
+        {
+            // Проверка на дублирование класса
+            bool classExists = Helper.DateBase.Classes.Any(c => c.ClassesNumber == _class.ClassesNumber && c.Id != _class.Id);
+
+            if (classExists)
+            {
+                await ShowErrorDialog("Класс с таким номером уже существует!");
+                return false;
+            }
+
+            if (_class.Id == 0)
+            {
+                Helper.DateBase.Classes.Add(_class);
+            }
+            else
+            {
+                Helper.DateBase.Classes.Update(_class);
+            }
+
+            return await Helper.DateBase.SaveChangesAsync() > 0;
+        }
+        catch (DbUpdateException dbEx)
+        {
+            await ShowErrorDialog($"Ошибка базы данных: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при сохранении класса: {ex.Message}");
+            return false;
+        }
     }
 }
