@@ -14,18 +14,23 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Layout;
 using DocumentFormat.OpenXml.Drawing;
+using StudentProfileSystem.Services;
 
 
 namespace StudentProfileSystem
 {
     public partial class MainWindow : Window
     {
+        private readonly ExcelService _excelService;
+
         List<Student> students = new List<Student>(); // Загрузка учеников
         List<Student> Filter_students = new List<Student>(); // фильрация учеников
 
         public MainWindow()
         {
             InitializeComponent();
+
+            _excelService = new ExcelService(Helper.DateBase);
 
             ComboBoxGia.SelectionChanged += ComboBoxGia_SelectionChanged;
             ComboBoxOlimpiad.SelectionChanged += ComboBoxOlimpiad_SelectionChanged;
@@ -514,17 +519,14 @@ namespace StudentProfileSystem
             }
         }
 
-
-
-
-
         /// <summary>
         /// Выгрузка данных в формате Exel
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button_Click_Upload_data(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private async void Button_Click_Upload_data(object? sender, RoutedEventArgs e)
         {
+            await _excelService.ExportStudentsToExcel(this, students);
         }
 
         /// <summary>
@@ -532,8 +534,12 @@ namespace StudentProfileSystem
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button_Click_Load_data(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private async void Button_Click_Load_data(object? sender, RoutedEventArgs e)
         {
+            if (await _excelService.ImportStudentsFromExcel(this))
+            {
+                LoadInitialData(); // Обновляем данные после успешного импорта
+            }
         }
 
     }

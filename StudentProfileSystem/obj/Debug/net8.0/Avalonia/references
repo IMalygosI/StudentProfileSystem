@@ -27,6 +27,8 @@ C:\Users\dimau\.nuget\packages\closedxml.parser\1.2.0\lib\netstandard2.1\ClosedX
 C:\Users\dimau\.nuget\packages\dialoghost.avalonia\0.8.1\lib\netstandard2.0\DialogHost.Avalonia.dll
 C:\Users\dimau\.nuget\packages\documentformat.openxml\3.1.1\lib\net8.0\DocumentFormat.OpenXml.dll
 C:\Users\dimau\.nuget\packages\documentformat.openxml.framework\3.1.1\lib\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\dimau\.nuget\packages\epplus\8.0.1\lib\net8.0\EPPlus.dll
+C:\Users\dimau\.nuget\packages\epplus.interfaces\8.0.0\lib\net8.0\EPPlus.Interfaces.dll
 C:\Users\dimau\.nuget\packages\exceldatareader.dataset\3.7.0\lib\netstandard2.1\ExcelDataReader.DataSet.dll
 C:\Users\dimau\.nuget\packages\exceldatareader\3.7.0\lib\netstandard2.1\ExcelDataReader.dll
 C:\Users\dimau\.nuget\packages\excelnumberformat\1.1.0\lib\netstandard2.0\ExcelNumberFormat.dll
@@ -39,12 +41,19 @@ C:\Users\dimau\.nuget\packages\microsoft.entityframeworkcore.relational\9.0.3\li
 C:\Users\dimau\.nuget\packages\microsoft.extensions.caching.abstractions\9.0.3\lib\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.caching.memory\9.0.3\lib\net8.0\Microsoft.Extensions.Caching.Memory.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.configuration.abstractions\9.0.3\lib\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.configuration\8.0.0\lib\net8.0\Microsoft.Extensions.Configuration.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.configuration.fileextensions\8.0.1\lib\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.configuration.json\8.0.1\lib\net8.0\Microsoft.Extensions.Configuration.Json.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.dependencyinjection.abstractions\9.0.3\lib\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.dependencyinjection\9.0.3\lib\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.fileproviders.abstractions\8.0.0\lib\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.fileproviders.physical\8.0.0\lib\net8.0\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\dimau\.nuget\packages\microsoft.extensions.filesystemglobbing\8.0.0\lib\net8.0\Microsoft.Extensions.FileSystemGlobbing.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.logging.abstractions\9.0.3\lib\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.logging\9.0.3\lib\net8.0\Microsoft.Extensions.Logging.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.options\9.0.3\lib\net8.0\Microsoft.Extensions.Options.dll
 C:\Users\dimau\.nuget\packages\microsoft.extensions.primitives\9.0.3\lib\net8.0\Microsoft.Extensions.Primitives.dll
+C:\Users\dimau\.nuget\packages\microsoft.io.recyclablememorystream\3.0.1\lib\net6.0\Microsoft.IO.RecyclableMemoryStream.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.VisualBasic.Core.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.VisualBasic.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\Microsoft.Win32.Primitives.dll
@@ -175,8 +184,10 @@ C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Cryptography.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Cryptography.Encoding.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Cryptography.OpenSsl.dll
+C:\Users\dimau\.nuget\packages\system.security.cryptography.pkcs\8.0.1\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Cryptography.Primitives.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Cryptography.X509Certificates.dll
+C:\Users\dimau\.nuget\packages\system.security.cryptography.xml\8.0.2\lib\net8.0\System.Security.Cryptography.Xml.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Principal.dll
 C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Security.Principal.Windows.dll

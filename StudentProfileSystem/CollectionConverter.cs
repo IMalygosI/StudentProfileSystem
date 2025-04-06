@@ -21,24 +21,18 @@ namespace StudentProfileSystem.Converters
             switch (value)
             {
                 case IEnumerable<StudentGiaResult> giaResults:
-                    return string.Join(Environment.NewLine, // Используем перенос строки вместо запятой
-                        giaResults.Select(g =>
-                            $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name} " +
-                            $"({g.IdGiaSubjectsNavigation?.GiaType?.Name})")
-                                  .Where(name => !string.IsNullOrEmpty(name)));
+                    return string.Join(Environment.NewLine, giaResults.Select(g => $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name} " +
+                                                                                   $"({g.IdGiaSubjectsNavigation?.GiaType?.Name})")
+                                                                      .Where(name => !string.IsNullOrEmpty(name)));
 
                 case IEnumerable<StudentOlympiadParticipation> olympiads:
-                    return string.Join(Environment.NewLine,
-                        olympiads.Select(o =>
-                            $"{o.IdOlympiadsNavigation?.OlympiadsNavigation?.Name} " +
-                            $"({o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name})")
-                                 .Where(name => !string.IsNullOrEmpty(name)));
+                    return string.Join(Environment.NewLine, olympiads.Select(o => $"{o.IdOlympiadsNavigation?.OlympiadsNavigation?.Name} " +
+                                                                                  $"({o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name})")
+                                                                     .Where(name => !string.IsNullOrEmpty(name)));
 
                 case IEnumerable collection when !(collection is string):
-                    return string.Join(separator,
-                        collection.Cast<object>()
-                                  .Select(x => x?.ToString())
-                                  .Where(s => !string.IsNullOrEmpty(s)));
+                    return string.Join(separator, collection.Cast<object>().Select(x => x?.ToString())
+                                                                           .Where(s => !string.IsNullOrEmpty(s)));
 
                 default:
                     return string.Empty;
