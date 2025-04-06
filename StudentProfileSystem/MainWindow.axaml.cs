@@ -481,13 +481,14 @@ namespace StudentProfileSystem
                 string olymp = "ГИА";
                 SettingGiaOlimpiad settingGiaOlimpiad = new SettingGiaOlimpiad(olymp);
                 await settingGiaOlimpiad.ShowDialog(this);
+
+                LoadInitialData(); 
             }
             finally
             {
                 this.Classes.Remove("blur-effect");
+                LoadStudents();
             }
-
-            LoadStudents();
         }
 
         /// <summary>
@@ -497,7 +498,6 @@ namespace StudentProfileSystem
         /// <param name="e"></param>
         private async void Button_Click_ComboBoxOlimpiad_Setting(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-
             this.Classes.Add("blur-effect");
 
             try
@@ -505,13 +505,13 @@ namespace StudentProfileSystem
                 string olymp = "Олимпиады";
                 SettingGiaOlimpiad settingGiaOlimpiad = new SettingGiaOlimpiad(olymp);
                 await settingGiaOlimpiad.ShowDialog(this);
+                LoadInitialData();
             }
             finally
             {
                 this.Classes.Remove("blur-effect");
+                LoadStudents();
             }
-
-            LoadStudents();
         }
 
 
