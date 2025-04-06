@@ -892,15 +892,23 @@ public partial class AddAdnRedactOlympGia : Window
 
         try
         {
-            // Извлекаем только цифры из номера 
-            string numberDigits = Helper.ExtractDigits(_School.SchoolNumber);
+            // Нормализуем номер
+            string normalizedNumber = new string(_School.SchoolNumber.Where(char.IsDigit).ToArray());
 
-            // Проверяем дублирование по цифрам
-            bool exists = Helper.DateBase.Schools.AsEnumerable().Any(s => Helper.ExtractDigits(s.SchoolNumber) == numberDigits && s.Id != _School.Id);
-
-            if (exists)
+            // Проверяем, что после нормализации в номере остались цифры
+            if (string.IsNullOrEmpty(normalizedNumber))
             {
-                await ShowErrorDialog("Школа с таким номером уже существует!");
+                await ShowErrorDialog("Номер школы должен содержать цифры");
+                return false;
+            }
+
+            // Проверяем дублирование по номеру
+            bool duplicateExists = Helper.DateBase.Schools.AsEnumerable().Any(s => new string(s.SchoolNumber.Where(char.IsDigit)
+                                                                         .ToArray()) == normalizedNumber && s.Id != _School.Id);
+
+            if (duplicateExists)
+            {
+                await ShowErrorDialog($"Школа с номером '{normalizedNumber}' уже существует!");
                 return false;
             }
 
@@ -911,9 +919,14 @@ public partial class AddAdnRedactOlympGia : Window
 
             return await Helper.DateBase.SaveChangesAsync() > 0;
         }
+        catch (DbUpdateException dbEx)
+        {
+            await ShowErrorDialog($"Ошибка базы данных: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            return false;
+        }
         catch (Exception ex)
         {
-            await ShowErrorDialog($"Ошибка: {ex.Message}");
+            await ShowErrorDialog($"Ошибка при сохранении: {ex.Message}");
             return false;
         }
     }

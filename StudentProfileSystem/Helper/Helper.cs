@@ -18,8 +18,11 @@ namespace StudentProfileSystem
         /// <returns></returns>
         public static string ExtractDigits(string input)
         {
-            if (string.IsNullOrEmpty(input)) return "";
-            return new string(input.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Удаляем символы "Включая №, пробелы, буквы и т.д." и оставляем только цифры 
+            return new string(input.Where(c => char.IsDigit(c)).ToArray());
         }
     }
 
