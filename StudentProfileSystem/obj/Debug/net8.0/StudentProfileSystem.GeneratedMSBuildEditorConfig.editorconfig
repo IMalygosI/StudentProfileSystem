@@ -35,10 +35,16 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/LoginWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/RedactSchoolAndClass.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/SchoolList.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [C:/Users/dimau/source/repos/StudentProfileSystem/StudentProfileSystem/SettingGiaOlimpiad.axaml]

@@ -26,15 +26,39 @@ namespace StudentProfileSystem
         List<Student> students = new List<Student>(); // Загрузка учеников
         List<Student> Filter_students = new List<Student>(); // фильрация учеников
 
+        private readonly int _schoolId;
+
+        public MainWindow(int schoolId)
+        {
+            InitializeComponent();
+
+            _schoolId = schoolId;
+            _excelService = new ExcelService(Helper.DateBase);
+
+            var school = Helper.DateBase.Schools.FirstOrDefault(s => s.Id == _schoolId);
+            School_Name_Id.IsVisible = true;
+            SchoolNumber.IsVisible = true;
+            School_Name_Id.Text = school?.Name;
+
+            ComboBoxGia.SelectionChanged += ComboBoxGia_SelectionChanged;
+            ComboBoxOlimpiad.SelectionChanged += ComboBoxOlimpiad_SelectionChanged;
+            ComboBoxParallel.SelectionChanged += ComboBoxParallel_SelectionChanged;
+
+            LoadInitialData();
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            School_Name_Id.IsVisible = false;
+            School_Name.IsVisible = false;
 
             _excelService = new ExcelService(Helper.DateBase);
 
             ComboBoxGia.SelectionChanged += ComboBoxGia_SelectionChanged;
             ComboBoxOlimpiad.SelectionChanged += ComboBoxOlimpiad_SelectionChanged;
-            ComboBoxGiaType.SelectionChanged += ComboBoxGiaType_SelectionChanged;
+            ComboBoxParallel.SelectionChanged += ComboBoxParallel_SelectionChanged;
 
             LoadInitialData();
         }
@@ -43,6 +67,7 @@ namespace StudentProfileSystem
         private void ComboBoxGia_SelectionChanged(object? sender, SelectionChangedEventArgs e) => Filters();
         private void ComboBoxOlimpiad_SelectionChanged(object? sender, SelectionChangedEventArgs e) => Filters();
         private void ComboBoxGiaType_SelectionChanged(object? sender, SelectionChangedEventArgs e) => Filters();
+        private void ComboBoxParallel_SelectionChanged(object? sender, SelectionChangedEventArgs e) => Filters();
 
         /// <summary>
         /// Загрузка данных {вызывать при обновлении, полное обновление данных}
@@ -58,21 +83,39 @@ namespace StudentProfileSystem
         /// </summary>
         public void LoadStudents()
         {
-            students = Helper.DateBase.Students.Include(z => z.Class)
-                                               .Include(z => z.School)
-                                               .Include(x => x.StudentGiaResults)
-                                                   .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
-                                                   .ThenInclude(x3 => x3.GiaSubjectsNavigation)
-                                               .Include(x => x.StudentGiaResults)
-                                                   .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
-                                                   .ThenInclude(x3 => x3.GiaType)
-                                                .Include(a => a.StudentOlympiadParticipations)
-                                                   .ThenInclude(a2 => a2.IdOlympiadsNavigation)
-                                                   .ThenInclude(a3 => a3.OlympiadsNavigation)
-                                                .Include(a => a.StudentOlympiadParticipations)
-                                                   .ThenInclude(a2 => a2.IdOlympiadsNavigation)
-                                                   .ThenInclude(a3 => a3.OlympiadsItemsNavigation)
-                                                .ToList();
+            if (_schoolId > 0) //  загружаем только студентов одной школы
+            {
+                students = Helper.DateBase.Students.Where(s => s.SchoolId == _schoolId)
+                                                   .Include(z => z.Class)
+                                                   .Include(z => z.School)
+                                                   .Include(x => x.StudentGiaResults)
+                                                       .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                       .ThenInclude(x3 => x3.GiaSubjectsNavigation)
+                                                  .Include(x => x.StudentGiaResults)
+                                                       .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                  .Include(a => a.StudentOlympiadParticipations)
+                                                       .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                       .ThenInclude(a3 => a3.OlympiadsNavigation)
+                                                  .Include(a => a.StudentOlympiadParticipations)
+                                                       .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                       .ThenInclude(a3 => a3.OlympiadsItemsNavigation).ToList();
+            }
+            else // загружаем всех студентов
+            {
+                students = Helper.DateBase.Students.Include(z => z.Class)
+                                                   .Include(z => z.School)
+                                                   .Include(x => x.StudentGiaResults)
+                                                       .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                       .ThenInclude(x3 => x3.GiaSubjectsNavigation)
+                                                  .Include(x => x.StudentGiaResults)
+                                                       .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                  .Include(a => a.StudentOlympiadParticipations)
+                                                       .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                       .ThenInclude(a3 => a3.OlympiadsNavigation)
+                                                  .Include(a => a.StudentOlympiadParticipations)
+                                                       .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                       .ThenInclude(a3 => a3.OlympiadsItemsNavigation).ToList();
+            }
 
             Filter_students = new List<Student>(students);
             Filters();
@@ -93,11 +136,6 @@ namespace StudentProfileSystem
                                                                 .GroupBy(a => a.OlympiadsNavigation.Name)
                                                                     .Select(g => g.First())
                                                              .ToList();
-            // Тип ГИА
-            var distinctGiaType = Helper.DateBase.GiaSubjects.Include(x => x.GiaType)
-                                                                .GroupBy(x => x.GiaType.Name)
-                                                                    .Select(g => g.First())
-                                                             .ToList();
 
             // Добавление заголовков в ComboBox
             distinctGiaSubjects.Insert(0, new GiaSubject
@@ -110,20 +148,12 @@ namespace StudentProfileSystem
                 OlympiadsNavigation = new OlympiadsType { Name = "Олимпиады" },
             });
 
-            distinctGiaType.Insert(0, new GiaSubject
-            {
-                GiaType = new GiaType { Name = "ОГЭ/ЕГЭ" },
-            });
-
             // Загрузка данных в ComboBox
             ComboBoxGia.ItemsSource = distinctGiaSubjects;
             ComboBoxGia.SelectedIndex = 0;
 
             ComboBoxOlimpiad.ItemsSource = distinctOlympiads;
             ComboBoxOlimpiad.SelectedIndex = 0;
-
-            ComboBoxGiaType.ItemsSource = distinctGiaType;
-            ComboBoxGiaType.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -134,7 +164,10 @@ namespace StudentProfileSystem
             var filtered = new List<Student>(students);
 
             // Фильтрация по поисковику
-            filtered = SearchStudents(filtered, SearchTextN.Text);
+            if (!string.IsNullOrWhiteSpace(SearchTextN.Text))
+            {
+                filtered = SearchStudents(filtered, SearchTextN.Text);
+            }
 
             // Сортировка по ГИА
             if (ComboBoxGia.SelectedIndex > 0)
@@ -150,11 +183,14 @@ namespace StudentProfileSystem
                 filtered = FilterOlympiads(filtered, selectedOlympiad);
             }
 
-            // Сортировка по типу ГИА "ОГЭ/ЕГЭ"
-            if (ComboBoxGiaType.SelectedIndex > 0)
+            // Сортировка по параллелям (классам)
+            if (ComboBoxParallel.SelectedIndex > 0)
             {
-                var selectedType = (GiaSubject)ComboBoxGiaType.SelectedItem;
-                filtered = FilterGiaType(filtered, selectedType);
+                var selectedClass = ComboBoxParallel.SelectedItem as ComboBoxItem;
+                if (selectedClass != null)
+                {
+                    filtered = filtered.Where(s => s.Class?.ClassesNumber?.StartsWith(selectedClass.Content.ToString()) ?? false).ToList();
+                }
             }
 
             Filter_students = filtered;
@@ -192,21 +228,6 @@ namespace StudentProfileSystem
         }
 
         /// <summary>
-        /// Фильрация по параметру Тип ГИА "ОГЭ/ЕГЭ"
-        /// </summary>
-        /// <param name="students"></param>
-        /// <param name="selectedType"></param>
-        /// <returns></returns>
-        private List<Student> FilterGiaType(List<Student> students, GiaSubject selectedType)
-        {
-            if (students == null) return new List<Student>();
-            if (selectedType?.GiaType == null) return students;
-
-            return students.Where(s => s.StudentGiaResults?.Where(g => g?.IdGiaSubjectsNavigation?.GiaType != null)
-                                                           .Any(g => g.IdGiaSubjectsNavigation.GiaType.Name == selectedType.GiaType.Name) ?? false).ToList();
-        }
-
-        /// <summary>
         /// Фильтрация студентов по поисковому запросу
         /// </summary>
         private List<Student> SearchStudents(List<Student> students, string searchText)
@@ -222,10 +243,7 @@ namespace StudentProfileSystem
 
                 string fullName = $"{student.LastName} {student.FirstName} {student.Patronymic}".ToLower();
 
-                return searchTerms.All(term => fullName.Contains(term) ||
-                                               student.School.Name.ToLower().Contains(term) ||
-                                               student.School.SchoolNumber.ToLower().Contains(term) ||
-                                               student.Class.ClassesNumber.Contains(term));
+                return searchTerms.All(term => fullName.Contains(term) || student.Class.ClassesNumber.Contains(term));
             }).ToList();
         }
 
@@ -490,7 +508,7 @@ namespace StudentProfileSystem
                 SettingGiaOlimpiad settingGiaOlimpiad = new SettingGiaOlimpiad(olymp);
                 await settingGiaOlimpiad.ShowDialog(this);
 
-                LoadInitialData(); 
+                LoadInitialData();
             }
             finally
             {
@@ -527,7 +545,7 @@ namespace StudentProfileSystem
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void Button_Click_Upload_data(object? sender, RoutedEventArgs e)
+        private async void Button_Click_Unload_data(object? sender, RoutedEventArgs e)
         {
             await _excelService.ExportStudentsToExcel(this, students);
         }
@@ -545,5 +563,183 @@ namespace StudentProfileSystem
             }
         }
 
+        /// <summary>
+        /// Обновить данные
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_Click_Upload_data(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+        }
+
+        private void Button_Click_Exit(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            SchoolList window = new SchoolList();
+            window.Show();
+            Close();
+        }
+
+        /// <summary>
+        /// Удаление школы
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void Button_Click_DeleteSchool(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if (_schoolId <= 0) return;
+
+            var school = Helper.DateBase.Schools.FirstOrDefault(s => s.Id == _schoolId);
+            if (school == null) return;
+
+            // Подтверждение удаления
+            var message = $"Вы точно хотите удалить школу: {school.Name}?\n" +
+                          "ВНИМАНИЕ: Это действие также удалит всех учеников этой школы " +
+                          "и все связанные с ними данные (результаты ГИА, участия в олимпиадах и т.д.)";
+
+            var Yes_Button = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "Да",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                Height = 30,
+                Background = Brushes.Green,
+                Margin = new Thickness(5)
+            };
+
+            var No_Button = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "Нет",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                Height = 30,
+                Background = Brushes.Red,
+                Margin = new Thickness(5)
+            };
+
+            var DeleteConfirmationWindow = new Window
+            {
+                Title = "Подтверждение удаления школы",
+                Width = 550,
+                Height = 250,
+                MinHeight = 250,
+                WindowState = WindowState.Normal,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = false,
+                Content = new Border
+                {
+                    BorderBrush = Brushes.Red,
+                    BorderThickness = new Thickness(2),
+                    Child = new Grid
+                    {
+                        Margin = new Thickness(15),
+                        Children =
+                {
+                    new StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
+                        {
+                            new TextBlock
+                            {
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                Margin = new Thickness(0, 0, 0, 20),
+                                FontSize = 16
+                            },
+                            new DockPanel
+                            {
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                LastChildFill = false,
+                                Children =
+                                {
+                                    Yes_Button,
+                                    No_Button
+                                }
+                            }
+                        }
+                    }
+                }
+                    }
+                }
+            };
+
+            bool isConfirmed = false;
+
+            Yes_Button.Click += async (s, args) =>
+            {
+                isConfirmed = true;
+                DeleteConfirmationWindow.Close();
+            };
+
+            No_Button.Click += (s, args) =>
+            {
+                DeleteConfirmationWindow.Close();
+            };
+
+            await DeleteConfirmationWindow.ShowDialog(this);
+
+            if (!isConfirmed) return;
+
+            // Получаем всех студентов школы
+            var schoolStudents = Helper.DateBase.Students
+                .Where(s => s.SchoolId == _schoolId)
+                .Include(s => s.StudentGiaResults)
+                .Include(s => s.StudentOlympiadParticipations)
+                .ToList();
+
+            using (var transaction = Helper.DateBase.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Удаляем все связанные данные студентов
+                    foreach (var student in schoolStudents)
+                    {
+                        // Удаление результатов ГИА
+                        if (student.StudentGiaResults != null && student.StudentGiaResults.Any())
+                        {
+                            Helper.DateBase.StudentGiaResults.RemoveRange(student.StudentGiaResults);
+                        }
+
+                        // Удаление участий в олимпиадах
+                        if (student.StudentOlympiadParticipations != null && student.StudentOlympiadParticipations.Any())
+                        {
+                            Helper.DateBase.StudentOlympiadParticipations.RemoveRange(student.StudentOlympiadParticipations);
+                        }
+                    }
+
+                    // Удаляем самих студентов
+                    Helper.DateBase.Students.RemoveRange(schoolStudents);
+
+                    // Удаляем школу
+                    Helper.DateBase.Schools.Remove(school);
+
+                    await Helper.DateBase.SaveChangesAsync();
+                    transaction.Commit();
+
+                    // Открываем окно со списком школ
+                    SchoolList window = new SchoolList();
+                    window.Show();
+                    Close();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    await ShowErrorDialog($"Ошибка при удалении школы: {ex.Message}", this);
+                }
+            }
+        }
     }
 }

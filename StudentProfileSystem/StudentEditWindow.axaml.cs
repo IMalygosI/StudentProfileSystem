@@ -26,6 +26,10 @@ public partial class StudentEditWindow : Window
     List<Class> classes = new List<Class>();
     List<School> schools = new List<School>();
 
+    List<Education> _Education = new List<Education>();
+    List<EducationalInstitution> _EducationalInstitution = new List<EducationalInstitution>();
+    List<Profile> _Profiles = new List<Profile>();
+
     // Поля для работы с олимпиадами и ГИА
     private List<Olympiad> olympiads = new List<Olympiad>();
     private List<GiaSubject> giaSubjects = new List<GiaSubject>();
@@ -70,8 +74,11 @@ public partial class StudentEditWindow : Window
     {
         LoadComboBoxClass();
         LoadComboBoxSchool();
+        LoadComboBoxEducationalInstitution();
+        LoadComboBoxEducation();
         LoadComboBoxOlympiad();
         LoadComboBoxGia();
+        LoadComboBoxProfile();
 
         // Загружаем только для существующего студента
         if (Student1.Id != 0)
@@ -79,6 +86,61 @@ public partial class StudentEditWindow : Window
             LoadStudentOlympiads();
             LoadStudentGias();
         }
+    }
+
+    /// <summary>
+    /// Загрузка профилей
+    /// </summary>
+    public void LoadComboBoxProfile()
+    {
+        _Profiles = Helper.DateBase.Profiles.ToList();
+
+        if (Student1.ProfileId == null)
+        {
+            _Profiles.Insert(0, new Profile()
+            {
+                Id = 0,
+                Name = "Профиль"
+            });
+        }
+
+        ComboBox_Profile.ItemsSource = _Profiles.OrderByDescending(z => Student1.ProfileId != null ? z.Id == Student1.ProfileId : z.Name == "Профиль");
+        ComboBox_Profile.SelectedIndex = 0;
+    }
+
+    public void LoadComboBoxEducationalInstitution()
+    {
+        _EducationalInstitution = Helper.DateBase.EducationalInstitutions.ToList();
+
+        if (Student1.EducationalInstitutionId == null)
+        {
+            _EducationalInstitution.Insert(0, new EducationalInstitution()
+            {
+                Id = 0,
+                Name = "Учебное заведение"
+            });
+        }
+
+        ComboBox_EducationalInstitution.ItemsSource = _EducationalInstitution.OrderByDescending(z => Student1.EducationalInstitutionId != null ? z.Id == Student1.EducationalInstitutionId : z.Name == "Учебное заведение");
+        ComboBox_EducationalInstitution.SelectedIndex = 0;
+    }
+
+    public void LoadComboBoxEducation()
+    {
+        _Education = Helper.DateBase.Educations.ToList();
+
+        // Добавляем элемент по умолчанию, если TypeEducation не установлен
+        if (Student1.TypeEducation == null)
+        {
+            _Education.Insert(0, new Education()
+            {
+                Id = 0,
+                Name = "Образование"
+            });
+        }
+
+        ComboBox_Education.ItemsSource = _Education.OrderByDescending(z => Student1.TypeEducation != null ? z.Id == Student1.TypeEducation: z.Name == "Образование");
+        ComboBox_Education.SelectedIndex = 0;
     }
 
     /// <summary>
@@ -160,8 +222,7 @@ public partial class StudentEditWindow : Window
     {
         try
         {
-            giaSubjects = Helper.DateBase.GiaSubjects.Include(g => g.GiaSubjectsNavigation)
-                                                     .Include(g => g.GiaType).ToList();
+            giaSubjects = Helper.DateBase.GiaSubjects.Include(g => g.GiaSubjectsNavigation).ToList();
 
             ComboBox_Gia.ItemsSource = giaSubjects;
         }
@@ -198,8 +259,7 @@ public partial class StudentEditWindow : Window
             studentGias = Helper.DateBase.StudentGiaResults.Where(sgr => sgr.IdStudents == Student1.Id)
                                                            .Include(sgr => sgr.IdGiaSubjectsNavigation)
                                                                .ThenInclude(gs => gs.GiaSubjectsNavigation)
-                                                           .Include(sgr => sgr.IdGiaSubjectsNavigation)
-                                                               .ThenInclude(gs => gs.GiaType).ToList();
+                                                           .Include(sgr => sgr.IdGiaSubjectsNavigation).ToList();
 
             ListBox_Gias.ItemsSource = studentGias.Select(sgr => sgr.IdGiaSubjectsNavigation).ToList();
         }
@@ -307,19 +367,16 @@ public partial class StudentEditWindow : Window
     private bool ValidateStudentData()
     {
         // Проверка ФИО
-        if (string.IsNullOrWhiteSpace(Student1.LastName) ||
-            string.IsNullOrWhiteSpace(Student1.FirstName))
+        if (string.IsNullOrWhiteSpace(Student1.LastName) || string.IsNullOrWhiteSpace(Student1.FirstName))
         {
-            ShowErrorDialog("Фамилия и имя обязательны для заполнения!").Wait();
+            ShowErrorDialog("Фамилия и имя обязательны для заполнения!");
             return false;
         }
 
         // Проверка на цифры в ФИО
-        if (ContainsNumbers(Student1.LastName) ||
-            ContainsNumbers(Student1.FirstName) ||
-            (Student1.Patronymic != null && ContainsNumbers(Student1.Patronymic)))
+        if (ContainsNumbers(Student1.LastName) || ContainsNumbers(Student1.FirstName) || (Student1.Patronymic != null && ContainsNumbers(Student1.Patronymic)))
         {
-            ShowErrorDialog("ФИО может содержать только буквы!").Wait();
+            ShowErrorDialog("ФИО может содержать только буквы!");
             return false;
         }
 
@@ -330,7 +387,7 @@ public partial class StudentEditWindow : Window
         if (selectedSchool == null || selectedSchool.Name == "Школа" ||
             selectedClass == null || selectedClass.ClassesNumber == "Класс")
         {
-            ShowErrorDialog("Выберите школу и класс из списка!").Wait();
+            ShowErrorDialog("Выберите школу и класс из списка!");
             return false;
         }
 
@@ -342,57 +399,72 @@ public partial class StudentEditWindow : Window
     /// </summary>
     private async void Button_Click_Save(object? sender, RoutedEventArgs e)
     {
+        if (!ValidateStudentData()) return;
+
+        if (ComboBox_Profile.IsVisible && ComboBox_Profile.SelectedItem is Profile selectedProfile)
+        {
+            Student1.ProfileId = selectedProfile.Id == 0 ? null : selectedProfile.Id;
+        }
+        else
+        {
+            Student1.ProfileId = null;
+        }
+
         var confirm = await ShowConfirmationDialog("Вы уверены, что хотите сохранить изменения?");
         if (!confirm) return;
 
-        using var transaction = await Helper.DateBase.Database.BeginTransactionAsync();
-        try
+        using (var transaction = await Helper.DateBase.Database.BeginTransactionAsync())
         {
-            var selectedSchool = ComboBox_School.SelectedItem as School;
-            var selectedClass = ComboBox_Class.SelectedItem as Class;
-
-            Student1.SchoolId = selectedSchool?.Id ?? 0;
-            Student1.ClassId = selectedClass?.Id ?? 0;
-
-            if (Student1.Id == 0)
+            try
             {
-                Helper.DateBase.Students.Add(Student1);
-                await Helper.DateBase.SaveChangesAsync();
+                // Установите SchoolId и ClassId из выбранных значений
+                if (ComboBox_School.SelectedItem is School selectedSchool)
+                    Student1.SchoolId = selectedSchool.Id;
+
+                if (ComboBox_Class.SelectedItem is Class selectedClass)
+                    Student1.ClassId = selectedClass.Id;
+
+                // Сохраняем основную информацию о студенте
+                if (Student1.Id == 0)
+                {
+                    Helper.DateBase.Students.Add(Student1);
+                    await Helper.DateBase.SaveChangesAsync();
+                }
+                else
+                {
+                    Helper.DateBase.Students.Update(Student1);
+                    await Helper.DateBase.SaveChangesAsync();
+                }
+
+                // Работа с олимпиадами
+                await ProcessOlympiads(Student1.Id);
+
+                // Работа с ГИА
+                await ProcessGias();
+
+                await transaction.CommitAsync();
+                await ShowSuccessDialog("Данные успешно сохранены!");
+                Close();
             }
-            else
+            catch (DbUpdateException dbEx)
             {
-                Helper.DateBase.Students.Update(Student1);
+                await transaction.RollbackAsync();
+                string errorDetails = dbEx.InnerException?.Message ?? dbEx.Message;
+                await ShowErrorDialog($"Ошибка базы данных: {errorDetails}");
             }
-
-            // Обрабатываем олимпиады и ГИА
-            await ProcessOlympiads();
-            await ProcessGias();
-
-            await Helper.DateBase.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            await ShowSuccessDialog("Данные успешно сохранены!");
-            Close();
-        }
-        catch (DbUpdateException dbEx)
-        {
-            await transaction.RollbackAsync();
-            string errorDetails = dbEx.InnerException?.Message ?? dbEx.Message;
-            await ShowErrorDialog($"Ошибка базы данных: {errorDetails}");
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            await ShowErrorDialog($"Ошибка: {ex.Message}");
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                await ShowErrorDialog($"Ошибка: {ex.Message}");
+            }
         }
     }
 
-    /// <summary>
-    /// Обработка олимпиад студента
-    /// </summary>
-    private async Task ProcessOlympiads()
+    private async Task ProcessOlympiads(int studentId)
     {
-        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations.Where(sop => sop.IdStudents == Student1.Id).ToListAsync();
+        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations
+            .Where(sop => sop.IdStudents == studentId)
+            .ToListAsync();
 
         // Удаляем отсутствующие
         foreach (var existing in existingOlympiads)
@@ -408,18 +480,19 @@ public partial class StudentEditWindow : Window
         {
             if (!existingOlympiads.Any(eo => eo.IdOlympiads == newPart.IdOlympiads))
             {
-                newPart.IdStudents = Student1.Id;
+                newPart.IdStudents = studentId;
                 Helper.DateBase.StudentOlympiadParticipations.Add(newPart);
             }
         }
+
+        await Helper.DateBase.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Обработка ГИА студента
-    /// </summary>
-    private async Task ProcessGias()
+    private async Task ProcessGiaResults(int studentId)
     {
-        var existingGias = await Helper.DateBase.StudentGiaResults.Where(sgr => sgr.IdStudents == Student1.Id).ToListAsync();
+        var existingGias = await Helper.DateBase.StudentGiaResults
+            .Where(sgr => sgr.IdStudents == studentId)
+            .ToListAsync();
 
         // Удаляем отсутствующие
         foreach (var existing in existingGias)
@@ -435,10 +508,69 @@ public partial class StudentEditWindow : Window
         {
             if (!existingGias.Any(eg => eg.IdGiaSubjects == newGia.IdGiaSubjects))
             {
-                newGia.IdStudents = Student1.Id; 
+                newGia.IdStudents = studentId;
                 Helper.DateBase.StudentGiaResults.Add(newGia);
             }
         }
+
+        await Helper.DateBase.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Обработка олимпиад студента
+    /// </summary>
+    private async Task ProcessOlympiads()
+    {
+        // Получаем текущие олимпиады студента
+        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations
+            .Where(sop => sop.IdStudents == Student1.Id)
+            .ToListAsync();
+
+        // Удаляем те, которых нет в новом списке
+        var olympiadsToRemove = existingOlympiads
+            .Where(eo => !studentOlympiads.Any(so => so.IdOlympiads == eo.IdOlympiads))
+            .ToList();
+
+        Helper.DateBase.StudentOlympiadParticipations.RemoveRange(olympiadsToRemove);
+
+        // Добавляем новые
+        var olympiadsToAdd = studentOlympiads
+            .Where(so => !existingOlympiads.Any(eo => eo.IdOlympiads == so.IdOlympiads))
+            .Select(so => new StudentOlympiadParticipation
+            {
+                IdStudents = Student1.Id,
+                IdOlympiads = so.IdOlympiads
+            })
+            .ToList();
+
+        Helper.DateBase.StudentOlympiadParticipations.AddRange(olympiadsToAdd);
+    }
+
+    private async Task ProcessGias()
+    {
+        // Получаем текущие ГИА студента
+        var existingGias = await Helper.DateBase.StudentGiaResults
+            .Where(sgr => sgr.IdStudents == Student1.Id)
+            .ToListAsync();
+
+        // Удаляем те, которых нет в новом списке
+        var giasToRemove = existingGias
+            .Where(eg => !studentGias.Any(sg => sg.IdGiaSubjects == eg.IdGiaSubjects))
+            .ToList();
+
+        Helper.DateBase.StudentGiaResults.RemoveRange(giasToRemove);
+
+        // Добавляем новые
+        var giasToAdd = studentGias
+            .Where(sg => !existingGias.Any(eg => eg.IdGiaSubjects == sg.IdGiaSubjects))
+            .Select(sg => new StudentGiaResult
+            {
+                IdStudents = Student1.Id,
+                IdGiaSubjects = sg.IdGiaSubjects
+            })
+            .ToList();
+
+        Helper.DateBase.StudentGiaResults.AddRange(giasToAdd);
     }
 
     /// <summary>
@@ -559,35 +691,43 @@ public partial class StudentEditWindow : Window
                 {
                     Margin = new Thickness(15),
                     Children =
+                {
+                    new StackPanel
                     {
-                        new StackPanel
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
                         {
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Children =
+                            new TextBlock
                             {
-                                new TextBlock
-                                {
-                                    Text = message,
-                                    TextWrapping = TextWrapping.Wrap,
-                                    TextAlignment = TextAlignment.Center,
-                                    FontSize = 14,
-                                    Margin = new Thickness(0, 0, 0, 20)
-                                },
-                                new Grid
-                                {
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    Children =
-                                    {
-                                        CreateDialogButton("OK", Brushes.Gray)
-                                    }
-                                }
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                FontSize = 14,
+                                Margin = new Thickness(0, 0, 0, 20)
+                            },
+                            new Button
+                            {
+                                Content = "OK",
+                                Width = 100,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Height = 30,
+                                Background = Brushes.Gray,
+                                Margin = new Thickness(5)
                             }
                         }
                     }
                 }
+                }
             }
         };
+
+        // Находим кнопку и добавляем обработчик
+        var border = (Border)dialog.Content;
+        var grid = (Grid)border.Child;
+        var stackPanel = (StackPanel)grid.Children[0];
+        var button = (Button)stackPanel.Children[1];
+        button.Click += (s, e) => dialog.Close();
 
         await dialog.ShowDialog(this);
     }
@@ -615,35 +755,43 @@ public partial class StudentEditWindow : Window
                 {
                     Margin = new Thickness(15),
                     Children =
+                {
+                    new StackPanel
                     {
-                        new StackPanel
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Children =
                         {
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Children =
+                            new TextBlock
                             {
-                                new TextBlock
-                                {
-                                    Text = message,
-                                    TextWrapping = TextWrapping.Wrap,
-                                    TextAlignment = TextAlignment.Center,
-                                    FontSize = 14,
-                                    Margin = new Thickness(0, 0, 0, 20)
-                                },
-                                new Grid
-                                {
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    Children =
-                                    {
-                                        CreateDialogButton("OK", Brushes.Green)
-                                    }
-                                }
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                FontSize = 14,
+                                Margin = new Thickness(0, 0, 0, 20)
+                            },
+                            new Button
+                            {
+                                Content = "OK",
+                                Width = 100,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Height = 30,
+                                Background = Brushes.Green,
+                                Margin = new Thickness(5)
                             }
                         }
                     }
                 }
+                }
             }
         };
+
+        // Находим кнопку и добавляем обработчик
+        var border = (Border)dialog.Content;
+        var grid = (Grid)border.Child;
+        var stackPanel = (StackPanel)grid.Children[0];
+        var button = (Button)stackPanel.Children[1];
+        button.Click += (s, e) => dialog.Close();
 
         await dialog.ShowDialog(this);
     }

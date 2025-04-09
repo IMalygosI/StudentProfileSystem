@@ -7,18 +7,66 @@
         x:Class="StudentProfileSystem.MainWindow"
 		xmlns:converters="using:StudentProfileSystem.Converters"
 		x:CompileBindings="False"
+        xmlns:local="clr-namespace:StudentProfileSystem.Converters"
         xmlns:media="clr-namespace:Avalonia.Media;assembly=Avalonia.Visuals"
         Background="Transparent"
         Title="Учащиеся">
 
 	<Window.Resources>
-		<converters:CollectionConverter x:Key="CollectionConverter" />
+		<local:CollectionConverter x:Key="CollectionConverter"/>
+		<local:IsGiaClassConverter x:Key="IsGiaClassConverter"/>
+		<local:HasItemsConverter x:Key="HasItemsConverter"/>
 	</Window.Resources>
+
 
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.3*"
 		  ShowGridLines="False"
 		  Background="#E8F5E9">
+
+		<DockPanel HorizontalAlignment="Right"
+				   VerticalAlignment="Center"
+				   Margin="0 0 20 0"
+				   Grid.Column="4">
+
+			<TextBlock Text="Школа:"
+					   Name="School_Name"
+					   IsVisible="True"
+					   Margin="0 0 0 0"
+					   HorizontalAlignment="Center"					   
+					   VerticalAlignment="Center"/>
+			
+			<TextBlock Text=""
+					   IsVisible="True"
+					   Name="School_Name_Id"
+					   Margin="5 0 10 0"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
+
+
+			
+			<Button Click="Button_Click_Exit">
+				<TextBlock Text="Выйти"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+			
+		</DockPanel>
+
+
+		<Button Click="Button_Click_DeleteSchool"
+				Margin="0 0 20 0" 
+				Name="SchoolNumber"
+				IsVisible="False"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Center"
+				Grid.Column="4"
+				Grid.Row="4">
+			<TextBlock Text="Удалить школу"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
+		</Button>
+
 
 		<DockPanel HorizontalAlignment="Left"
 				   VerticalAlignment="Center"
@@ -45,20 +93,6 @@
 				</ComboBox.ItemTemplate>
 			</ComboBox>
 
-			<Button Width="35"
-					Height="35"
-					Margin="5 0 0 0"
-					Click="Button_Click_ComboBoxGia_Setting"
-					BorderThickness="0"
-					Background="Transparent"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center">
-
-				<Image Source="avares://MsBox.Avalonia/Assets/setting.png" 
-					   Width="35"
-					   Height="35"/>				
-			</Button>
-
 			<ComboBox Name="ComboBoxOlimpiad"
 					  CornerRadius="10"
 					  Margin="10 0 0 0"
@@ -72,31 +106,22 @@
 				</ComboBox.ItemTemplate>
 			</ComboBox>
 
-			<Button Width="35"
-					Height="35"
-					Margin="5 0 0 0"
-					Click="Button_Click_ComboBoxOlimpiad_Setting"
-					BorderThickness="0"
-					Background="Transparent"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center">
-
-				<Image Source="avares://MsBox.Avalonia/Assets/setting.png"
-					   Width="35"
-					   Height="35"/>
-			</Button>
-
-			<ComboBox Name="ComboBoxGiaType"
+			<ComboBox Name="ComboBoxParallel"
 					  CornerRadius="10"
 					  Margin="10 0 0 0"
-					  MinWidth="100"
+					  MinWidth="150"
 					  Height="35"
-					  Background="#FFF8E1">
-				<ComboBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding GiaType.Name}"/>
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
+					  Background="#FFF8E1"
+					  SelectedIndex="0">
+				<ComboBoxItem>Параллель</ComboBoxItem>
+				<ComboBoxItem>4</ComboBoxItem>
+				<ComboBoxItem>5</ComboBoxItem>
+				<ComboBoxItem>6</ComboBoxItem>
+				<ComboBoxItem>7</ComboBoxItem>
+				<ComboBoxItem>8</ComboBoxItem>
+				<ComboBoxItem>9</ComboBoxItem>
+				<ComboBoxItem>10</ComboBoxItem>
+				<ComboBoxItem>11</ComboBoxItem>
 			</ComboBox>
 
 		</DockPanel>
@@ -125,9 +150,17 @@
 			</Button>
 
 			<Button Margin="5 0 0 0"
+					Name="Unload_data"
+					Click="Button_Click_Unload_data">
+				<TextBlock Text="Выгрузить данные"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+			<Button Margin="5 0 0 0"
 					Name="Upload_data"
 					Click="Button_Click_Upload_data">
-				<TextBlock Text="Выгрузить данные"
+				<TextBlock Text="Обновить данные"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
@@ -211,23 +244,20 @@
 
 								</DockPanel>
 
-								<DockPanel Margin="5 5 0 0">
-									
-									<TextBlock Text="ГИА:" 
-											   FontWeight="Bold" 
+								<DockPanel Margin="5 5 0 0"
+										   IsVisible="{Binding Class.ClassesNumber, Converter={StaticResource IsGiaClassConverter}}">
+									<TextBlock Text="ГИА:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 5"/>
-									
 									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}}"
 											   Margin="5 0 0 0"/>
-									
 								</DockPanel>
-								
-								<DockPanel Margin="5 0 0 0">
-									
-									<TextBlock Text="Олимпиады:" 
-											   FontWeight="Bold" 
+
+								<DockPanel Margin="5 0 0 0"
+										   IsVisible="{Binding StudentOlympiadParticipations, Converter={StaticResource HasItemsConverter}}">
+									<TextBlock Text="Олимпиады:"
+											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
-									
 									<TextBlock Text="{Binding StudentOlympiadParticipations, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
 											   Margin="5 0 0 0"
 											   TextWrapping="Wrap"/>
@@ -242,4 +272,5 @@
 		</ListBox>
 
 	</Grid>
+
 </Window>

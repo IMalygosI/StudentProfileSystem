@@ -9,11 +9,7 @@ public partial class GiaSubject
 
     public int GiaSubjects { get; set; }
 
-    public int GiaTypeId { get; set; }
-
     public virtual Item GiaSubjectsNavigation { get; set; } = null!;
-
-    public virtual GiaType GiaType { get; set; } = null!;
 
     public virtual ICollection<StudentGiaResult> StudentGiaResults { get; set; } = new List<StudentGiaResult>();
 }

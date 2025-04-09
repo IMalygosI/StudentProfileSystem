@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+        x:Class="StudentProfileSystem.LoginWindow"
+		x:CompileBindings="False"
+        Title="Вход">
+
+	<Grid ColumnDefinitions="*,*,*,*,*"
+		  RowDefinitions="*,*,*,*,*"
+		  ShowGridLines="false">
+
+		<StackPanel Grid.Column="2"
+					Grid.Row="1"
+					Grid.RowSpan="3"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center">
+
+			<TextBox Name="Admin"
+					 Watermark="Логин"
+					 CornerRadius="10"
+					 MinWidth="350"
+					 MaxWidth="350"/>
+
+			<TextBox Name="password"
+					 Margin="0 5 0 0"
+					 Watermark="Пароль"
+					 CornerRadius="10"
+					 MinWidth="350"
+					 MaxWidth="350"/>
+
+			<Button Name="Entrance"
+					MinWidth="350"
+					CornerRadius="10"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					Margin="0 5 0 0"
+					Click="Button_Click_Entrance">
+
+				<TextBlock Text="Войти"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+
+			</Button>
+
+			<Button MinWidth="350"
+					CornerRadius="10"
+					Name="Entrance_School"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					Margin="0 5 0 0"
+					Click="Button_Click_Exit">
+
+				<TextBlock Text="Выйти"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+
+			</Button>
+
+		</StackPanel>
+		
+
+	</Grid>  
+  
+</Window>

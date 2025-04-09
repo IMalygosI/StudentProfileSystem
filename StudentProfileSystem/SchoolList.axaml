@@ -1,0 +1,111 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+        x:Class="StudentProfileSystem.SchoolList"
+		x:CompileBindings="False"
+        Title="Школы">
+	<Grid ColumnDefinitions="*,*,*,*,*"
+			  RowDefinitions="0.3*,*,*,*,0.3*"
+			  ShowGridLines="False"
+			  Background="#E8F5E9">
+
+
+		<DockPanel HorizontalAlignment="Right"
+				   VerticalAlignment="Center"
+				   Margin="0 0 20 0"
+				   Grid.Column="4">
+
+			<Button Click="Button_Click_Admin">
+				<TextBlock Text="Войти"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="5"
+				   Grid.Column="0"
+				   Grid.Row="4">
+
+			<Button Click="Button_Click_Redact_School">
+				<TextBlock Text="Добавление школы"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
+
+		</DockPanel>
+
+		<DockPanel HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Margin="20 0 0 0"
+				   Grid.ColumnSpan="5"
+				   Grid.Column="0">
+
+			<TextBox Watermark="Поиск:"
+					 CornerRadius="10"
+					 Width="500"
+					 Background="#FFF8E1"
+					 Name="SearchTextN"
+					 TextChanged="TextBox_TextChanged"
+					 Height="35"/>
+
+		</DockPanel>
+
+		<ListBox Grid.ColumnSpan="5"
+				 Grid.RowSpan="3"
+				 Grid.Row="1"
+				 Margin="20 10 20 10"
+				 CornerRadius="10"
+				 BorderThickness="2"
+				 DoubleTapped="ListBox_DoubleTapped_Button_School"
+				 BorderBrush="Gray"
+				 Background="#FFF8E1"
+				 SelectionMode="Multiple"
+				 Name="ListBox_School">
+
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Border BorderThickness="2"
+							BorderBrush="Gray"
+							CornerRadius="10"
+							Background="#E8F5E9">
+						<Grid ColumnDefinitions="*"
+							  RowDefinitions="*"
+							  Margin="10">
+
+							<StackPanel>
+
+								<DockPanel Margin="5 5 0 0">
+
+									<TextBlock Text="Школа:"
+											   FontWeight="Bold"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding Name}"
+											   Margin="5 0 0 0"/>
+
+								</DockPanel>
+
+								<DockPanel Margin="5 5 0 0">
+
+									<TextBlock Text="Номер школы:"
+											   FontWeight="Bold"
+											   Margin="5 0 0 0"/>
+									<TextBlock Text="{Binding SchoolNumber}"
+											   Margin="5 0 0 0"/>
+
+								</DockPanel>
+
+							</StackPanel>
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+	</Grid>
+</Window>

@@ -18,9 +18,11 @@ public partial class ImcContext : DbContext
 
     public virtual DbSet<Class> Classes { get; set; }
 
-    public virtual DbSet<GiaSubject> GiaSubjects { get; set; }
+    public virtual DbSet<Education> Educations { get; set; }
 
-    public virtual DbSet<GiaType> GiaTypes { get; set; }
+    public virtual DbSet<EducationalInstitution> EducationalInstitutions { get; set; }
+
+    public virtual DbSet<GiaSubject> GiaSubjects { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
 
@@ -28,7 +30,11 @@ public partial class ImcContext : DbContext
 
     public virtual DbSet<OlympiadsType> OlympiadsTypes { get; set; }
 
+    public virtual DbSet<Profile> Profiles { get; set; }
+
     public virtual DbSet<School> Schools { get; set; }
+
+    public virtual DbSet<Staff> Staff { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
 
@@ -54,6 +60,30 @@ public partial class ImcContext : DbContext
                 .HasColumnName("Classes_Number");
         });
 
+        modelBuilder.Entity<Education>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("education_pk");
+
+            entity.ToTable("Education");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasColumnType("character varying");
+        });
+
+        modelBuilder.Entity<EducationalInstitution>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("educational_institution_pk");
+
+            entity.ToTable("Educational_Institution");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<GiaSubject>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("gia_subjects_pk");
@@ -64,29 +94,11 @@ public partial class ImcContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("ID");
             entity.Property(e => e.GiaSubjects).HasColumnName("Gia_Subjects");
-            entity.Property(e => e.GiaTypeId).HasColumnName("Gia_Type_ID");
 
             entity.HasOne(d => d.GiaSubjectsNavigation).WithMany(p => p.GiaSubjects)
                 .HasForeignKey(d => d.GiaSubjects)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("gia_subjects_items_fk");
-
-            entity.HasOne(d => d.GiaType).WithMany(p => p.GiaSubjects)
-                .HasForeignKey(d => d.GiaTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("gia_subjects_gia_type_fk");
-        });
-
-        modelBuilder.Entity<GiaType>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("gia_type_pk");
-
-            entity.ToTable("Gia_Type");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.Name).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Item>(entity =>
@@ -131,6 +143,18 @@ public partial class ImcContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<Profile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("profile_pk");
+
+            entity.ToTable("Profile");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasColumnType("character varying");
+        });
+
         modelBuilder.Entity<School>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("schools_pk");
@@ -138,12 +162,41 @@ public partial class ImcContext : DbContext
             entity.Property(e => e.Id)
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("ID");
-            entity.Property(e => e.City).HasMaxLength(50);
-            entity.Property(e => e.District).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(50);
             entity.Property(e => e.SchoolNumber)
                 .HasMaxLength(30)
                 .HasColumnName("School_Number");
+        });
+
+        modelBuilder.Entity<Staff>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("staff_pk");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Password).HasColumnType("character varying");
+
+            entity.HasMany(d => d.IdStudents).WithMany(p => p.IdStaffs)
+                .UsingEntity<Dictionary<string, object>>(
+                    "User",
+                    r => r.HasOne<Student>().WithMany()
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("users_students_fk"),
+                    l => l.HasOne<Staff>().WithMany()
+                        .HasForeignKey("IdStaff")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("users_staff_fk"),
+                    j =>
+                    {
+                        j.HasKey("IdStaff", "IdStudent").HasName("users_pk");
+                        j.ToTable("Users");
+                        j.IndexerProperty<int>("IdStaff").HasColumnName("ID_Staff");
+                        j.IndexerProperty<int>("IdStudent").HasColumnName("ID_Student");
+                    });
         });
 
         modelBuilder.Entity<Student>(entity =>
@@ -154,6 +207,7 @@ public partial class ImcContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("ID");
             entity.Property(e => e.ClassId).HasColumnName("Class_ID");
+            entity.Property(e => e.EducationalInstitutionId).HasColumnName("Educational_Institution_ID");
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
                 .HasColumnName("First_Name");
@@ -161,17 +215,31 @@ public partial class ImcContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("Last_Name");
             entity.Property(e => e.Patronymic).HasMaxLength(50);
+            entity.Property(e => e.ProfileId).HasColumnName("Profile_ID");
             entity.Property(e => e.SchoolId).HasColumnName("School_ID");
+            entity.Property(e => e.TypeEducation).HasColumnName("Type_Education");
 
             entity.HasOne(d => d.Class).WithMany(p => p.Students)
                 .HasForeignKey(d => d.ClassId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("students_classes_fk");
 
+            entity.HasOne(d => d.EducationalInstitution).WithMany(p => p.Students)
+                .HasForeignKey(d => d.EducationalInstitutionId)
+                .HasConstraintName("students_educational_institution_fk");
+
+            entity.HasOne(d => d.Profile).WithMany(p => p.Students)
+                .HasForeignKey(d => d.ProfileId)
+                .HasConstraintName("students_profile_fk");
+
             entity.HasOne(d => d.School).WithMany(p => p.Students)
                 .HasForeignKey(d => d.SchoolId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("students_schools_fk");
+
+            entity.HasOne(d => d.TypeEducationNavigation).WithMany(p => p.Students)
+                .HasForeignKey(d => d.TypeEducation)
+                .HasConstraintName("students_education_fk");
         });
 
         modelBuilder.Entity<StudentGiaResult>(entity =>

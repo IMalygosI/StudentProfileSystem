@@ -94,12 +94,7 @@ namespace StudentProfileSystem.Services
                         worksheet.Cell(row, 4).Value = student.Class?.ClassesNumber;
                         worksheet.Cell(row, 5).Value = student.School?.Name;
                         worksheet.Cell(row, 6).Value = student.School?.SchoolNumber;
-                        worksheet.Cell(row, 7).Value = student.School?.District;
-                        worksheet.Cell(row, 8).Value = student.School?.City;
-
-                        // Обработка нескольких ГИА
-                        var giaResults = student.StudentGiaResults.Select(g => $"{g.IdGiaSubjectsNavigation?.GiaType?.Name}:" +
-                                                                               $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name}").Distinct();
+                        var giaResults = student.StudentGiaResults.Select(g => $"{g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name}").Distinct();
 
                         worksheet.Cell(row, 9).Value = string.Join(",", giaResults.Select(g => g.Split(':')[0]));
                         worksheet.Cell(row, 10).Value = string.Join(",", giaResults.Select(g => g.Split(':')[1]));
@@ -150,7 +145,7 @@ namespace StudentProfileSystem.Services
                 if (filePaths == null || filePaths.Length == 0) return false;
 
                 try
-                {            
+                {
                     // Пытаемся открыть файл для чтения, чтобы проверить, не заблокирован ли он
                     using (var fileStream = new FileStream(filePaths[0], FileMode.Open, FileAccess.Read, FileShare.None))
                     {
@@ -575,7 +570,7 @@ namespace StudentProfileSystem.Services
             var school = await _context.Schools.FirstOrDefaultAsync(s => s.Name == name);
             if (school == null)
             {
-                school = new School { Name = name, SchoolNumber = number, District = district, City = city };
+                school = new School { Name = name, SchoolNumber = number};
                 _context.Schools.Add(school);
                 await _context.SaveChangesAsync();
             }
@@ -618,13 +613,7 @@ namespace StudentProfileSystem.Services
         /// <returns></returns>
         private async Task<GiaSubject> GetOrCreateGiaSubjectAsync(string typeName, string subjectName)
         {
-            var giaType = await _context.GiaTypes.FirstOrDefaultAsync(t => t.Name == typeName);
-            if (giaType == null)
-            {
-                giaType = new GiaType { Name = typeName };
-                _context.GiaTypes.Add(giaType);
-                await _context.SaveChangesAsync();
-            }
+  
 
             var item = await _context.Items.FirstOrDefaultAsync(i => i.Name == subjectName);
             if (item == null)
@@ -635,11 +624,11 @@ namespace StudentProfileSystem.Services
             }
 
             var giaSubject = await _context.GiaSubjects
-                .FirstOrDefaultAsync(gs => gs.GiaTypeId == giaType.Id && gs.GiaSubjects == item.Id);
+                .FirstOrDefaultAsync(gs =>  gs.GiaSubjects == item.Id);
 
             if (giaSubject == null)
             {
-                giaSubject = new GiaSubject { GiaTypeId = giaType.Id, GiaSubjects = item.Id };
+                giaSubject = new GiaSubject {GiaSubjects = item.Id };
                 _context.GiaSubjects.Add(giaSubject);
                 await _context.SaveChangesAsync();
             }

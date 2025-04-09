@@ -76,29 +76,6 @@ public partial class AddAdnRedactOlympGia : Window
         Title = _Class.Id == 0 ? "Добавление класса" : "Редактирование класса";
     }
 
-    /// <summary>
-    /// Конструктор для смены ГИА
-    /// </summary>
-    /// <param name="giaSubject">Предмет ГИА</param>
-    public AddAdnRedactOlympGia(GiaSubject giaSubject) : this()
-    {
-        InitializeComponent();
-
-        Title = "Смена ГИА";
-        OlympAndGia1 = "Смена ГИА";
-
-        _giaSubject = giaSubject ?? new GiaSubject();
-        OkkoRedactAdd.DataContext = _giaSubject;
-        BorderGiaSubject.IsVisible = true;
-
-        LoadComboBoxData();
-
-        if (_giaSubject.Id != 0)
-        {
-            Box_GiaSubject.SelectedItem = items1.FirstOrDefault(i => i.Id == _giaSubject.GiaSubjects);
-            Box_Type_GiaSubject.SelectedItem = giaTypes1.FirstOrDefault(g => g.Id == _giaSubject.GiaTypeId);
-        }
-    }
 
     /// <summary>
     /// Конструктор для смены Олимпиады
@@ -139,7 +116,6 @@ public partial class AddAdnRedactOlympGia : Window
             _originalGiaItem = _giaItem1;
             OkkoRedactAdd.DataContext = _giaItem1;
 
-            BorderGiaSubject.IsVisible = false;
             BorderOlympRedAdd.IsVisible = false;
             BorderOlympiad.IsVisible = false;
             BorderGiaRedAdd.IsVisible = true;
@@ -153,7 +129,6 @@ public partial class AddAdnRedactOlympGia : Window
             OkkoRedactAdd.DataContext = _olympiadsType1;
 
             BorderGiaRedAdd.IsVisible = false;
-            BorderGiaSubject.IsVisible = false;
             BorderOlympiad.IsVisible = false;
             BorderOlympRedAdd.IsVisible = true;
 
@@ -167,7 +142,6 @@ public partial class AddAdnRedactOlympGia : Window
             BorderGiaRedAdd.IsVisible = false;
             BorderOlympRedAdd.IsVisible = false;
             BorderOlympiad.IsVisible = false;
-            BorderGiaSubject.IsVisible = true;
 
             Title = "Настройка ГИА";
         }
@@ -178,7 +152,6 @@ public partial class AddAdnRedactOlympGia : Window
 
             BorderGiaRedAdd.IsVisible = false;
             BorderOlympRedAdd.IsVisible = false;
-            BorderGiaSubject.IsVisible = false;
             BorderOlympiad.IsVisible = true;
 
             Title = "Настройка Олимпиад";
@@ -227,7 +200,6 @@ public partial class AddAdnRedactOlympGia : Window
     /// </summary>
     public void LoadComboBoxData()
     {
-        LoadComboBoxGia();
         LoadComboBoxOlympiad();
     }
 
@@ -262,45 +234,6 @@ public partial class AddAdnRedactOlympGia : Window
 
                 Box_Olympiad.SelectedIndex = 0;
                 Box_Type_Olympiad.SelectedIndex = 0;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка при загрузке ComboBox: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Загрузка данных в ComboBox ГИА
-    /// </summary>
-    public void LoadComboBoxGia()
-    {
-        try
-        {
-            items1 = Helper.DateBase.Items.ToList();
-            giaTypes1 = Helper.DateBase.GiaTypes.ToList();
-
-            if (_giaSubject.Id != 0)
-            {
-                Box_GiaSubject.ItemsSource = items1.OrderBy(g => g.Name);
-                Box_Type_GiaSubject.ItemsSource = giaTypes1.OrderBy(g => g.Name);
-
-                Box_GiaSubject.SelectedItem = items1.FirstOrDefault(i => i.Id == _giaSubject.GiaSubjects);
-                Box_Type_GiaSubject.SelectedItem = giaTypes1.FirstOrDefault(g => g.Id == _giaSubject.GiaTypeId);
-            }
-            else
-            {
-                var tempItems = new List<Item>(items1);
-                tempItems.Insert(0, new Item() { Id = 0, Name = "Название предмета" });
-
-                var tempTypes = new List<GiaType>(giaTypes1);
-                tempTypes.Insert(0, new GiaType() { Id = 0, Name = "Тип ГИА" });
-
-                Box_GiaSubject.ItemsSource = tempItems.OrderByDescending(g => g.Id == 0);
-                Box_Type_GiaSubject.ItemsSource = tempTypes.OrderByDescending(g => g.Id == 0);
-
-                Box_GiaSubject.SelectedIndex = 0;
-                Box_Type_GiaSubject.SelectedIndex = 0;
             }
         }
         catch (Exception ex)
@@ -348,10 +281,6 @@ public partial class AddAdnRedactOlympGia : Window
             else if (OlympAndGia1 == "Олимпиады")
             {
                 saveResult = await SaveOlympiadItem();
-            }
-            else if (OlympAndGia1 == "Смена ГИА" || OlympAndGia1 == "Настройка ГИА")
-            {
-                saveResult = await SaveGiaSubject();
             }
             else if (OlympAndGia1 == "Смена олимпиады" || OlympAndGia1 == "Настройка Олимпиад")
             {
@@ -478,65 +407,6 @@ public partial class AddAdnRedactOlympGia : Window
             else
             {
                 Helper.DateBase.Olympiads.Update(_Olympiad);
-            }
-
-            return await Helper.DateBase.SaveChangesAsync() > 0;
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorDialog($"Ошибка при сохранении: {ex.Message}");
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Сохраняет настройки предмета ГИА (связь предмета и типа ГИА)
-    /// </summary>
-    /// <returns>Результат операции сохранения</returns>
-    private async Task<bool> SaveGiaSubject()
-    {
-        try
-        {
-            var selectedItem = Box_GiaSubject.SelectedItem as Item;
-            var selectedType = Box_Type_GiaSubject.SelectedItem as GiaType;
-
-            // Проверка что выбраны не нулевые значения (Id != 0)
-            if (selectedItem == null || selectedItem.Id == 0 ||
-                selectedType == null || selectedType.Id == 0)
-            {
-                await ShowErrorDialog("Выберите предмет и тип ГИА из списка!");
-                return false;
-            }
-
-            // Проверка что выбраны реальные элементы (не подсказки)
-            if (selectedItem.Name == "Название предмета" || selectedType.Name == "Тип ГИА")
-            {
-                await ShowErrorDialog("Выберите предмет и тип ГИА из списка!");
-                return false;
-            }
-
-            _giaSubject.GiaSubjects = selectedItem.Id;
-            _giaSubject.GiaTypeId = selectedType.Id;
-
-            // Проверка на существование такой же связи (для нового или измененного)
-            bool exists = Helper.DateBase.GiaSubjects
-                .Any(gs => gs.GiaSubjects == selectedItem.Id &&
-                           gs.GiaTypeId == selectedType.Id &&
-                           gs.Id != _giaSubject.Id); // Исключаем текущую запись при редактировании
-
-            if (exists)
-            {
-                await ShowErrorDialog("Такая связь уже существует!");
-                return false;
-            }
-
-            if (_giaSubject.Id == 0)
-            {
-                Helper.DateBase.GiaSubjects.Add(_giaSubject);
-            }
-            else
-            {
-                Helper.DateBase.GiaSubjects.Update(_giaSubject);
             }
 
             return await Helper.DateBase.SaveChangesAsync() > 0;
@@ -875,18 +745,6 @@ public partial class AddAdnRedactOlympGia : Window
         if (string.IsNullOrWhiteSpace(_School.SchoolNumber))
         {
             await ShowErrorDialog("Номер школы не может быть пустым");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(_School.District))
-        {
-            await ShowErrorDialog("Район не может быть пустым");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(_School.City))
-        {
-            await ShowErrorDialog("Город не может быть пустым");
             return false;
         }
 
