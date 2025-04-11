@@ -34,7 +34,7 @@ namespace StudentProfileSystem.Services
         }
 
         /// <summary>
-        /// Экспортирует список студентов в файл Excel
+        /// Экспортирует список студентов в файл Excel из школы
         /// </summary>
         /// <param name="parentWindow">Родительское окно для отображения диалогов</param>
         /// <param name="students">Коллекция студентов для экспорта</param>
@@ -138,7 +138,129 @@ namespace StudentProfileSystem.Services
         }
 
 
+        /// <summary>
+        /// Экспортирует список студентов в файл Excel из листа со школами
+        /// </summary>
+        /// <param name="parentWindow">Родительское окно для отображения диалогов</param>
+        /// <param name="students">Коллекция студентов для экспорта</param>
+        /// <summary>
+        /// Экспортирует список всех студентов в файл Excel из списка школ
+        /// </summary>
+        /// <param name="parentWindow">Родительское окно для отображения диалогов</param>
+        public async Task ExportStudentsToExcel(Window parentWindow)
+        {
+            try
+            {
+                var confirm = await ShowConfirmationDialog(parentWindow,
+                    "Подтверждение экспорта",
+                    "Вы уверены, что хотите экспортировать данные всех студентов в Excel?");
 
+                if (!confirm) return;
+
+                // Загружаем всех студентов со всеми связанными данными
+                var students = _context.Students
+                    .Include(s => s.Class)
+                    .Include(s => s.School)
+                    .Include(s => s.StudentGiaResults)
+                        .ThenInclude(g => g.IdGiaSubjectsNavigation)
+                        .ThenInclude(g => g.GiaSubjectsNavigation)
+                    .Include(s => s.StudentOlympiadParticipations)
+                        .ThenInclude(o => o.IdOlympiadsNavigation)
+                        .ThenInclude(o => o.OlympiadsNavigation)
+                    .Include(s => s.StudentOlympiadParticipations)
+                        .ThenInclude(o => o.IdOlympiadsNavigation)
+                        .ThenInclude(o => o.OlympiadsItemsNavigation)
+                    .ToList();
+
+                var saveDialog = new SaveFileDialog
+                {
+                    Title = "Сохранить Excel-файл",
+                    Filters = new List<FileDialogFilter> {
+                new() { Name = "Файлы Excel", Extensions = { "xlsx" } }
+            },
+                    InitialFileName = $"Экспорт_всех_студентов_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+                };
+
+                var filePath = await saveDialog.ShowAsync(parentWindow);
+                if (string.IsNullOrEmpty(filePath)) return;
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Ученики");
+                    // Формируем заголовки столбцов
+                    var headers = new List<string> { "Фамилия", "Имя", "Отчество", "Класс", "Школа", "Номер школы", "ГИА" };
+
+                    // Максимальное количество олимпиад
+                    int maxOlympiads = students.Max(s => s.StudentOlympiadParticipations?.Count ?? 0);
+
+                    // Добавляем колонки для олимпиад
+                    for (int i = 0; i < maxOlympiads; i++)
+                    {
+                        headers.Add($"Олимпиада {i + 1}");
+                        headers.Add($"Предметы олимпиады {i + 1}");
+                    }
+
+                    // Заполняем заголовки
+                    for (int i = 0; i < headers.Count; i++)
+                    {
+                        worksheet.Cell(1, i + 1).Value = headers[i];
+                        worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    }
+
+                    // Заполняем данные студентов
+                    int row = 2;
+                    foreach (var student in students)
+                    {
+                        // Основная информация
+                        worksheet.Cell(row, 1).Value = student.LastName;
+                        worksheet.Cell(row, 2).Value = student.FirstName;
+                        worksheet.Cell(row, 3).Value = student.Patronymic;
+                        worksheet.Cell(row, 4).Value = student.Class?.ClassesNumber;
+                        worksheet.Cell(row, 5).Value = student.School?.Name;
+                        worksheet.Cell(row, 6).Value = student.School?.SchoolNumber;
+
+                        // Предметы ГИА
+                        var giaSubjects = student.StudentGiaResults?
+                            .Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
+                            .Where(name => !string.IsNullOrEmpty(name))
+                            .Distinct() ?? Enumerable.Empty<string>();
+
+                        worksheet.Cell(row, 7).Value = string.Join(", ", giaSubjects);
+
+                        // Обработка олимпиад
+                        var olympiadData = student.StudentOlympiadParticipations?
+                            .Where(o => o.IdOlympiadsNavigation != null)
+                            .Select(o => (
+                                Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,
+                                Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
+                            ))
+                            .Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject))
+                            .ToList() ?? new List<(string Type, string Subject)>();
+
+                        // Записываем данные об олимпиадах
+                        int col = 8;
+                        foreach (var olympiad in olympiadData)
+                        {
+                            worksheet.Cell(row, col++).Value = olympiad.Type;
+                            worksheet.Cell(row, col++).Value = olympiad.Subject;
+                        }
+
+                        row++;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+                    workbook.SaveAs(filePath);
+                }
+
+                await ShowCustomMessage(parentWindow, "Экспорт завершен",
+                    "Данные всех студентов успешно экспортированы в Excel!", Brushes.Green);
+            }
+            catch (Exception ex)
+            {
+                await ShowCustomMessage(parentWindow, "Ошибка экспорта",
+                    $"Произошла ошибка: {ex.Message}", Brushes.Red);
+            }
+        }
 
         /// <summary>
         /// Импортирует данные студентов из файла Excel
@@ -225,14 +347,12 @@ namespace StudentProfileSystem.Services
                     }
                 }
 
-                await ShowCustomMessage(parentWindow, "Импорт завершен",
-                    "Данные успешно импортированы из Excel!", Brushes.Green);
+                await ShowCustomMessage(parentWindow, "Импорт завершен", "Данные успешно импортированы из Excel!", Brushes.Green);
                 return true;
             }
             catch (Exception ex)
             {
-                await ShowCustomMessage(parentWindow, "Ошибка импорта",
-                    $"Произошла ошибка: {ex.Message}", Brushes.Red);
+                await ShowCustomMessage(parentWindow, "Ошибка импорта", $"Произошла ошибка: {ex.Message}", Brushes.Red);
                 return false;
             }
         }
@@ -424,83 +544,105 @@ namespace StudentProfileSystem.Services
             return result;
         }
 
+
+
+
         /// <summary>
         /// Отображает диалоговое окно подтверждения
         /// </summary>
         private async Task<bool> ShowConfirmationDialog(Window parentWindow, string title, string message)
         {
             var tcs = new TaskCompletionSource<bool>();
-            var result = false;
 
-            // Сначала создаем элементы управления
             var yesButton = new Button
             {
-                Content = "Да",
-                Width = 80,
-                Background = Brushes.Green
+                Content = new TextBlock
+                {
+                    Text = "Да",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Height = 30,
+                Background = Brushes.Green,
+                Margin = new Thickness(5)
             };
 
             var noButton = new Button
             {
-                Content = "Нет",
-                Width = 80,
-                Background = Brushes.Red
+                Content = new TextBlock
+                {
+                    Text = "Нет",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Height = 30,
+                Background = Brushes.Red,
+                Margin = new Thickness(5)
             };
 
-            // Затем создаем окно
             var dialog = new Window
             {
                 Title = title,
-                Width = 450,
+                Width = 550,
                 Height = 200,
-                SizeToContent = SizeToContent.Manual,
+                MinWidth = 400,
+                MinHeight = 180,
+                MaxWidth = 550,
+                MaxHeight = 300,
+                WindowState = WindowState.Normal,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = false,
                 Content = new Border
                 {
                     BorderBrush = Brushes.Gray,
                     BorderThickness = new Thickness(2),
-                    Padding = new Thickness(15),
-                    Child = new StackPanel
+                    Child = new Grid
                     {
-                        Spacing = 15,
+                        Margin = new Thickness(15),
                         Children =
                 {
-                    new TextBlock
-                    {
-                        Text = message,
-                        TextWrapping = TextWrapping.Wrap,
-                        HorizontalAlignment = HorizontalAlignment.Center
-                    },
                     new StackPanel
                     {
-                        Orientation = Orientation.Horizontal,
+                        VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
-                        Spacing = 10,
-                        Children = { yesButton, noButton }
+                        Children =
+                        {
+                            new TextBlock
+                            {
+                                Text = message,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                Margin = new Thickness(0, 0, 0, 20),
+                                FontSize = 14
+                            },
+                            new StackPanel
+                            {
+                                Orientation = Orientation.Horizontal,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Children =
+                                {
+                                    yesButton,
+                                    noButton
+                                }
+                            }
+                        }
                     }
                 }
                     }
                 }
             };
 
-            // Назначаем команды после создания всех элементов
-            yesButton.Command = new RelayCommand(_ =>
-            {
-                result = true;
-                dialog.Close();
-            });
+            yesButton.Click += (s, e) => { tcs.TrySetResult(true); dialog.Close(); };
+            noButton.Click += (s, e) => { tcs.TrySetResult(false); dialog.Close(); };
 
-            noButton.Command = new RelayCommand(_ =>
-            {
-                result = false;
-                dialog.Close();
-            });
-
-            dialog.Closed += (sender, e) =>
-            {
-                tcs.TrySetResult(result);
-            };
-
+            dialog.Closed += (sender, e) => tcs.TrySetResult(false);
             await dialog.ShowDialog(parentWindow);
             return await tcs.Task;
         }
@@ -510,43 +652,81 @@ namespace StudentProfileSystem.Services
         /// </summary>
         private async Task ShowCustomMessage(Window parentWindow, string title, string message, IBrush borderBrush)
         {
+            var tcs = new TaskCompletionSource<bool>();
+
+            var okButton = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "OK",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Height = 30,
+                Background = borderBrush is SolidColorBrush brush && brush.Color == Brushes.Red.Color
+                    ? Brushes.Red
+                    : Brushes.Green,
+                Margin = new Thickness(5)
+            };
+
             var dialog = new Window
             {
                 Title = title,
-                Width = 450,
+                Width = 550,
                 Height = 200,
-                SizeToContent = SizeToContent.Manual,
+                MinWidth = 400,
+                MinHeight = 180,
+                MaxWidth = 550,
+                MaxHeight = 300,
+                WindowState = WindowState.Normal,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = false,
                 Content = new Border
                 {
                     BorderBrush = borderBrush,
                     BorderThickness = new Thickness(2),
-                    Padding = new Thickness(15),
-                    Child = new StackPanel
+                    Child = new Grid
                     {
-                        Spacing = 10,
+                        Margin = new Thickness(15),
+                        Children =
+                {
+                    new StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
                         Children =
                         {
                             new TextBlock
                             {
                                 Text = message,
                                 TextWrapping = TextWrapping.Wrap,
-                                HorizontalAlignment = HorizontalAlignment.Center
+                                TextAlignment = TextAlignment.Center,
+                                FontSize = 14,
+                                Margin = new Thickness(0, 0, 0, 20)
                             },
-                            new Button
-                            {
-                                Content = "OK",
-                                Width = 80,
-                                HorizontalAlignment = HorizontalAlignment.Center,
-                                Command = new RelayCommand(_ => (parentWindow.GetVisualRoot() as Window)?.Close())
-                            }
+                            okButton
                         }
+                    }
+                }
                     }
                 }
             };
 
+            okButton.Click += (s, e) => { tcs.TrySetResult(true); dialog.Close(); };
+            dialog.Closed += (sender, e) => tcs.TrySetResult(true);
             await dialog.ShowDialog(parentWindow);
+            await tcs.Task;
         }
+
+
+
+
+
+
 
         /// <summary>
         /// Находит или создает школу

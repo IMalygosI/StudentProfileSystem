@@ -290,7 +290,7 @@ namespace StudentProfileSystem
                 : $"Вы точно хотите удалить {selectedStudents.Count} выбранных учеников?\n" +
                   "ВНИМАНИЕ: Это действие также удалит все связанные данные (результаты ГИА, участия в олимпиадах, историю классов и школ)";
 
-            var dialogResult = await ShowConfirmationDialog("Подтверждение удаления", message);
+            var dialogResult = await ShowConfirmationDialog(this, "Подтверждение удаления", message);
             if (!dialogResult) return;
 
             using (var transaction = Helper.DateBase.Database.BeginTransaction())
@@ -390,16 +390,22 @@ namespace StudentProfileSystem
         /// <summary>
         /// Обновление данных студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
         /// </summary>
+        /// <summary>
+        /// Обновление данных студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
+        /// </summary>
         private async void Button_Click_Upload_data(object? sender, RoutedEventArgs e)
         {
             try
             {
+                var confirm = await ShowConfirmationDialog(this, "Подтверждение обновления", "Вы уверены, что хотите обновить данные студентов из Excel?");
+                if (!confirm) return;
+
                 var openDialog = new OpenFileDialog
                 {
                     Title = "Выберите файл Excel для обновления",
                     Filters = new List<FileDialogFilter> {
-                        new() { Name = "Excel Files", Extensions = { "xlsx" } }
-                    },
+                new() { Name = "Excel Files", Extensions = { "xlsx" } }
+            },
                     AllowMultiple = false
                 };
 
@@ -453,16 +459,18 @@ namespace StudentProfileSystem
                             }
 
                             // Обновляем олимпиады
-                            for (int i = 0; i < 3; i++)
+                            int olympiadColumn = 8;
+                            while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
                             {
-                                var olympiadType = row.Cell(8 + i * 2).GetString();
-                                var olympiadSubject = row.Cell(9 + i * 2).GetString();
+                                var olympiadType = row.Cell(olympiadColumn).GetString();
+                                var olympiadSubject = row.Cell(olympiadColumn + 1).GetString();
 
                                 if (!string.IsNullOrEmpty(olympiadType) && !string.IsNullOrEmpty(olympiadSubject))
                                 {
                                     var olympiad = await GetOrCreateOlympiadAsync(olympiadType, olympiadSubject);
                                     await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
                                 }
+                                olympiadColumn += 2;
                             }
 
                             updatedCount++;
@@ -496,16 +504,17 @@ namespace StudentProfileSystem
                     resultMessage += $"\n\nФайл с пометками сохранен как:\n{Path.GetFileName(errorFilePath)}";
                 }
 
-                await ShowCustomMessage("Результат обновления", resultMessage,
-                    notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
+                await ShowCustomMessage(this, "Результат обновления", resultMessage,notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
 
                 LoadInitialData();
             }
             catch (Exception ex)
             {
-                await ShowErrorDialog($"Произошла ошибка: {ex.Message}");
+                await ShowCustomMessage(this, "Ошибка обновления", $"Произошла ошибка: {ex.Message}", Brushes.Red);
             }
         }
+
+
 
         /// <summary>
         /// Выход из системы
@@ -543,7 +552,7 @@ namespace StudentProfileSystem
                          "- Все результаты ГИА учеников и все участия в олимпиадах\n" +
                          "- Всю историю классов учеников и всю историю школ учеников";
 
-            var dialogResult = await ShowConfirmationDialog("Подтверждение удаления школы", message);
+            var dialogResult = await ShowConfirmationDialog(this, "Подтверждение удаления школы", message);
             if (!dialogResult) return;
 
             using (var transaction = await Helper.DateBase.Database.BeginTransactionAsync())
@@ -714,7 +723,7 @@ namespace StudentProfileSystem
         /// <summary>
         /// Показывает информационное сообщение с настраиваемым цветом рамки
         /// </summary>
-        private async Task ShowCustomMessage(string title, string message, IBrush borderBrush)
+        private async Task ShowCustomMessage(Window parent, string title, string message, IBrush borderBrush)
         {
             var dialog = new Window
             {
@@ -762,7 +771,7 @@ namespace StudentProfileSystem
         /// <summary>
         /// Показывает диалоговое окно подтверждения
         /// </summary>
-        private async Task<bool> ShowConfirmationDialog(string title, string message)
+        private async Task<bool> ShowConfirmationDialog(Window parent, string title, string message)
         {
             var result = false;
 
@@ -777,10 +786,10 @@ namespace StudentProfileSystem
                 MaxWidth = 550,
                 MaxHeight = 300,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                SizeToContent = SizeToContent.Manual, // Отключаем авто-размер
-                WindowState = WindowState.Normal, // Гарантируем нормальный режим (не полноэкранный)
-                CanResize = false, // Запрещаем изменение размера
-                Topmost = true // Делаем окно поверх других
+                SizeToContent = SizeToContent.Manual,
+                WindowState = WindowState.Normal,
+                CanResize = false, 
+                Topmost = true 
             };
 
             // Создаем кнопки
