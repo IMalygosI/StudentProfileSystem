@@ -136,13 +136,7 @@ namespace StudentProfileSystem.Services
                     $"Произошла ошибка: {ex.Message}", Brushes.Red);
             }
         }
-
-
-        /// <summary>
-        /// Экспортирует список студентов в файл Excel из листа со школами
-        /// </summary>
-        /// <param name="parentWindow">Родительское окно для отображения диалогов</param>
-        /// <param name="students">Коллекция студентов для экспорта</param>
+                
         /// <summary>
         /// Экспортирует список всех студентов в файл Excel из списка школ
         /// </summary>
@@ -353,6 +347,135 @@ namespace StudentProfileSystem.Services
             catch (Exception ex)
             {
                 await ShowCustomMessage(parentWindow, "Ошибка импорта", $"Произошла ошибка: {ex.Message}", Brushes.Red);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Обновляет данные студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
+        /// </summary>
+        public async Task<bool> UpdateStudentsFromExcel(Window parentWindow)
+        {
+            try
+            {
+                var confirm = await ShowConfirmationDialog(parentWindow,
+                    "Подтверждение обновления",
+                    "Вы уверены, что хотите обновить данные студентов из Excel?");
+                if (!confirm) return false;
+
+                var openDialog = new OpenFileDialog
+                {
+                    Title = "Выберите файл Excel для обновления",
+                    Filters = new List<FileDialogFilter> {
+                new() { Name = "Excel Files", Extensions = { "xlsx" } }
+            },
+                    AllowMultiple = false
+                };
+
+                var filePaths = await openDialog.ShowAsync(parentWindow);
+                if (filePaths == null || filePaths.Length == 0) return false;
+
+                string errorFilePath = string.Empty;
+                int updatedCount = 0;
+                int notFoundCount = 0;
+
+                using (var workbook = new XLWorkbook(filePaths[0]))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Пропускаем заголовок
+
+                    foreach (var row in rows)
+                    {
+                        var lastName = row.Cell(1).GetString();
+                        var firstName = row.Cell(2).GetString();
+                        var patronymic = row.Cell(3).GetString();
+
+                        // Ищем студента по ФИО
+                        var student = await _context.Students
+                            .Include(s => s.StudentGiaResults)
+                            .Include(s => s.StudentOlympiadParticipations)
+                            .FirstOrDefaultAsync(s =>
+                                s.LastName == lastName &&
+                                s.FirstName == firstName &&
+                                s.Patronymic == patronymic);
+
+                        if (student != null)
+                        {
+                            // Удаляем старые записи ГИА и олимпиад
+                            _context.StudentGiaResults.RemoveRange(student.StudentGiaResults);
+                            _context.StudentOlympiadParticipations.RemoveRange(student.StudentOlympiadParticipations);
+
+                            // Обновляем предметы ГИА
+                            var giaSubjects = row.Cell(7).GetString()?
+                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if (giaSubjects != null)
+                            {
+                                foreach (var subjectName in giaSubjects.Select(s => s.Trim()))
+                                {
+                                    if (!string.IsNullOrEmpty(subjectName))
+                                    {
+                                        var giaSubject = await GetOrCreateGiaSubjectAsync(subjectName);
+                                        await AddGiaResultAsync(student.Id, giaSubject.Id);
+                                    }
+                                }
+                            }
+
+                            // Обновляем олимпиады
+                            int olympiadColumn = 8;
+                            while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
+                            {
+                                var olympiadType = row.Cell(olympiadColumn).GetString();
+                                var olympiadSubject = row.Cell(olympiadColumn + 1).GetString();
+
+                                if (!string.IsNullOrEmpty(olympiadType) && !string.IsNullOrEmpty(olympiadSubject))
+                                {
+                                    var olympiad = await GetOrCreateOlympiadAsync(olympiadType, olympiadSubject);
+                                    await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
+                                }
+                                olympiadColumn += 2;
+                            }
+
+                            updatedCount++;
+                        }
+                        else
+                        {
+                            notFoundCount++;
+                            // Добавляем строку с ошибкой в файл
+                            row.Cell(worksheet.ColumnsUsed().Count() + 1).Value = "Ученик не найден";
+                        }
+                    }
+
+                    // Сохраняем файл с пометками о не найденных студентах
+                    if (notFoundCount > 0)
+                    {
+                        errorFilePath = Path.Combine(
+                            Path.GetDirectoryName(filePaths[0]),
+                            Path.GetFileNameWithoutExtension(filePaths[0]) +
+                            "_with_errors" +
+                            Path.GetExtension(filePaths[0]));
+
+                        workbook.SaveAs(errorFilePath);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                string resultMessage = $"Обновлено студентов: {updatedCount}\nНе найдено: {notFoundCount}";
+                if (notFoundCount > 0)
+                {
+                    resultMessage += $"\n\nФайл с пометками сохранен как:\n{Path.GetFileName(errorFilePath)}";
+                }
+
+                await ShowCustomMessage(parentWindow, "Результат обновления", resultMessage,
+                    notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await ShowCustomMessage(parentWindow, "Ошибка обновления",
+                    $"Произошла ошибка: {ex.Message}", Brushes.Red);
                 return false;
             }
         }

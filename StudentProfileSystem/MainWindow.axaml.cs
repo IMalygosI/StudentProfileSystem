@@ -11,11 +11,7 @@ using Avalonia;
 using Avalonia.Layout;
 using StudentProfileSystem.Services;
 using MsBox.Avalonia.ViewModels.Commands;
-using ClosedXML.Excel;
-using MsBox.Avalonia.Enums;
-using MsBox.Avalonia;
 using Avalonia.VisualTree;
-using System.IO;
 using StudentProfileSystem.Context;
 
 namespace StudentProfileSystem
@@ -89,18 +85,16 @@ namespace StudentProfileSystem
         /// </summary>
         public void LoadStudents()
         {
-            IQueryable<Student> query = Helper.DateBase.Students
-                .Include(z => z.Class)
-                .Include(z => z.School)
-                .Include(x => x.StudentGiaResults)
-                    .ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
-                    .ThenInclude(x3 => x3.GiaSubjectsNavigation)
-                .Include(a => a.StudentOlympiadParticipations)
-                    .ThenInclude(a2 => a2.IdOlympiadsNavigation)
-                    .ThenInclude(a3 => a3.OlympiadsNavigation)
-                .Include(a => a.StudentOlympiadParticipations)
-                    .ThenInclude(a2 => a2.IdOlympiadsNavigation)
-                    .ThenInclude(a3 => a3.OlympiadsItemsNavigation);
+            IQueryable<Student> query = Helper.DateBase.Students.Include(z => z.Class)
+                                                                .Include(z => z.School)
+                                                                .Include(x => x.StudentGiaResults).ThenInclude(x2 => x2.IdGiaSubjectsNavigation)
+                                                                                                  .ThenInclude(x3 => x3.GiaSubjectsNavigation)
+                                                                .Include(a => a.StudentOlympiadParticipations)
+                                                                                                  .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                                                                  .ThenInclude(a3 => a3.OlympiadsNavigation)
+                                                                .Include(a => a.StudentOlympiadParticipations)
+                                                                                                  .ThenInclude(a2 => a2.IdOlympiadsNavigation)
+                                                                                                  .ThenInclude(a3 => a3.OlympiadsItemsNavigation);
 
             // Фильтрация по школе, если указан schoolId
             if (_schoolId > 0)
@@ -119,18 +113,10 @@ namespace StudentProfileSystem
         public void LoadComboBox()
         {
             // Загрузка предметов ГИА
-            var distinctGiaSubjects = Helper.DateBase.GiaSubjects
-                .Include(x => x.GiaSubjectsNavigation)
-                .GroupBy(x => x.GiaSubjectsNavigation.Name)
-                .Select(g => g.First())
-                .ToList();
+            var distinctGiaSubjects = Helper.DateBase.GiaSubjects.Include(x => x.GiaSubjectsNavigation).GroupBy(x => x.GiaSubjectsNavigation.Name).Select(g => g.First()).ToList();
 
             // Загрузка типов олимпиад
-            var distinctOlympiads = Helper.DateBase.Olympiads
-                .Include(a => a.OlympiadsNavigation)
-                .GroupBy(a => a.OlympiadsNavigation.Name)
-                .Select(g => g.First())
-                .ToList();
+            var distinctOlympiads = Helper.DateBase.Olympiads.Include(a => a.OlympiadsNavigation).GroupBy(a => a.OlympiadsNavigation.Name).Select(g => g.First()).ToList();
 
             // Добавление заголовков в ComboBox
             distinctGiaSubjects.Insert(0, new GiaSubject
@@ -200,9 +186,7 @@ namespace StudentProfileSystem
             if (students == null) return new List<Student>();
             if (selectedGia?.GiaSubjectsNavigation == null) return students;
 
-            return students.Where(s => s.StudentGiaResults?
-                .Any(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name == selectedGia.GiaSubjectsNavigation.Name) ?? false)
-                .ToList();
+            return students.Where(s => s.StudentGiaResults?.Any(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name == selectedGia.GiaSubjectsNavigation.Name) ?? false).ToList();
         }
 
         /// <summary>
@@ -213,9 +197,7 @@ namespace StudentProfileSystem
             if (students == null) return new List<Student>();
             if (selectedOlympiad?.OlympiadsNavigation == null) return students;
 
-            return students.Where(s => s.StudentOlympiadParticipations?
-                .Any(p => p.IdOlympiadsNavigation?.OlympiadsNavigation?.Name == selectedOlympiad.OlympiadsNavigation.Name) ?? false)
-                .ToList();
+            return students.Where(s => s.StudentOlympiadParticipations?.Any(p => p.IdOlympiadsNavigation?.OlympiadsNavigation?.Name == selectedOlympiad.OlympiadsNavigation.Name) ?? false).ToList();
         }
 
         /// <summary>
@@ -299,7 +281,6 @@ namespace StudentProfileSystem
                 {
                     foreach (var stud in selectedStudents)
                     {
-                        // Явно загружаем связанные данные для каждого студента
                         var studentWithRelations = await Helper.DateBase.Students
                             .Include(s => s.StudentGiaResults)
                             .Include(s => s.StudentOlympiadParticipations)
@@ -388,133 +369,15 @@ namespace StudentProfileSystem
         }
 
         /// <summary>
-        /// Обновление данных студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
-        /// </summary>
-        /// <summary>
-        /// Обновление данных студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
+        /// Обновление данных студентов из Excel
         /// </summary>
         private async void Button_Click_Upload_data(object? sender, RoutedEventArgs e)
         {
-            try
+            if (await _excelService.UpdateStudentsFromExcel(this))
             {
-                var confirm = await ShowConfirmationDialog(this, "Подтверждение обновления", "Вы уверены, что хотите обновить данные студентов из Excel?");
-                if (!confirm) return;
-
-                var openDialog = new OpenFileDialog
-                {
-                    Title = "Выберите файл Excel для обновления",
-                    Filters = new List<FileDialogFilter> {
-                new() { Name = "Excel Files", Extensions = { "xlsx" } }
-            },
-                    AllowMultiple = false
-                };
-
-                var filePaths = await openDialog.ShowAsync(this);
-                if (filePaths == null || filePaths.Length == 0) return;
-
-                string errorFilePath = string.Empty;
-                int updatedCount = 0;
-                int notFoundCount = 0;
-
-                using (var workbook = new XLWorkbook(filePaths[0]))
-                {
-                    var worksheet = workbook.Worksheet(1);
-                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Пропускаем заголовок
-
-                    foreach (var row in rows)
-                    {
-                        var lastName = row.Cell(1).GetString();
-                        var firstName = row.Cell(2).GetString();
-                        var patronymic = row.Cell(3).GetString();
-
-                        // Ищем студента по ФИО
-                        var student = await _context.Students
-                            .Include(s => s.StudentGiaResults)
-                            .Include(s => s.StudentOlympiadParticipations)
-                            .FirstOrDefaultAsync(s =>
-                                s.LastName == lastName &&
-                                s.FirstName == firstName &&
-                                s.Patronymic == patronymic);
-
-                        if (student != null)
-                        {
-                            // Удаляем старые записи ГИА и олимпиад
-                            _context.StudentGiaResults.RemoveRange(student.StudentGiaResults);
-                            _context.StudentOlympiadParticipations.RemoveRange(student.StudentOlympiadParticipations);
-
-                            // Обновляем предметы ГИА
-                            var giaSubjects = row.Cell(7).GetString()?
-                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-                            if (giaSubjects != null)
-                            {
-                                foreach (var subjectName in giaSubjects.Select(s => s.Trim()))
-                                {
-                                    if (!string.IsNullOrEmpty(subjectName))
-                                    {
-                                        var giaSubject = await GetOrCreateGiaSubjectAsync(subjectName);
-                                        await AddGiaResultAsync(student.Id, giaSubject.Id);
-                                    }
-                                }
-                            }
-
-                            // Обновляем олимпиады
-                            int olympiadColumn = 8;
-                            while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
-                            {
-                                var olympiadType = row.Cell(olympiadColumn).GetString();
-                                var olympiadSubject = row.Cell(olympiadColumn + 1).GetString();
-
-                                if (!string.IsNullOrEmpty(olympiadType) && !string.IsNullOrEmpty(olympiadSubject))
-                                {
-                                    var olympiad = await GetOrCreateOlympiadAsync(olympiadType, olympiadSubject);
-                                    await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
-                                }
-                                olympiadColumn += 2;
-                            }
-
-                            updatedCount++;
-                        }
-                        else
-                        {
-                            notFoundCount++;
-                            // Добавляем строку с ошибкой в файл
-                            row.Cell(worksheet.ColumnsUsed().Count() + 1).Value = "Ученик не найден";
-                        }
-                    }
-
-                    // Сохраняем файл с пометками о не найденных студентах
-                    if (notFoundCount > 0)
-                    {
-                        errorFilePath = Path.Combine(
-                            Path.GetDirectoryName(filePaths[0]),
-                            Path.GetFileNameWithoutExtension(filePaths[0]) +
-                            "_with_errors" +
-                            Path.GetExtension(filePaths[0]));
-
-                        workbook.SaveAs(errorFilePath);
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
-
-                string resultMessage = $"Обновлено студентов: {updatedCount}\nНе найдено: {notFoundCount}";
-                if (notFoundCount > 0)
-                {
-                    resultMessage += $"\n\nФайл с пометками сохранен как:\n{Path.GetFileName(errorFilePath)}";
-                }
-
-                await ShowCustomMessage(this, "Результат обновления", resultMessage,notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
-
                 LoadInitialData();
             }
-            catch (Exception ex)
-            {
-                await ShowCustomMessage(this, "Ошибка обновления", $"Произошла ошибка: {ex.Message}", Brushes.Red);
-            }
         }
-
-
 
         /// <summary>
         /// Выход из системы
@@ -532,17 +395,14 @@ namespace StudentProfileSystem
         {
             if (_schoolId <= 0) return;
 
-            var school = await Helper.DateBase.Schools
-                .Include(s => s.Students)
-                    .ThenInclude(st => st.StudentGiaResults)
-                .Include(s => s.Students)
-                    .ThenInclude(st => st.StudentOlympiadParticipations)
-                .Include(s => s.Students)
-                    .ThenInclude(st => st.StudentClassHistories)
-                .Include(s => s.Students)
-                    .ThenInclude(st => st.StudentSchoolHistories)
-                .Include(s => s.StudentSchoolHistories)
-                .FirstOrDefaultAsync(s => s.Id == _schoolId);
+            var school = await Helper.DateBase.Schools.Include(s => s.Students).ThenInclude(st => st.StudentGiaResults)
+                                                      .Include(s => s.Students)
+                                                                               .ThenInclude(st => st.StudentOlympiadParticipations)
+                                                      .Include(s => s.Students)
+                                                                               .ThenInclude(st => st.StudentClassHistories)
+                                                      .Include(s => s.Students)
+                                                                               .ThenInclude(st => st.StudentSchoolHistories)
+                                                      .Include(s => s.StudentSchoolHistories).FirstOrDefaultAsync(s => s.Id == _schoolId);
 
             if (school == null) return;
 
@@ -597,86 +457,6 @@ namespace StudentProfileSystem
             }
         }
 
-        private async Task<GiaSubject> GetOrCreateGiaSubjectAsync(string subjectName)
-        {
-            // Сначала ищем предмет
-            var item = await _context.Items.FirstOrDefaultAsync(i => i.Name == subjectName);
-            if (item == null)
-            {
-                item = new Item { Name = subjectName };
-                _context.Items.Add(item);
-                await _context.SaveChangesAsync();
-            }
-
-            // Затем ищем ГИА предмет
-            var giaSubject = await _context.GiaSubjects
-                .FirstOrDefaultAsync(gs => gs.GiaSubjectsNavigation.Name == subjectName);
-
-            if (giaSubject == null)
-            {
-                giaSubject = new GiaSubject { GiaSubjects = item.Id };
-                _context.GiaSubjects.Add(giaSubject);
-                await _context.SaveChangesAsync();
-            }
-
-            return giaSubject;
-        }
-
-        private async Task<Olympiad> GetOrCreateOlympiadAsync(string typeName, string subjectName)
-        {
-            // Сначала ищем тип олимпиады
-            var olympiadType = await _context.OlympiadsTypes.FirstOrDefaultAsync(t => t.Name == typeName);
-            if (olympiadType == null)
-            {
-                olympiadType = new OlympiadsType { Name = typeName };
-                _context.OlympiadsTypes.Add(olympiadType);
-                await _context.SaveChangesAsync();
-            }
-
-            // Затем ищем предмет
-            var item = await _context.Items.FirstOrDefaultAsync(i => i.Name == subjectName);
-            if (item == null)
-            {
-                item = new Item { Name = subjectName };
-                _context.Items.Add(item);
-                await _context.SaveChangesAsync();
-            }
-
-            // Ищем олимпиаду
-            var olympiad = await _context.Olympiads
-                .FirstOrDefaultAsync(o => o.OlympiadsNavigation.Name == typeName &&
-                                         o.OlympiadsItemsNavigation.Name == subjectName);
-
-            if (olympiad == null)
-            {
-                olympiad = new Olympiad { Olympiads = olympiadType.Id, OlympiadsItems = item.Id };
-                _context.Olympiads.Add(olympiad);
-                await _context.SaveChangesAsync();
-            }
-
-            return olympiad;
-        }
-
-        private async Task AddGiaResultAsync(int studentId, int giaSubjectId)
-        {
-            _context.StudentGiaResults.Add(new StudentGiaResult
-            {
-                IdStudents = studentId,
-                IdGiaSubjects = giaSubjectId
-            });
-            await _context.SaveChangesAsync();
-        }
-
-        private async Task AddOlympiadParticipationAsync(int studentId, int olympiadId)
-        {
-            _context.StudentOlympiadParticipations.Add(new StudentOlympiadParticipation
-            {
-                IdStudents = studentId,
-                IdOlympiads = olympiadId
-            });
-            await _context.SaveChangesAsync();
-        }
-
         /// <summary>
         /// Показывает диалоговое окно с сообщением об ошибке
         /// </summary>
@@ -721,54 +501,6 @@ namespace StudentProfileSystem
         }
 
         /// <summary>
-        /// Показывает информационное сообщение с настраиваемым цветом рамки
-        /// </summary>
-        private async Task ShowCustomMessage(Window parent, string title, string message, IBrush borderBrush)
-        {
-            var dialog = new Window
-            {
-                Title = title,
-                Width = 450,
-                Height = 250,
-                SizeToContent = SizeToContent.Manual,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                WindowState = WindowState.Normal, // Явно указываем нормальный режим
-                CanResize = false,
-                Content = new Border
-                {
-                    BorderBrush = borderBrush,
-                    BorderThickness = new Thickness(2),
-                    Padding = new Thickness(15),
-                    Child = new StackPanel
-                    {
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Children =
-                {
-                    new TextBlock
-                    {
-                        Text = message,
-                        TextWrapping = TextWrapping.Wrap,
-                        TextAlignment = TextAlignment.Center,
-                        Margin = new Thickness(0, 0, 0, 15)
-                    },
-                    new Button
-                    {
-                        Content = "OK",
-                        Width = 80,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Command = new RelayCommand(_ => (this.GetVisualRoot() as Window)?.Close())
-                    }
-                }
-                    }
-                }
-            };
-
-            await dialog.ShowDialog(this);
-        }
-
-
-        /// <summary>
         /// Показывает диалоговое окно подтверждения
         /// </summary>
         private async Task<bool> ShowConfirmationDialog(Window parent, string title, string message)
@@ -788,8 +520,8 @@ namespace StudentProfileSystem
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 SizeToContent = SizeToContent.Manual,
                 WindowState = WindowState.Normal,
-                CanResize = false, 
-                Topmost = true 
+                CanResize = false,
+                Topmost = true
             };
 
             // Создаем кнопки

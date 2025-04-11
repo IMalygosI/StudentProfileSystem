@@ -468,6 +468,11 @@
 								<TextBlock Text="{Binding SchoolNavigation.Name}" 
 										   TextWrapping="Wrap"
 										   Margin="0 0 10 0"/>
+
+								<TextBlock Text=" - Дата:"
+										   FontWeight="Bold"
+										   TextWrapping="Wrap"
+										   Margin="0 0 10 0"/>
 								
 								<TextBlock Text="{Binding ChangeDate, StringFormat='{}{0:dd.MM.yyyy}'}"
 										   TextWrapping="Wrap"/>
@@ -528,10 +533,10 @@
 								
 								<TextBlock Text="{Binding ClassNavigation.ClassesNumber}" 
 										   TextWrapping="Wrap"
-										   FontWeight="Bold" 
 										   Margin="0 0 10 0"/>
 								
 								<TextBlock Text=" - Дата:"
+										   FontWeight="Bold"
 										   TextWrapping="Wrap"
 										   Margin="0 0 10 0"/>								
 								
