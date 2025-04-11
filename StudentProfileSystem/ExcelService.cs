@@ -95,22 +95,14 @@ namespace StudentProfileSystem.Services
                         worksheet.Cell(row, 6).Value = student.School?.SchoolNumber;
 
                         // Предметы ГИА
-                        var giaSubjects = student.StudentGiaResults?
-                            .Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
-                            .Where(name => !string.IsNullOrEmpty(name))
-                            .Distinct() ?? Enumerable.Empty<string>();
+                        var giaSubjects = student.StudentGiaResults?.Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name).Where(name => !string.IsNullOrEmpty(name)).Distinct() ?? Enumerable.Empty<string>();
 
                         worksheet.Cell(row, 7).Value = string.Join(", ", giaSubjects);
 
                         // Обработка олимпиад
-                        var olympiadData = student.StudentOlympiadParticipations?
-                            .Where(o => o.IdOlympiadsNavigation != null)
-                            .Select(o => (
-                                Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,
-                                Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
-                            ))
-                            .Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject))
-                            .ToList() ?? new List<(string Type, string Subject)>();
+                        var olympiadData = student.StudentOlympiadParticipations?.Where(o => o.IdOlympiadsNavigation != null).Select(o => (Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,
+                                                                                                                                   Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name))
+                                                                                 .Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject)).ToList() ?? new List<(string Type, string Subject)>();
 
                         // Записываем данные об олимпиадах
                         int col = 8;
@@ -567,8 +559,7 @@ namespace StudentProfileSystem.Services
             await _context.SaveChangesAsync();
 
             // Добавление предметов ГИА
-            var giaSubjects = row.Cell(7).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var giaSubjects = row.Cell(7).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (giaSubjects != null)
             {
@@ -641,11 +632,13 @@ namespace StudentProfileSystem.Services
                             var olympiadType = row.Cell(olympiadColumn).GetString();
                             var olympiadSubject = row.Cell(olympiadColumn + 1).GetString();
 
-                            if ((!string.IsNullOrWhiteSpace(olympiadType) && string.IsNullOrWhiteSpace(olympiadSubject)) ||
-                                (string.IsNullOrWhiteSpace(olympiadType) && !string.IsNullOrWhiteSpace(olympiadSubject)))
+                            // Only validate if olympiad type is specified but subject is missing
+                            if (!string.IsNullOrWhiteSpace(olympiadType) && string.IsNullOrWhiteSpace(olympiadSubject))
                             {
-                                result.Errors.Add($"Строка {rowNum}: Неполные данные олимпиады (колонки {olympiadColumn}-{olympiadColumn + 1})");
+                                result.Errors.Add($"Строка {rowNum}: Не указан предмет для олимпиады '{olympiadType}' (колонка {olympiadColumn + 1})");
                             }
+
+                            // Don't show error if both are empty or just subject is empty without type
                             olympiadColumn += 2;
                         }
 
@@ -667,8 +660,105 @@ namespace StudentProfileSystem.Services
             return result;
         }
 
+        /// <summary>
+        /// Отображает информационное сообщение
+        /// </summary>
+        private async Task ShowCustomMessage(Window parentWindow, string title, string message, IBrush borderBrush)
+        {
+            var tcs = new TaskCompletionSource<bool>();
 
+            var okButton = new Button
+            {
+                Content = new TextBlock
+                {
+                    Text = "OK",
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Height = 30,
+                Background = borderBrush is SolidColorBrush brush && brush.Color == Brushes.Red.Color
+                    ? Brushes.Red
+                    : Brushes.Green,
+                Margin = new Thickness(5)
+            };
 
+            // Create scrollable content if there are many errors
+            var content = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Children =
+        {
+            new TextBlock
+            {
+                Text = message,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                FontSize = 14,
+                Margin = new Thickness(0, 0, 0, 20)
+            }
+        }
+            };
+
+            // If message is long (many errors), make it scrollable
+            if (message.Count(c => c == '\n') > 5) // More than 5 lines
+            {
+                var scrollViewer = new ScrollViewer
+                {
+                    Height = 200,
+                    Content = content,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                };
+
+                content = new StackPanel
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Children =
+            {
+                scrollViewer,
+                okButton
+            }
+                };
+            }
+            else
+            {
+                content.Children.Add(okButton);
+            }
+
+            var dialog = new Window
+            {
+                Title = title,
+                Width = 550,
+                Height = message.Count(c => c == '\n') > 5 ? 350 : 200, // Adjust height based on content
+                MinWidth = 400,
+                MinHeight = 180,
+                MaxWidth = 550,
+                MaxHeight = 400,
+                WindowState = WindowState.Normal,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                SizeToContent = SizeToContent.Manual,
+                CanResize = true, // Allow resizing for long messages
+                Content = new Border
+                {
+                    BorderBrush = borderBrush,
+                    BorderThickness = new Thickness(2),
+                    Child = new Grid
+                    {
+                        Margin = new Thickness(15),
+                        Children = { content }
+                    }
+                }
+            };
+
+            okButton.Click += (s, e) => { tcs.TrySetResult(true); dialog.Close(); };
+            dialog.Closed += (sender, e) => tcs.TrySetResult(true);
+            await dialog.ShowDialog(parentWindow);
+            await tcs.Task;
+        }
 
         /// <summary>
         /// Отображает диалоговое окно подтверждения
@@ -769,87 +859,6 @@ namespace StudentProfileSystem.Services
             await dialog.ShowDialog(parentWindow);
             return await tcs.Task;
         }
-
-        /// <summary>
-        /// Отображает информационное сообщение
-        /// </summary>
-        private async Task ShowCustomMessage(Window parentWindow, string title, string message, IBrush borderBrush)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            var okButton = new Button
-            {
-                Content = new TextBlock
-                {
-                    Text = "OK",
-                    Foreground = Brushes.White,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                },
-                Width = 100,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Height = 30,
-                Background = borderBrush is SolidColorBrush brush && brush.Color == Brushes.Red.Color
-                    ? Brushes.Red
-                    : Brushes.Green,
-                Margin = new Thickness(5)
-            };
-
-            var dialog = new Window
-            {
-                Title = title,
-                Width = 550,
-                Height = 200,
-                MinWidth = 400,
-                MinHeight = 180,
-                MaxWidth = 550,
-                MaxHeight = 300,
-                WindowState = WindowState.Normal,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                SizeToContent = SizeToContent.Manual,
-                CanResize = false,
-                Content = new Border
-                {
-                    BorderBrush = borderBrush,
-                    BorderThickness = new Thickness(2),
-                    Child = new Grid
-                    {
-                        Margin = new Thickness(15),
-                        Children =
-                {
-                    new StackPanel
-                    {
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Children =
-                        {
-                            new TextBlock
-                            {
-                                Text = message,
-                                TextWrapping = TextWrapping.Wrap,
-                                TextAlignment = TextAlignment.Center,
-                                FontSize = 14,
-                                Margin = new Thickness(0, 0, 0, 20)
-                            },
-                            okButton
-                        }
-                    }
-                }
-                    }
-                }
-            };
-
-            okButton.Click += (s, e) => { tcs.TrySetResult(true); dialog.Close(); };
-            dialog.Closed += (sender, e) => tcs.TrySetResult(true);
-            await dialog.ShowDialog(parentWindow);
-            await tcs.Task;
-        }
-
-
-
-
-
-
 
         /// <summary>
         /// Находит или создает школу

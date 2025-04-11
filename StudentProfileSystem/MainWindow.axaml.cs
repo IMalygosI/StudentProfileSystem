@@ -576,7 +576,6 @@ namespace StudentProfileSystem
             yesButton.Click += (s, e) => { result = true; dialog.Close(); };
             noButton.Click += (s, e) => { result = false; dialog.Close(); };
 
-            // Показываем окно и ждем результат
             await dialog.ShowDialog(this);
             return result;
         }
