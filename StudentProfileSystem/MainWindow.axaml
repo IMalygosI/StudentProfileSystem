@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+		WindowState="Maximized"
 		MinWidth="1050"
         x:Class="StudentProfileSystem.MainWindow"
 		xmlns:converters="using:StudentProfileSystem.Converters"
@@ -16,8 +17,9 @@
 		<local:CollectionConverter x:Key="CollectionConverter"/>
 		<local:IsGiaClassConverter x:Key="IsGiaClassConverter"/>
 		<local:HasItemsConverter x:Key="HasItemsConverter"/>
+		<local:HasGiaConverter x:Key="HasGiaConverter"/>
+		<local:AndMultiConverter x:Key="AndMultiConverter"/>
 	</Window.Resources>
-
 
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.3*"
@@ -33,9 +35,9 @@
 					   Name="School_Name"
 					   IsVisible="True"
 					   Margin="0 0 0 0"
-					   HorizontalAlignment="Center"					   
+					   HorizontalAlignment="Center"
 					   VerticalAlignment="Center"/>
-			
+
 			<TextBlock Text=""
 					   IsVisible="True"
 					   Name="School_Name_Id"
@@ -44,18 +46,18 @@
 					   VerticalAlignment="Center"/>
 
 
-			
+
 			<Button Click="Button_Click_Exit">
 				<TextBlock Text="Выйти"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
-			
+
 		</DockPanel>
 
 
 		<Button Click="Button_Click_DeleteSchool"
-				Margin="0 0 20 0" 
+				Margin="0 0 20 0"
 				Name="SchoolNumber"
 				IsVisible="False"
 				HorizontalAlignment="Right"
@@ -87,7 +89,7 @@
 					  MinWidth="150"
 					  Height="35">
 				<ComboBox.ItemTemplate>
-					<DataTemplate> 
+					<DataTemplate>
 						<TextBlock Text="{Binding GiaSubjectsNavigation.Name}"/>
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
@@ -195,11 +197,10 @@
 						<Grid ColumnDefinitions="*"
 							  RowDefinitions="*"
 							  Margin="10">
-
 							<StackPanel>
-
+								
 								<DockPanel Margin="5 10 0 0">
-
+									
 									<TextBlock Text="ФИО:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
@@ -209,31 +210,31 @@
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding Patronymic}"
 											   Margin="5 0 0 0"/>
-
+									
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-
+									
 									<TextBlock Text="Школа:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding School.Name}"
 											   Margin="5 0 0 0"/>
-
+									
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-
+									
 									<TextBlock Text="Номер школы:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding School.SchoolNumber}"
 											   Margin="5 0 0 0"/>
-
+									
 								</DockPanel>
 
 								<DockPanel Margin="5 5 0 0">
-
+									
 									<TextBlock Text="Класс:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
@@ -241,36 +242,47 @@
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding Class.Letter}"
 											   Margin="0 0 0 0"/>
-
+									
 								</DockPanel>
 
-								<DockPanel Margin="5 5 0 0"
-										   IsVisible="{Binding Class.ClassesNumber, Converter={StaticResource IsGiaClassConverter}}">
+								<DockPanel Margin="5 5 0 0">
+									
+									<DockPanel.IsVisible>
+										<MultiBinding Converter="{StaticResource AndMultiConverter}">
+											
+											<Binding Path="Class.ClassesNumber" 
+													 Converter="{StaticResource IsGiaClassConverter}"/>											
+											<Binding Path="StudentGiaResults" 
+													 Converter="{StaticResource HasGiaConverter}"/>
+											
+										</MultiBinding>
+									</DockPanel.IsVisible>
+									
 									<TextBlock Text="ГИА:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 5"/>
 									<TextBlock Text="{Binding StudentGiaResults, Converter={StaticResource CollectionConverter}}"
 											   Margin="5 0 0 0"/>
+									
 								</DockPanel>
 
 								<DockPanel Margin="5 0 0 0"
 										   IsVisible="{Binding StudentOlympiadParticipations, Converter={StaticResource HasItemsConverter}}">
+									
 									<TextBlock Text="Олимпиады:"
 											   FontWeight="Bold"
 											   Margin="5 0 0 0"/>
 									<TextBlock Text="{Binding StudentOlympiadParticipations, Converter={StaticResource CollectionConverter}, ConverterParameter=', '}"
 											   Margin="5 0 0 0"
 											   TextWrapping="Wrap"/>
+									
 								</DockPanel>
-
-							
 							</StackPanel>
+
 						</Grid>
 					</Border>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
-
 	</Grid>
-
 </Window>

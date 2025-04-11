@@ -31,9 +31,13 @@ public partial class Student
 
     public virtual School School { get; set; } = null!;
 
+    public virtual ICollection<StudentClassHistory> StudentClassHistories { get; set; } = new List<StudentClassHistory>();
+
     public virtual ICollection<StudentGiaResult> StudentGiaResults { get; set; } = new List<StudentGiaResult>();
 
     public virtual ICollection<StudentOlympiadParticipation> StudentOlympiadParticipations { get; set; } = new List<StudentOlympiadParticipation>();
+
+    public virtual ICollection<StudentSchoolHistory> StudentSchoolHistories { get; set; } = new List<StudentSchoolHistory>();
 
     public virtual Education? TypeEducationNavigation { get; set; }
 

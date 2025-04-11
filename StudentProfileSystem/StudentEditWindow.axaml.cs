@@ -16,12 +16,16 @@ using Orientation = Avalonia.Layout.Orientation;
 using Avalonia.VisualTree;
 using Microsoft.EntityFrameworkCore;
 using Avalonia.Interactivity;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Border = Avalonia.Controls.Border;
+using System.Text.RegularExpressions;
 
 namespace StudentProfileSystem;
 
 public partial class StudentEditWindow : Window
 {
     Student Student1;
+    private readonly int _schoolId;
 
     List<Class> classes = new List<Class>();
     List<School> schools = new List<School>();
@@ -30,25 +34,48 @@ public partial class StudentEditWindow : Window
     List<EducationalInstitution> _EducationalInstitution = new List<EducationalInstitution>();
     List<Profile> _Profiles = new List<Profile>();
 
+    // Поля для работы с Историей классов и школ
+    private List<StudentSchoolHistory> _schoolHistory = new List<StudentSchoolHistory>();
+    private List<StudentClassHistory> _classHistory = new List<StudentClassHistory>();
+
     // Поля для работы с олимпиадами и ГИА
     private List<Olympiad> olympiads = new List<Olympiad>();
     private List<GiaSubject> giaSubjects = new List<GiaSubject>();
     private List<StudentOlympiadParticipation> studentOlympiads = new List<StudentOlympiadParticipation>();
     private List<StudentGiaResult> studentGias = new List<StudentGiaResult>();
 
-    /// <summary>
-    /// Конструктор для добавления нового студента
-    /// </summary>
     public StudentEditWindow()
     {
         InitializeComponent();
-
-        Title = "Добавление";
 
         Student1 = new Student();
         OkkoRedactAndAdd.DataContext = Student1;
 
         LoadComboBoxData();
+    }
+
+    /// <summary>
+    /// Конструктор для добавления нового студента
+    /// </summary>
+    public StudentEditWindow(int schoolId)
+    {
+        InitializeComponent();
+
+        _schoolId = schoolId;
+        Title = "Добавление";
+        Student1 = new Student();
+
+        // Если передали schoolId, устанавливаем его для нового студента
+        if (_schoolId != null)
+        {
+            Student1.SchoolId = _schoolId;
+        }
+
+        OkkoRedactAndAdd.DataContext = Student1;
+        ComboBox_Class.SelectionChanged += ComboBox_Class_SelectionChanged;
+
+        LoadComboBoxData();
+        UpdateFieldsVisibility();
     }
 
     /// <summary>
@@ -63,8 +90,65 @@ public partial class StudentEditWindow : Window
 
         Student1 = student;
         OkkoRedactAndAdd.DataContext = Student1;
+        ComboBox_Class.SelectionChanged += ComboBox_Class_SelectionChanged;
 
         LoadComboBoxData();
+        UpdateFieldsVisibility();
+    }
+
+    private void UpdateFieldsVisibility()
+    {
+        if (ComboBox_Class.SelectedItem is Class selectedClass)
+        {
+            // Используем регулярное выражение для извлечения числовой части класса
+            var match = Regex.Match(selectedClass.ClassesNumber, @"^\d{1,2}");
+            bool isNumeric = match.Success;
+            int classNumber = isNumeric ? int.Parse(match.Value) : 0;
+
+            // Показываем/скрываем поле "Профиль" только для 10-11 классов
+            bool isProfileVisible = isNumeric && (classNumber == 10 || classNumber == 11);
+            ProfileLabel.IsVisible = isProfileVisible;
+            ComboBox_Profile.IsVisible = isProfileVisible;
+
+            // Если профиль скрыт, сбрасываем значение
+            if (!isProfileVisible)
+            {
+                ComboBox_Profile.SelectedIndex = 0;
+                Student1.ProfileId = null;
+            }
+
+            // Показываем/скрываем поля "Учебное заведение" и "Образование" для 9 и 11 классов
+            bool isEducationVisible = isNumeric && (classNumber == 9 || classNumber == 11);
+            EducationalInstitutionLabel.IsVisible = isEducationVisible;
+            ComboBox_EducationalInstitution.IsVisible = isEducationVisible;
+            EducationLabel.IsVisible = isEducationVisible;
+            ComboBox_Education.IsVisible = isEducationVisible;
+
+            // Если поля образования скрыты, сбрасываем значения
+            if (!isEducationVisible)
+            {
+                ComboBox_EducationalInstitution.SelectedIndex = 0;
+                ComboBox_Education.SelectedIndex = 0;
+                Student1.EducationalInstitutionId = null;
+                Student1.TypeEducation = null;
+            }
+
+            // Показываем/скрываем раздел ГИА в зависимости от класса и наличия записей
+            bool shouldShowGiaSection = (isNumeric && (classNumber == 9 || classNumber == 11)) ||
+                                        (Student1.Id != 0 && studentGias.Any());
+
+            // Находим родительский Border, содержащий раздел ГИА
+            var giaBorder = this.FindControl<Border>("GiaBorder");
+            if (giaBorder != null)
+            {
+                giaBorder.IsVisible = shouldShowGiaSection;
+            }
+        }
+    }
+
+    private void ComboBox_Class_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateFieldsVisibility();
     }
 
     /// <summary>
@@ -72,6 +156,8 @@ public partial class StudentEditWindow : Window
     /// </summary>
     public void LoadComboBoxData()
     {
+        LoadSchoolHistory();
+        LoadClassHistory();
         LoadComboBoxClass();
         LoadComboBoxSchool();
         LoadComboBoxEducationalInstitution();
@@ -85,6 +171,34 @@ public partial class StudentEditWindow : Window
         {
             LoadStudentOlympiads();
             LoadStudentGias();
+        }
+    }
+
+    private void LoadSchoolHistory()
+    {
+        if (Student1.Id != 0)
+        {
+            _schoolHistory = Helper.DateBase.StudentSchoolHistories.Where(h => h.StudentId == Student1.Id).Include(h => h.SchoolNavigation).OrderByDescending(h => h.ChangeDate).ToList();
+            ListBox_HistorySchool.ItemsSource = _schoolHistory;
+        }
+        else
+        {
+            _schoolHistory.Clear();
+            ListBox_HistorySchool.ItemsSource = _schoolHistory;
+        }
+    }
+
+    private void LoadClassHistory()
+    {
+        if (Student1.Id != 0)
+        {
+            _classHistory = Helper.DateBase.StudentClassHistories.Where(h => h.StudentId == Student1.Id).Include(h => h.ClassNavigation).OrderByDescending(h => h.ChangeDate).ToList();
+            ListBox_HistoryClass.ItemsSource = _classHistory;
+        }
+        else
+        {
+            _classHistory.Clear();
+            ListBox_HistoryClass.ItemsSource = _classHistory;
         }
     }
 
@@ -129,7 +243,6 @@ public partial class StudentEditWindow : Window
     {
         _Education = Helper.DateBase.Educations.ToList();
 
-        // Добавляем элемент по умолчанию, если TypeEducation не установлен
         if (Student1.TypeEducation == null)
         {
             _Education.Insert(0, new Education()
@@ -139,7 +252,7 @@ public partial class StudentEditWindow : Window
             });
         }
 
-        ComboBox_Education.ItemsSource = _Education.OrderByDescending(z => Student1.TypeEducation != null ? z.Id == Student1.TypeEducation: z.Name == "Образование");
+        ComboBox_Education.ItemsSource = _Education.OrderByDescending(z => Student1.TypeEducation != null ? z.Id == Student1.TypeEducation : z.Name == "Образование");
         ComboBox_Education.SelectedIndex = 0;
     }
 
@@ -181,13 +294,29 @@ public partial class StudentEditWindow : Window
 
             if (Student1.Id != 0)
             {
+                // Для существующего студента
                 ComboBox_School.ItemsSource = schools.OrderByDescending(z => z.Id == Student1.SchoolId);
                 ComboBox_School.SelectedIndex = 0;
             }
             else
             {
-                schools.Add(new School() { Name = "Школа" });
-                ComboBox_School.ItemsSource = schools.OrderByDescending(z => z.Name == "Школа");
+                // Для нового студента
+                if (_schoolId != null)
+                {
+                    // Устанавливаем школу из параметра
+                    var school = schools.FirstOrDefault(s => s.Id == _schoolId);
+                    if (school != null)
+                    {
+                        schools = schools.OrderByDescending(s => s.Id == _schoolId).ToList();
+                        ComboBox_School.ItemsSource = schools;
+                        ComboBox_School.SelectedIndex = 0;
+                        return;
+                    }
+                }
+
+                // Если schoolId не передан или школа не найдена - добавляем заглушку
+                schools.Insert(0, new School() { Id = 0, Name = "Школа" });
+                ComboBox_School.ItemsSource = schools;
                 ComboBox_School.SelectedIndex = 0;
             }
         }
@@ -367,16 +496,24 @@ public partial class StudentEditWindow : Window
     private bool ValidateStudentData()
     {
         // Проверка ФИО
-        if (string.IsNullOrWhiteSpace(Student1.LastName) || string.IsNullOrWhiteSpace(Student1.FirstName))
+        if (string.IsNullOrWhiteSpace(Student1.LastName))
         {
-            ShowErrorDialog("Фамилия и имя обязательны для заполнения!");
+            ShowErrorDialog("Фамилия обязательна для заполнения!");
             return false;
         }
 
-        // Проверка на цифры в ФИО
-        if (ContainsNumbers(Student1.LastName) || ContainsNumbers(Student1.FirstName) || (Student1.Patronymic != null && ContainsNumbers(Student1.Patronymic)))
+        if (string.IsNullOrWhiteSpace(Student1.FirstName))
         {
-            ShowErrorDialog("ФИО может содержать только буквы!");
+            ShowErrorDialog("Имя обязательно для заполнения!");
+            return false;
+        }
+
+        // Проверка на цифры и специальные символы в ФИО
+        if (ContainsInvalidChars(Student1.LastName) ||
+            ContainsInvalidChars(Student1.FirstName) ||
+            (Student1.Patronymic != null && ContainsInvalidChars(Student1.Patronymic)))
+        {
+            ShowErrorDialog("ФИО может содержать только буквы и дефис!");
             return false;
         }
 
@@ -384,23 +521,34 @@ public partial class StudentEditWindow : Window
         var selectedSchool = ComboBox_School.SelectedItem as School;
         var selectedClass = ComboBox_Class.SelectedItem as Class;
 
-        if (selectedSchool == null || selectedSchool.Name == "Школа" ||
-            selectedClass == null || selectedClass.ClassesNumber == "Класс")
+        if (selectedSchool == null || selectedSchool.Id == 0)
         {
-            ShowErrorDialog("Выберите школу и класс из списка!");
+            ShowErrorDialog("Выберите школу из списка!");
+            return false;
+        }
+
+        if (selectedClass == null || selectedClass.Id == 0)
+        {
+            ShowErrorDialog("Выберите класс из списка!");
             return false;
         }
 
         return true;
     }
 
+    private bool ContainsInvalidChars(string input)
+    {
+        return input != null && input.Any(c => !char.IsLetter(c) && c != '-' && c != ' ');
+    }
+
     /// <summary>
-    /// Сохранение данных после редактирования (исправленная версия)
+    /// Сохранение данных после редактирования
     /// </summary>
     private async void Button_Click_Save(object? sender, RoutedEventArgs e)
     {
         if (!ValidateStudentData()) return;
 
+        // Обновляем значения профиля, образования и учебного заведения в зависимости от видимости полей
         if (ComboBox_Profile.IsVisible && ComboBox_Profile.SelectedItem is Profile selectedProfile)
         {
             Student1.ProfileId = selectedProfile.Id == 0 ? null : selectedProfile.Id;
@@ -410,18 +558,58 @@ public partial class StudentEditWindow : Window
             Student1.ProfileId = null;
         }
 
+        if (ComboBox_EducationalInstitution.IsVisible && ComboBox_EducationalInstitution.SelectedItem is EducationalInstitution selectedInstitution)
+        {
+            Student1.EducationalInstitutionId = selectedInstitution.Id == 0 ? null : selectedInstitution.Id;
+        }
+        else
+        {
+            Student1.EducationalInstitutionId = null;
+        }
+
+        if (ComboBox_Education.IsVisible && ComboBox_Education.SelectedItem is Education selectedEducation)
+        {
+            Student1.TypeEducation = selectedEducation.Id == 0 ? null : selectedEducation.Id;
+        }
+        else
+        {
+            Student1.TypeEducation = null;
+        }
+
         var confirm = await ShowConfirmationDialog("Вы уверены, что хотите сохранить изменения?");
         if (!confirm) return;
+
+        var selectedSchool = ComboBox_School.SelectedItem as School;
+        var selectedClass = ComboBox_Class.SelectedItem as Class;
+
+        bool schoolChanged = false;
+        bool classChanged = false;
+
+        if (Student1.Id != 0)
+        {
+            var originalStudent = Helper.DateBase.Students.AsNoTracking().FirstOrDefault(s => s.Id == Student1.Id);
+
+            if (originalStudent != null)
+            {
+                schoolChanged = originalStudent.SchoolId != selectedSchool?.Id;
+                classChanged = originalStudent.ClassId != selectedClass?.Id;
+            }
+        }
+        else
+        {
+            schoolChanged = selectedSchool != null;
+            classChanged = selectedClass != null;
+        }
 
         using (var transaction = await Helper.DateBase.Database.BeginTransactionAsync())
         {
             try
             {
-                // Установите SchoolId и ClassId из выбранных значений
-                if (ComboBox_School.SelectedItem is School selectedSchool)
+                // Устанавливаем SchoolId и ClassId
+                if (selectedSchool != null)
                     Student1.SchoolId = selectedSchool.Id;
 
-                if (ComboBox_Class.SelectedItem is Class selectedClass)
+                if (selectedClass != null)
                     Student1.ClassId = selectedClass.Id;
 
                 // Сохраняем основную информацию о студенте
@@ -436,10 +624,34 @@ public partial class StudentEditWindow : Window
                     await Helper.DateBase.SaveChangesAsync();
                 }
 
-                // Работа с олимпиадами
-                await ProcessOlympiads(Student1.Id);
+                var currentDate = DateOnly.FromDateTime(DateTime.Now);
 
-                // Работа с ГИА
+                // Сохраняем историю изменений школы
+                if (schoolChanged && selectedSchool != null)
+                {
+                    Helper.DateBase.StudentSchoolHistories.Add(new StudentSchoolHistory
+                    {
+                        StudentId = Student1.Id,
+                        SchoolId = selectedSchool.Id,
+                        ChangeDate = currentDate
+                    });
+                }
+
+                // Сохраняем историю изменений класса
+                if (classChanged && selectedClass != null)
+                {
+                    Helper.DateBase.StudentClassHistories.Add(new StudentClassHistory
+                    {
+                        StudentId = Student1.Id,
+                        ClassId = selectedClass.Id,
+                        ChangeDate = currentDate
+                    });
+                }
+
+                await Helper.DateBase.SaveChangesAsync();
+
+                // Обрабатываем олимпиады и ГИА
+                await ProcessOlympiads(Student1.Id);
                 await ProcessGias();
 
                 await transaction.CommitAsync();
@@ -462,9 +674,7 @@ public partial class StudentEditWindow : Window
 
     private async Task ProcessOlympiads(int studentId)
     {
-        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations
-            .Where(sop => sop.IdStudents == studentId)
-            .ToListAsync();
+        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations.Where(sop => sop.IdStudents == studentId).ToListAsync();
 
         // Удаляем отсутствующие
         foreach (var existing in existingOlympiads)
@@ -488,97 +698,25 @@ public partial class StudentEditWindow : Window
         await Helper.DateBase.SaveChangesAsync();
     }
 
-    private async Task ProcessGiaResults(int studentId)
-    {
-        var existingGias = await Helper.DateBase.StudentGiaResults
-            .Where(sgr => sgr.IdStudents == studentId)
-            .ToListAsync();
-
-        // Удаляем отсутствующие
-        foreach (var existing in existingGias)
-        {
-            if (!studentGias.Any(sgr => sgr.IdGiaSubjects == existing.IdGiaSubjects))
-            {
-                Helper.DateBase.StudentGiaResults.Remove(existing);
-            }
-        }
-
-        // Добавляем новые
-        foreach (var newGia in studentGias)
-        {
-            if (!existingGias.Any(eg => eg.IdGiaSubjects == newGia.IdGiaSubjects))
-            {
-                newGia.IdStudents = studentId;
-                Helper.DateBase.StudentGiaResults.Add(newGia);
-            }
-        }
-
-        await Helper.DateBase.SaveChangesAsync();
-    }
-
-    /// <summary>
-    /// Обработка олимпиад студента
-    /// </summary>
-    private async Task ProcessOlympiads()
-    {
-        // Получаем текущие олимпиады студента
-        var existingOlympiads = await Helper.DateBase.StudentOlympiadParticipations
-            .Where(sop => sop.IdStudents == Student1.Id)
-            .ToListAsync();
-
-        // Удаляем те, которых нет в новом списке
-        var olympiadsToRemove = existingOlympiads
-            .Where(eo => !studentOlympiads.Any(so => so.IdOlympiads == eo.IdOlympiads))
-            .ToList();
-
-        Helper.DateBase.StudentOlympiadParticipations.RemoveRange(olympiadsToRemove);
-
-        // Добавляем новые
-        var olympiadsToAdd = studentOlympiads
-            .Where(so => !existingOlympiads.Any(eo => eo.IdOlympiads == so.IdOlympiads))
-            .Select(so => new StudentOlympiadParticipation
-            {
-                IdStudents = Student1.Id,
-                IdOlympiads = so.IdOlympiads
-            })
-            .ToList();
-
-        Helper.DateBase.StudentOlympiadParticipations.AddRange(olympiadsToAdd);
-    }
-
     private async Task ProcessGias()
     {
         // Получаем текущие ГИА студента
-        var existingGias = await Helper.DateBase.StudentGiaResults
-            .Where(sgr => sgr.IdStudents == Student1.Id)
-            .ToListAsync();
+        var existingGias = await Helper.DateBase.StudentGiaResults.Where(sgr => sgr.IdStudents == Student1.Id).ToListAsync();
 
         // Удаляем те, которых нет в новом списке
-        var giasToRemove = existingGias
-            .Where(eg => !studentGias.Any(sg => sg.IdGiaSubjects == eg.IdGiaSubjects))
-            .ToList();
+        var giasToRemove = existingGias.Where(eg => !studentGias.Any(sg => sg.IdGiaSubjects == eg.IdGiaSubjects)).ToList();
 
         Helper.DateBase.StudentGiaResults.RemoveRange(giasToRemove);
 
         // Добавляем новые
-        var giasToAdd = studentGias
-            .Where(sg => !existingGias.Any(eg => eg.IdGiaSubjects == sg.IdGiaSubjects))
-            .Select(sg => new StudentGiaResult
+        var giasToAdd = studentGias.Where(sg => !existingGias.Any(eg => eg.IdGiaSubjects == sg.IdGiaSubjects)).Select(sg => new StudentGiaResult
             {
                 IdStudents = Student1.Id,
                 IdGiaSubjects = sg.IdGiaSubjects
-            })
-            .ToList();
+            }).ToList();
 
         Helper.DateBase.StudentGiaResults.AddRange(giasToAdd);
-    }
-
-    /// <summary>
-    /// Проверка на наличие цифр в строке
-    /// </summary>
-    private bool ContainsNumbers(string input)
-    {
-        return input != null && input.Any(char.IsDigit);
+        await Helper.DateBase.SaveChangesAsync();
     }
 
     /// <summary>
@@ -624,7 +762,7 @@ public partial class StudentEditWindow : Window
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             SizeToContent = SizeToContent.Manual,
             CanResize = false,
-            Content = new Border
+            Content = new Avalonia.Controls.Border
             {
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(2),
@@ -722,7 +860,6 @@ public partial class StudentEditWindow : Window
             }
         };
 
-        // Находим кнопку и добавляем обработчик
         var border = (Border)dialog.Content;
         var grid = (Grid)border.Child;
         var stackPanel = (StackPanel)grid.Children[0];
@@ -786,7 +923,6 @@ public partial class StudentEditWindow : Window
             }
         };
 
-        // Находим кнопку и добавляем обработчик
         var border = (Border)dialog.Content;
         var grid = (Grid)border.Child;
         var stackPanel = (StackPanel)grid.Children[0];
@@ -826,12 +962,23 @@ public partial class StudentEditWindow : Window
         if (Student1.Id == 0) return true;
         if (Helper.DateBase.Entry(Student1).State == EntityState.Modified) return true;
 
+        // Проверка олимпиад
         var currentOlympiads = Helper.DateBase.StudentOlympiadParticipations.Where(sop => sop.IdStudents == Student1.Id).Select(sop => sop.IdOlympiads).ToList();
 
+        // Проверка ГИА
         var currentGias = Helper.DateBase.StudentGiaResults.Where(sgr => sgr.IdStudents == Student1.Id).Select(sgr => sgr.IdGiaSubjects).ToList();
 
+        // Проверка истории классов
+        var hasClassHistory = Helper.DateBase.StudentClassHistories
+            .Any(h => h.StudentId == Student1.Id);
+
+        // Проверка истории школ
+        var hasSchoolHistory = Helper.DateBase.StudentSchoolHistories.Any(h => h.StudentId == Student1.Id);
+
         if (studentOlympiads.Count != currentOlympiads.Count ||
-            studentGias.Count != currentGias.Count)
+            studentGias.Count != currentGias.Count ||
+            (hasClassHistory && _classHistory.Count == 0) ||
+            (hasSchoolHistory && _schoolHistory.Count == 0))
             return true;
 
         if (studentOlympiads.Any(sop => !currentOlympiads.Contains(sop.IdOlympiads)))
@@ -870,7 +1017,6 @@ public partial class StudentEditWindow : Window
         Close();
     }
 
-
     /// <summary>
     /// Редактирование школ
     /// </summary>
@@ -895,5 +1041,63 @@ public partial class StudentEditWindow : Window
         RedactSchoolAndClass redactSchoolAndClass = new RedactSchoolAndClass(classs);
         redactSchoolAndClass.Closed += (s, args) => LoadComboBoxData();
         redactSchoolAndClass.ShowDialog(this);
+    }
+
+    private async void Button_Click_ClearHistoryClass(object? sender, RoutedEventArgs e)
+    {
+        if (Student1.Id == 0) return;
+
+        var confirm = await ShowConfirmationDialog("Вы уверены, что хотите очистить историю классов?");
+        if (!confirm) return;
+
+        try
+        {
+            var historyToDelete = Helper.DateBase.StudentClassHistories.Where(h => h.StudentId == Student1.Id).ToList();
+
+            Helper.DateBase.StudentClassHistories.RemoveRange(historyToDelete);
+            await Helper.DateBase.SaveChangesAsync();
+
+            // Полностью перезагружаем историю из базы
+            _classHistory = Helper.DateBase.StudentClassHistories.Where(h => h.StudentId == Student1.Id).Include(h => h.ClassNavigation).OrderByDescending(h => h.ChangeDate).ToList();
+
+            // Обновляем привязку
+            ListBox_HistoryClass.ItemsSource = null;
+            ListBox_HistoryClass.ItemsSource = _classHistory;
+
+            await ShowSuccessDialog("История классов успешно очищена!");
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при очистке истории классов: {ex.Message}");
+        }
+    }
+
+    private async void Button_Click_ClearHistorySchool(object? sender, RoutedEventArgs e)
+    {
+        if (Student1.Id == 0) return;
+
+        var confirm = await ShowConfirmationDialog("Вы уверены, что хотите очистить историю школ?");
+        if (!confirm) return;
+
+        try
+        {
+            var historyToDelete = Helper.DateBase.StudentSchoolHistories.Where(h => h.StudentId == Student1.Id).ToList();
+
+            Helper.DateBase.StudentSchoolHistories.RemoveRange(historyToDelete);
+            await Helper.DateBase.SaveChangesAsync();
+
+            // Полностью перезагружаем историю из базы
+            _schoolHistory = Helper.DateBase.StudentSchoolHistories.Where(h => h.StudentId == Student1.Id).Include(h => h.SchoolNavigation).OrderByDescending(h => h.ChangeDate).ToList();
+
+            // Обновляем привязку
+            ListBox_HistorySchool.ItemsSource = null;
+            ListBox_HistorySchool.ItemsSource = _schoolHistory;
+
+            await ShowSuccessDialog("История школ успешно очищена!");
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog($"Ошибка при очистке истории школ: {ex.Message}");
+        }
     }
 }

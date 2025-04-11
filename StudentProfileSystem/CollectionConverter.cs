@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentProfileSystem.Models;
 
 namespace StudentProfileSystem.Converters
@@ -48,6 +49,10 @@ namespace StudentProfileSystem.Converters
             throw new NotSupportedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер для проверки, относится ли класс к ГИА (9 или 11 класс)
+    /// </summary>
     public class IsGiaClassConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -69,7 +74,9 @@ namespace StudentProfileSystem.Converters
             throw new NotImplementedException();
         }
     }
-
+    /// <summary>
+    /// Конвертер для проверки наличия элементов в коллекции
+    /// </summary>
     public class HasItemsConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -82,6 +89,47 @@ namespace StudentProfileSystem.Converters
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Конвертер для преобразования между DateOnly и DateTime
+    /// </summary>
+    public class DateOnlyConverter : ValueConverter<DateOnly, DateTime>
+    {
+        public DateOnlyConverter() : base(
+            dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
+            dateTime => DateOnly.FromDateTime(dateTime))
+        { }
+    }
+
+    public class HasGiaConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ICollection<StudentGiaResult> giaResults)
+            {
+                return giaResults.Any();
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class AndMultiConverter : IMultiValueConverter
+    {
+        public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+        {
+            return values.OfType<bool>().All(b => b);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

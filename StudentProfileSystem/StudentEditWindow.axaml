@@ -2,8 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="900"
-		MaxWidth="1300" MaxHeight="900"
+        mc:Ignorable="d" d:DesignWidth="1250" d:DesignHeight="700"
+		MaxWidth="1250" MaxHeight="700"
+		MinWidth="1250" MinHeight="700"
 		WindowState="Normal"
 		x:CompileBindings="False"
         x:Class="StudentProfileSystem.StudentEditWindow"
@@ -339,74 +340,222 @@
 					</ComboBox.ItemTemplate>
 				</ComboBox>
 
-				<TextBlock Text="Учебное заведение:"
-						   FontWeight="Bold"
-						   Grid.Column="0"
-						   Grid.Row="5"
-						   HorizontalAlignment="Right"
-						   VerticalAlignment="Center"
-						   Margin="0 0 5 0"/>
+				<StackPanel Grid.RowSpan="3"
+							Grid.Column="0"
+							Grid.Row="5"
+							Grid.ColumnSpan="2">
 
-				<ComboBox Grid.Column="1"
-						  Grid.Row="5"
-						  MinWidth="350"
-						  MaxWidth="350"
-						  VerticalAlignment="Center"
-						  Margin="5 0 5 0"
-						  Name="ComboBox_EducationalInstitution">
-					<ComboBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Name}"/>
-						</DataTemplate>
-					</ComboBox.ItemTemplate>
-				</ComboBox>
+					<DockPanel HorizontalAlignment="Right"
+							   Margin="0 0 3 0">
 
-				<TextBlock Text="Образование:"
-						   FontWeight="Bold"
-						   Grid.Column="0"
-						   Grid.Row="6"
-						   HorizontalAlignment="Right"
-						   VerticalAlignment="Center"
-						   Margin="0 0 5 0"/>
+						<TextBlock Text="Профиль:"
+								   Margin="0 0 5 0"
+								   Name="ProfileLabel"
+								   FontWeight="Bold"
+								   Grid.Column="0"
+								   Grid.Row="5"
+								   HorizontalAlignment="Right"
+								   VerticalAlignment="Center"/>
 
-				<ComboBox Grid.Column="1"
-						  Grid.Row="6"
-						  MinWidth="350"
-						  MaxWidth="350"
-						  VerticalAlignment="Center"
-						  Margin="5 0 5 0"
-						  Name="ComboBox_Education">
-					<ComboBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Name}"/>
-						</DataTemplate>
-					</ComboBox.ItemTemplate>
-				</ComboBox>
 
-				<TextBlock Text="Профиль:"
-						   Name="Profile"
-						   FontWeight="Bold"
-						   Grid.Column="0"
-						   Grid.Row="7"
-						   HorizontalAlignment="Right"
-						   VerticalAlignment="Center"
-						   Margin="0 0 5 0"/>
+						<ComboBox Grid.Column="1"
+								  Grid.Row="5"
+								  MinWidth="350"
+								  MaxWidth="350"
+								  VerticalAlignment="Center"
+								  Margin="5 2 5 0"
+								  Name="ComboBox_Profile">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Name}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 
-				<ComboBox Grid.Column="1"
-						  Grid.Row="7"
-						  MinWidth="350"
-						  MaxWidth="350"
-						  VerticalAlignment="Center"
-						  Margin="5 0 5 0"
-						  Name="ComboBox_Profile">
-					<ComboBox.ItemTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Name}"/>
-						</DataTemplate>
-					</ComboBox.ItemTemplate>
-				</ComboBox>
 
+					</DockPanel>
+
+					<DockPanel HorizontalAlignment="Right"
+							   Margin="0 0 3 0">
+						
+					<TextBlock Text="Учебное заведение:"
+							   FontWeight="Bold"
+							   Margin="0 0 5 0"
+							   Name="EducationalInstitutionLabel"
+							   Grid.Column="0"
+							   Grid.Row="6"
+							   HorizontalAlignment="Right"
+							   VerticalAlignment="Center"/>
+
+
+						<ComboBox Grid.Column="1"
+								  Grid.Row="6"
+								  MinWidth="350"
+								  MaxWidth="350"
+								  VerticalAlignment="Center"
+								  Margin="5 5 5 0"
+								  Name="ComboBox_EducationalInstitution">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Name}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+
+					</DockPanel>
+
+					<DockPanel HorizontalAlignment="Right"
+							   Margin="0 0 3 0">
+						
+					<TextBlock Text="Образование:"
+							   Name="EducationLabel"
+							   FontWeight="Bold"
+							   Grid.Column="0"
+							   Grid.Row="7"
+							   HorizontalAlignment="Right"
+							   VerticalAlignment="Center"
+							   Margin="0 0 5 0"/>
+
+						<ComboBox Grid.Column="1"
+								  Grid.Row="7"
+								  MinWidth="350"
+								  MaxWidth="350"
+								  VerticalAlignment="Center"
+								  Margin="5 5 5 0"
+								  Name="ComboBox_Education">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Name}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+					</DockPanel>
+
+				</StackPanel>
+				
 			</Grid>
 		</Border>
+		
+		<Border BorderThickness="0"
+				BorderBrush="Gray"
+				Grid.Column="2"
+				Grid.Row="3"
+				Grid.ColumnSpan="1"
+				Grid.RowSpan="1"
+				CornerRadius="10">
+
+			<DockPanel>				
+			
+			<Grid RowDefinitions="0.5*,4*,*"
+				  ShowGridLines="False">
+
+				<TextBlock Text="История Школ"
+						   Grid.Row="0"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+
+				<ListBox Name="ListBox_HistorySchool"
+						 Margin="5 0 5 0"
+						 Grid.Row="1"
+						 CornerRadius="10"
+						 BorderThickness="2"
+						 BorderBrush="Gray">
+
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Margin="5">
+								
+								<TextBlock Text="{Binding SchoolNavigation.Name}" 
+										   TextWrapping="Wrap"
+										   Margin="0 0 10 0"/>
+								
+								<TextBlock Text="{Binding ChangeDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+										   TextWrapping="Wrap"/>
+								
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+
+				<Button Margin="0 0 10 0"
+						Grid.Row="2"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Center"
+						Click="Button_Click_ClearHistorySchool">
+					<TextBlock Text="Очистить"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center"/>
+				</Button>
+
+			</Grid>
+			
+			</DockPanel>
+
+		</Border>
+
+		<Border BorderThickness="0"
+				BorderBrush="Gray"
+				Grid.Column="1"
+				Grid.Row="3"
+				Grid.ColumnSpan="1"
+				Grid.RowSpan="1"
+				CornerRadius="10">
+
+			<Grid RowDefinitions="0.5*,4*,*"
+				  ShowGridLines="False">
+
+				<TextBlock Text="История Классов"
+						   Grid.Row="0"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+
+				<ListBox Name="ListBox_HistoryClass"
+						 Margin="5 0 5 0"
+						 Grid.Row="1"
+						 CornerRadius="10"
+						 BorderThickness="2"
+						 BorderBrush="Gray">
+
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Margin="5">
+								
+								<TextBlock Text="Класс "
+										   TextWrapping="Wrap"
+										   FontWeight="Bold"
+										   Margin="0 0 10 0"/>
+								
+								<TextBlock Text="{Binding ClassNavigation.ClassesNumber}" 
+										   TextWrapping="Wrap"
+										   FontWeight="Bold" 
+										   Margin="0 0 10 0"/>
+								
+								<TextBlock Text=" - Дата:"
+										   TextWrapping="Wrap"
+										   Margin="0 0 10 0"/>								
+								
+								<TextBlock Text="{Binding ChangeDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+										   TextWrapping="Wrap"/>
+								
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+				<Button Margin="0 0 10 0"
+						Grid.Row="2"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Center"
+						Click="Button_Click_ClearHistoryClass">
+					<TextBlock Text="Очистить"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center"/>
+				</Button>
+
+			</Grid>
+
+		</Border>
+	
 	</Grid>
 </Window>

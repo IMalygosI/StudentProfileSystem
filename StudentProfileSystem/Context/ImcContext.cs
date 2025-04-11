@@ -38,9 +38,13 @@ public partial class ImcContext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<StudentClassHistory> StudentClassHistories { get; set; }
+
     public virtual DbSet<StudentGiaResult> StudentGiaResults { get; set; }
 
     public virtual DbSet<StudentOlympiadParticipation> StudentOlympiadParticipations { get; set; }
+
+    public virtual DbSet<StudentSchoolHistory> StudentSchoolHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -242,6 +246,30 @@ public partial class ImcContext : DbContext
                 .HasConstraintName("students_education_fk");
         });
 
+        modelBuilder.Entity<StudentClassHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("student_class_history_pk");
+
+            entity.ToTable("Student_Class_History");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Class).HasColumnType("character varying");
+            entity.Property(e => e.ClassId).HasColumnName("ClassID");
+            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+
+            entity.HasOne(d => d.ClassNavigation).WithMany(p => p.StudentClassHistories)
+                .HasForeignKey(d => d.ClassId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_class_history_classes_fk");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.StudentClassHistories)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_class_history_students_fk");
+        });
+
         modelBuilder.Entity<StudentGiaResult>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("student_gia_results_pk");
@@ -286,6 +314,30 @@ public partial class ImcContext : DbContext
                 .HasForeignKey(d => d.IdStudents)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("student_olympiad_participations_students_fk");
+        });
+
+        modelBuilder.Entity<StudentSchoolHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("student_school_history_pk");
+
+            entity.ToTable("Student_School_History");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.School).HasColumnType("character varying");
+            entity.Property(e => e.SchoolId).HasColumnName("SchoolID");
+            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+
+            entity.HasOne(d => d.SchoolNavigation).WithMany(p => p.StudentSchoolHistories)
+                .HasForeignKey(d => d.SchoolId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_school_history_schools_fk");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.StudentSchoolHistories)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_school_history_students_fk");
         });
 
         OnModelCreatingPartial(modelBuilder);

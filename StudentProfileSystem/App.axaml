@@ -11,7 +11,6 @@
 			<Setter Property="Background" Value="#E8F5E9"/>
 			
 			<!-- Выравнивание окна и настройки открытия -->
-			<Setter Property="WindowState" Value="Maximized"/>
 			<Setter Property="WindowStartupLocation" Value="CenterScreen"/>
 
 			<!-- Минимальные размеры окна -->

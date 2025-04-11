@@ -11,6 +11,7 @@ using StudentProfileSystem.Models;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
 using System.Collections.Generic;
+using MsBox.Avalonia.ViewModels.Commands;
 
 namespace StudentProfileSystem;
 
@@ -595,47 +596,35 @@ public partial class AddAdnRedactOlympGia : Window
         var dialog = new Window
         {
             Title = "Ошибка",
-            Width = 550,
-            Height = 250,
-            MinHeight = 250,
-            WindowState = WindowState.Normal,
+            Width = 400,
+            Height = 200,
+            SizeToContent = SizeToContent.WidthAndHeight, // Автоматическая подстройка размера
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            SizeToContent = SizeToContent.Manual,
-            CanResize = false,
+            WindowState = WindowState.Normal, // Гарантируем, что окно не в полноэкранном режиме
             Content = new Border
             {
                 BorderBrush = Brushes.Red,
                 BorderThickness = new Thickness(2),
-                Child = new Grid
+                Padding = new Thickness(15),
+                Child = new StackPanel
                 {
-                    Margin = new Thickness(15),
+                    Spacing = 10,
                     Children =
+                {
+                    new TextBlock
                     {
-                        new StackPanel
-                        {
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Children =
-                            {
-                                new TextBlock
-                                {
-                                    Text = message,
-                                    TextWrapping = TextWrapping.Wrap,
-                                    TextAlignment = TextAlignment.Center,
-                                    FontSize = 14,
-                                    Margin = new Thickness(0, 0, 0, 20)
-                                },
-                                new Grid
-                                {
-                                    HorizontalAlignment = HorizontalAlignment.Center,
-                                    Children =
-                                    {
-                                        CreateDialogButton("OK", Brushes.Gray)
-                                    }
-                                }
-                            }
-                        }
+                        Text = message,
+                        TextWrapping = TextWrapping.Wrap,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    },
+                    new Button
+                    {
+                        Content = "OK",
+                        Width = 80,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Command = new RelayCommand(_ => (this.GetVisualRoot() as Window)?.Close())
                     }
+                }
                 }
             }
         };

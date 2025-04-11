@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+		WindowState="Maximized"
         x:Class="StudentProfileSystem.SchoolList"
 		x:CompileBindings="False"
         Title="Школы">
@@ -32,12 +33,18 @@
 				   Grid.Column="0"
 				   Grid.Row="4">
 
-			<Button Click="Button_Click_Redact_School">
+			<Button Click="Button_Click_Add_School">
 				<TextBlock Text="Добавление школы"
 						   HorizontalAlignment="Center"
 						   VerticalAlignment="Center"/>
 			</Button>
 
+			<Button Margin="5 0 0 0"
+					Click="Button_Click_Unloaddata">
+				<TextBlock Text="Выгрузить данные"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Button>
 		</DockPanel>
 
 		<DockPanel HorizontalAlignment="Left"
@@ -55,7 +62,7 @@
 					 Height="35"/>
 
 		</DockPanel>
-
+		
 		<ListBox Grid.ColumnSpan="5"
 				 Grid.RowSpan="3"
 				 Grid.Row="1"
@@ -67,6 +74,15 @@
 				 Background="#FFF8E1"
 				 SelectionMode="Multiple"
 				 Name="ListBox_School">
+
+
+
+			<ListBox.ContextMenu>
+				<ContextMenu Background="#FFF8E1">
+					<MenuItem Header="Редактировать"
+							  Click="Button_Click_Redact_School"/>
+				</ContextMenu>
+			</ListBox.ContextMenu>
 
 			<ListBox.ItemTemplate>
 				<DataTemplate>
