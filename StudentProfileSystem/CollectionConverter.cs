@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Data.Converters;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentProfileSystem.Models;
+using Avalonia;
 
 namespace StudentProfileSystem.Converters
 {
@@ -134,4 +135,22 @@ namespace StudentProfileSystem.Converters
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Конвертер для проверки, что значение не равно 0
+    /// </summary>
+    public class NotZeroConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is int id && id != 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
 }

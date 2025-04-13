@@ -45,9 +45,9 @@
 					<DataTemplate>
 
 						<Border BorderThickness="2"
-								BorderBrush="Gray"
+								BorderBrush="#0d3f8a"
 								CornerRadius="10"
-								Background="#E8F5E9">
+								Background="#D4F5F7">
 							
 							<Grid ColumnDefinitions="*"
 								  RowDefinitions="*"
@@ -131,11 +131,12 @@
 
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<Border BorderThickness="2"
-								BorderBrush="Gray"
-								CornerRadius="10"
-								Height="40"
-								Background="#E8F5E9">
+
+							<Border BorderThickness="2"
+									BorderBrush="#0d3f8a"
+									CornerRadius="10"
+									Height="40"
+									Background="#D4F5F7">
 							
 							<StackPanel Orientation="Horizontal"
 										VerticalAlignment="Center">

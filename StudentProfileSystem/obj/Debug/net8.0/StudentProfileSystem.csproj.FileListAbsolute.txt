@@ -6,9 +6,6 @@ C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentProfileSystem.AssemblyInfo.cs
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentProfileSystem.csproj.CoreCompileInputs.cache
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentProfileSystem.sourcelink.json
-C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\Avalonia\StudentProfileSystem.dll
-C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\Avalonia\StudentProfileSystem.pdb
-C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\refint\Avalonia\StudentProfileSystem.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\StudentProfileSystem.exe
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\StudentProfileSystem.deps.json
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\StudentProfileSystem.runtimeconfig.json
@@ -188,6 +185,9 @@ C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\runtimes\win-x86\native\libSkiaSharp.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\Avalonia\StudentProfileSystem.dll
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\Avalonia\StudentProfileSystem.pdb
+C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\refint\Avalonia\StudentProfileSystem.dll
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentP.D950F368.Up2Date
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\StudentProfileSystem.genruntimeconfig.cache
 C:\Users\dimau\source\repos\StudentProfileSystem\StudentProfileSystem\obj\Debug\net8.0\ref\StudentProfileSystem.dll

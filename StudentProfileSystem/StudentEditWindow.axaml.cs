@@ -87,20 +87,23 @@ public partial class StudentEditWindow : Window
         InitializeComponent();
 
         Title = "Редактирование";
-
         Student1 = student;
         OkkoRedactAndAdd.DataContext = Student1;
+
         ComboBox_Class.SelectionChanged += ComboBox_Class_SelectionChanged;
+        ComboBox_EducationalInstitution.SelectionChanged += ComboBox_EducationalInstitution_SelectionChanged;
+        ComboBox_Profile.SelectionChanged += ComboBox_Profile_SelectionChanged;
+        ComboBox_Education.SelectionChanged += ComboBox_Education_SelectionChanged;
 
         LoadComboBoxData();
         UpdateFieldsVisibility();
     }
 
+
     private void UpdateFieldsVisibility()
     {
         if (ComboBox_Class.SelectedItem is Class selectedClass)
         {
-            // Используем регулярное выражение для извлечения числовой части класса
             var match = Regex.Match(selectedClass.ClassesNumber, @"^\d{1,2}");
             bool isNumeric = match.Success;
             int classNumber = isNumeric ? int.Parse(match.Value) : 0;
@@ -109,47 +112,182 @@ public partial class StudentEditWindow : Window
             bool isProfileVisible = isNumeric && (classNumber == 10 || classNumber == 11);
             ProfileLabel.IsVisible = isProfileVisible;
             ComboBox_Profile.IsVisible = isProfileVisible;
-
-            // Если профиль скрыт, сбрасываем значение
-            if (!isProfileVisible)
-            {
-                ComboBox_Profile.SelectedIndex = 0;
-                Student1.ProfileId = null;
-            }
+            EducationNameLabel.IsVisible = isProfileVisible;
+            EducationNameTextBox.IsVisible = isProfileVisible;
 
             // Показываем/скрываем поля "Учебное заведение" и "Образование" для 9 и 11 классов
             bool isEducationVisible = isNumeric && (classNumber == 9 || classNumber == 11);
             EducationalInstitutionLabel.IsVisible = isEducationVisible;
             ComboBox_EducationalInstitution.IsVisible = isEducationVisible;
+            Name_Educational_Institution.IsVisible = isEducationVisible;
+            NameEducationalInstitution.IsVisible = isEducationVisible;
             EducationLabel.IsVisible = isEducationVisible;
             ComboBox_Education.IsVisible = isEducationVisible;
+            EducationNameLabel.IsVisible = isEducationVisible;
+            EducationNameTextBox.IsVisible = isEducationVisible;
 
             // Если поля образования скрыты, сбрасываем значения
             if (!isEducationVisible)
             {
-                ComboBox_EducationalInstitution.SelectedIndex = 0;
                 ComboBox_Education.SelectedIndex = 0;
-                Student1.EducationalInstitutionId = null;
                 Student1.TypeEducation = null;
+                Student1.NameProfile = null;
             }
 
-            // Показываем/скрываем раздел ГИА в зависимости от класса и наличия записей
-            bool shouldShowGiaSection = (isNumeric && (classNumber == 9 || classNumber == 11)) ||
-                                        (Student1.Id != 0 && studentGias.Any());
-
-            // Находим родительский Border, содержащий раздел ГИА
-            var giaBorder = this.FindControl<Border>("GiaBorder");
-            if (giaBorder != null)
+            // Показываем/скрываем раздел ГИА в зависимости от класса (только для 9 и 11 классов)
+            bool shouldShowGiaSection = isNumeric && (classNumber == 9 || classNumber == 11);
+            var giaSection = this.FindControl<Grid>("Gia_IsvisibleDan");
+            if (giaSection != null)
             {
-                giaBorder.IsVisible = shouldShowGiaSection;
+                giaSection.IsVisible = shouldShowGiaSection;
             }
         }
     }
 
-    private void ComboBox_Class_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+
+
+    private void ComboBox_Profile_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (ComboBox_Profile.SelectedItem is Profile selected)
+        {
+            bool isStub = selected.Id == 0;
+            if (isStub)
+            {
+                Student1.ProfileId = null;
+                Student1.NameProfile = null;
+            }
+            else
+            {
+                Student1.ProfileId = selected.Id;
+            }
+        }
+    }
+
+
+    public void LoadComboBoxEducationalInstitution()
+    {
+        _EducationalInstitution = Helper.DateBase.EducationalInstitutions.ToList();
+
+        // Удаляем старую заглушку если есть
+        _EducationalInstitution.RemoveAll(x => x.Id == 0);
+
+        // Добавляем новую заглушку в начало
+        _EducationalInstitution.Insert(0, new EducationalInstitution()
+        {
+            Id = 0,
+            Name = "Учебное заведение"
+        });
+
+        ComboBox_EducationalInstitution.ItemsSource = _EducationalInstitution;
+
+        // Устанавливаем выбранное значение из Student1 или заглушку
+        if (Student1.EducationalInstitutionId.HasValue)
+        {
+            var selected = _EducationalInstitution.FirstOrDefault(x => x.Id == Student1.EducationalInstitutionId.Value);
+            ComboBox_EducationalInstitution.SelectedItem = selected ?? _EducationalInstitution[0];
+        }
+        else
+        {
+            ComboBox_EducationalInstitution.SelectedIndex = 0;
+        }
+    }
+
+    public void LoadComboBoxProfile()
+    {
+        _Profiles = Helper.DateBase.Profiles.ToList();
+
+        // Удаляем старую заглушку если есть
+        _Profiles.RemoveAll(x => x.Id == 0);
+
+        // Добавляем новую заглушку в начало
+        _Profiles.Insert(0, new Profile()
+        {
+            Id = 0,
+            Name = "Профиль"
+        });
+
+        ComboBox_Profile.ItemsSource = _Profiles;
+
+        // Устанавливаем выбранное значение из Student1 или заглушку
+        if (Student1.ProfileId.HasValue)
+        {
+            var selected = _Profiles.FirstOrDefault(x => x.Id == Student1.ProfileId.Value);
+            ComboBox_Profile.SelectedItem = selected ?? _Profiles[0];
+        }
+        else
+        {
+            ComboBox_Profile.SelectedIndex = 0;
+        }
+    }
+
+    public void LoadComboBoxEducation()
+    {
+        _Education = Helper.DateBase.Educations.ToList();
+
+        // Удаляем старую заглушку если есть
+        _Education.RemoveAll(x => x.Id == 0);
+
+        // Добавляем новую заглушку в начало
+        _Education.Insert(0, new Education()
+        {
+            Id = 0,
+            Name = "Образование"
+        });
+
+        ComboBox_Education.ItemsSource = _Education;
+
+        // Устанавливаем выбранное значение из Student1 или заглушку
+        if (Student1.TypeEducation.HasValue)
+        {
+            var selected = _Education.FirstOrDefault(x => x.Id == Student1.TypeEducation.Value);
+            ComboBox_Education.SelectedItem = selected ?? _Education[0];
+        }
+        else
+        {
+            ComboBox_Education.SelectedIndex = 0;
+        }
+    }
+
+    private void ComboBox_EducationalInstitution_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ComboBox_EducationalInstitution.SelectedItem is EducationalInstitution selected)
+        {
+            bool isStub = selected.Id == 0;
+            NameEducationalInstitution.IsEnabled = !isStub;
+            if (isStub)
+            {
+                Student1.EducationalInstitutionId = null;
+                Student1.NameEducationalInstitution = null;
+            }
+            else
+            {
+                Student1.EducationalInstitutionId = selected.Id;
+            }
+        }
+    }
+
+
+    private void ComboBox_Education_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ComboBox_Education.SelectedItem is Education selected)
+        {
+            bool isStub = selected.Id == 0;
+            if (isStub)
+            {
+                Student1.TypeEducation = null;
+                Student1.NameProfile = null;
+            }
+            else
+            {
+                Student1.TypeEducation = selected.Id;
+            }
+        }
         UpdateFieldsVisibility();
     }
+
+    private void ComboBox_Class_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateFieldsVisibility();
+
 
     /// <summary>
     /// Загрузка данных в комбобоксы
@@ -202,59 +340,6 @@ public partial class StudentEditWindow : Window
         }
     }
 
-    /// <summary>
-    /// Загрузка профилей
-    /// </summary>
-    public void LoadComboBoxProfile()
-    {
-        _Profiles = Helper.DateBase.Profiles.ToList();
-
-        if (Student1.ProfileId == null)
-        {
-            _Profiles.Insert(0, new Profile()
-            {
-                Id = 0,
-                Name = "Профиль"
-            });
-        }
-
-        ComboBox_Profile.ItemsSource = _Profiles.OrderByDescending(z => Student1.ProfileId != null ? z.Id == Student1.ProfileId : z.Name == "Профиль");
-        ComboBox_Profile.SelectedIndex = 0;
-    }
-
-    public void LoadComboBoxEducationalInstitution()
-    {
-        _EducationalInstitution = Helper.DateBase.EducationalInstitutions.ToList();
-
-        if (Student1.EducationalInstitutionId == null)
-        {
-            _EducationalInstitution.Insert(0, new EducationalInstitution()
-            {
-                Id = 0,
-                Name = "Учебное заведение"
-            });
-        }
-
-        ComboBox_EducationalInstitution.ItemsSource = _EducationalInstitution.OrderByDescending(z => Student1.EducationalInstitutionId != null ? z.Id == Student1.EducationalInstitutionId : z.Name == "Учебное заведение");
-        ComboBox_EducationalInstitution.SelectedIndex = 0;
-    }
-
-    public void LoadComboBoxEducation()
-    {
-        _Education = Helper.DateBase.Educations.ToList();
-
-        if (Student1.TypeEducation == null)
-        {
-            _Education.Insert(0, new Education()
-            {
-                Id = 0,
-                Name = "Образование"
-            });
-        }
-
-        ComboBox_Education.ItemsSource = _Education.OrderByDescending(z => Student1.TypeEducation != null ? z.Id == Student1.TypeEducation : z.Name == "Образование");
-        ComboBox_Education.SelectedIndex = 0;
-    }
 
     /// <summary>
     /// Загрузка данных о классах в комбобокс

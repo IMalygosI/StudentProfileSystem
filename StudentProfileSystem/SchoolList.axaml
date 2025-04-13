@@ -7,10 +7,10 @@
         x:Class="StudentProfileSystem.SchoolList"
 		x:CompileBindings="False"
         Title="Школы">
+	
 	<Grid ColumnDefinitions="*,*,*,*,*"
-			  RowDefinitions="0.3*,*,*,*,0.3*"
-			  ShowGridLines="False"
-			  Background="#E8F5E9">
+		  RowDefinitions="0.3*,*,*,*,0.3*"
+		  ShowGridLines="False">
 
 
 		<DockPanel HorizontalAlignment="Right"
@@ -56,7 +56,6 @@
 			<TextBox Watermark="Поиск:"
 					 CornerRadius="10"
 					 Width="500"
-					 Background="#FFF8E1"
 					 Name="SearchTextN"
 					 TextChanged="TextBox_TextChanged"
 					 Height="35"/>
@@ -68,14 +67,12 @@
 				 Grid.Row="1"
 				 Margin="20 10 20 10"
 				 CornerRadius="10"
-				 BorderThickness="2"
 				 DoubleTapped="ListBox_DoubleTapped_Button_School"
-				 BorderBrush="Gray"
-				 Background="#FFF8E1"
+				 BorderBrush="#0d3f8a"
+				 BorderThickness="2"
+				 Background="#4DA6B0"
 				 SelectionMode="Multiple"
 				 Name="ListBox_School">
-
-
 
 			<ListBox.ContextMenu>
 				<ContextMenu Background="#FFF8E1">
@@ -87,9 +84,9 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border BorderThickness="2"
-							BorderBrush="Gray"
+							BorderBrush="#0d3f8a"
 							CornerRadius="10"
-							Background="#E8F5E9">
+							Background="#D4F5F7">
 						<Grid ColumnDefinitions="*"
 							  RowDefinitions="*"
 							  Margin="10">

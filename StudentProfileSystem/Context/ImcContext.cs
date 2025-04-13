@@ -218,6 +218,8 @@ public partial class ImcContext : DbContext
             entity.Property(e => e.LastName)
                 .HasMaxLength(50)
                 .HasColumnName("Last_Name");
+            entity.Property(e => e.NameEducationalInstitution).HasMaxLength(150);
+            entity.Property(e => e.NameProfile).HasMaxLength(150);
             entity.Property(e => e.Patronymic).HasMaxLength(50);
             entity.Property(e => e.ProfileId).HasColumnName("Profile_ID");
             entity.Property(e => e.SchoolId).HasColumnName("School_ID");

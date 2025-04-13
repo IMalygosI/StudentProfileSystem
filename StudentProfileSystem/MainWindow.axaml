@@ -24,7 +24,7 @@
 	<Grid ColumnDefinitions="*,*,*,*,*"
 		  RowDefinitions="0.3*,*,*,*,0.3*"
 		  ShowGridLines="False"
-		  Background="#E8F5E9">
+		  Background="#D4F5F7">
 
 		<DockPanel HorizontalAlignment="Right"
 				   VerticalAlignment="Center"
@@ -79,7 +79,6 @@
 			<TextBox Watermark="Поиск:"
 					 CornerRadius="10"
 					 Width="500"
-					 Background="#FFF8E1"
 					 Name="SearchTextN"
 					 TextChanged="TextBox_TextChanged"
 					 Height="35"/>
@@ -99,8 +98,7 @@
 					  CornerRadius="10"
 					  Margin="10 0 0 0"
 					  MinWidth="150"
-					  Height="35"
-					  Background="#FFF8E1">
+					  Height="35">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
 						<TextBlock Text="{Binding OlympiadsNavigation.Name}"/>
@@ -113,7 +111,6 @@
 					  Margin="10 0 0 0"
 					  MinWidth="150"
 					  Height="35"
-					  Background="#FFF8E1"
 					  SelectedIndex="0">
 				<ComboBoxItem>Параллель</ComboBoxItem>
 				<ComboBoxItem>4</ComboBoxItem>
@@ -175,10 +172,10 @@
 				 Margin="20 10 20 10"
 				 CornerRadius="10"
 				 DoubleTapped="ListBox_DoubleTapped_Button_Redact"
-				 BorderThickness="2"
-				 BorderBrush="Gray"
-				 Background="#FFF8E1"
 				 SelectionMode="Multiple"
+				 BorderBrush="Gray"
+				 BorderThickness="2"
+				 Background="#4DA6B0"
 				 Name="ListBox_Student">
 
 			<ListBox.ContextMenu>
@@ -191,9 +188,9 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border BorderThickness="2"
-							BorderBrush="Gray"
+							BorderBrush="#0d3f8a"
 							CornerRadius="10"
-							Background="#E8F5E9">
+							Background="#D4F5F7">
 						<Grid ColumnDefinitions="*"
 							  RowDefinitions="*"
 							  Margin="10">

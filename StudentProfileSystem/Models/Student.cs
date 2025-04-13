@@ -23,6 +23,10 @@ public partial class Student
 
     public int? ProfileId { get; set; }
 
+    public string? NameEducationalInstitution { get; set; }
+
+    public string? NameProfile { get; set; }
+
     public virtual Class Class { get; set; } = null!;
 
     public virtual EducationalInstitution? EducationalInstitution { get; set; }

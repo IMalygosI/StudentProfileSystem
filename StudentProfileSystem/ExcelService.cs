@@ -128,7 +128,7 @@ namespace StudentProfileSystem.Services
                     $"Произошла ошибка: {ex.Message}", Brushes.Red);
             }
         }
-                
+
         /// <summary>
         /// Экспортирует список всех студентов в файл Excel из списка школ
         /// </summary>
