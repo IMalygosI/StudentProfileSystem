@@ -16,6 +16,12 @@ public partial class ImcContext : DbContext
     {
     }
 
+    public virtual DbSet<CertificateAndMedal> CertificateAndMedals { get; set; }
+
+    public virtual DbSet<CertificateAndMedalsCheck> CertificateAndMedalsChecks { get; set; }
+
+    public virtual DbSet<CertificateAndMedalsFact> CertificateAndMedalsFacts { get; set; }
+
     public virtual DbSet<Class> Classes { get; set; }
 
     public virtual DbSet<Education> Educations { get; set; }
@@ -38,6 +44,8 @@ public partial class ImcContext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<StudentCertificateAndMedal> StudentCertificateAndMedals { get; set; }
+
     public virtual DbSet<StudentClassHistory> StudentClassHistories { get; set; }
 
     public virtual DbSet<StudentGiaResult> StudentGiaResults { get; set; }
@@ -52,6 +60,53 @@ public partial class ImcContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CertificateAndMedal>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("certificate_and_medals_pk");
+
+            entity.ToTable("Certificate_And_Medals");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<CertificateAndMedalsCheck>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("certificate_and_medals_check_pk");
+
+            entity.ToTable("Certificate_And_Medals_Check");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<CertificateAndMedalsFact>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("certificate_and_medals_fact_pk");
+
+            entity.ToTable("Certificate_And_Medals_Fact");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.CertificateAndMedalsCheckId).HasColumnName("Certificate_And_Medals_Check_ID");
+            entity.Property(e => e.CertificateAndMedalsId).HasColumnName("Certificate_And_Medals_ID");
+
+            entity.HasOne(d => d.CertificateAndMedalsCheck).WithMany(p => p.CertificateAndMedalsFacts)
+                .HasForeignKey(d => d.CertificateAndMedalsCheckId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("certificate_and_medals_fact_certificate_and_medals_check_fk");
+
+            entity.HasOne(d => d.CertificateAndMedals).WithMany(p => p.CertificateAndMedalsFacts)
+                .HasForeignKey(d => d.CertificateAndMedalsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("certificate_and_medals_fact_certificate_and_medals_fk");
+        });
+
         modelBuilder.Entity<Class>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("classes_pk");
@@ -246,6 +301,29 @@ public partial class ImcContext : DbContext
             entity.HasOne(d => d.TypeEducationNavigation).WithMany(p => p.Students)
                 .HasForeignKey(d => d.TypeEducation)
                 .HasConstraintName("students_education_fk");
+        });
+
+        modelBuilder.Entity<StudentCertificateAndMedal>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("student_certificate_and_medals_pk");
+
+            entity.ToTable("Student_Certificate_And_Medals");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("ID");
+            entity.Property(e => e.CertificateAndMedalsFactId).HasColumnName("Certificate_And_Medals_Fact_ID");
+            entity.Property(e => e.StudentsId).HasColumnName("Students_ID");
+
+            entity.HasOne(d => d.CertificateAndMedalsFact).WithMany(p => p.StudentCertificateAndMedals)
+                .HasForeignKey(d => d.CertificateAndMedalsFactId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_certificate_and_medals_certificate_and_medals_fact_fk");
+
+            entity.HasOne(d => d.Students).WithMany(p => p.StudentCertificateAndMedals)
+                .HasForeignKey(d => d.StudentsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("student_certificate_and_medals_students_fk");
         });
 
         modelBuilder.Entity<StudentClassHistory>(entity =>

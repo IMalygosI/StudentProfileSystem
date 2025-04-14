@@ -286,6 +286,7 @@ namespace StudentProfileSystem
                             .Include(s => s.StudentOlympiadParticipations)
                             .Include(s => s.StudentClassHistories)
                             .Include(s => s.StudentSchoolHistories)
+                            .Include(s => s.StudentCertificateAndMedals)
                             .FirstOrDefaultAsync(s => s.Id == stud.Id);
 
                         if (studentWithRelations != null)
@@ -295,6 +296,7 @@ namespace StudentProfileSystem
                             Helper.DateBase.StudentOlympiadParticipations.RemoveRange(studentWithRelations.StudentOlympiadParticipations);
                             Helper.DateBase.StudentClassHistories.RemoveRange(studentWithRelations.StudentClassHistories);
                             Helper.DateBase.StudentSchoolHistories.RemoveRange(studentWithRelations.StudentSchoolHistories);
+                            Helper.DateBase.StudentCertificateAndMedals.RemoveRange(studentWithRelations.StudentCertificateAndMedals);
 
                             // Удаление студента
                             Helper.DateBase.Students.Remove(studentWithRelations);
@@ -402,6 +404,8 @@ namespace StudentProfileSystem
                                                                                .ThenInclude(st => st.StudentClassHistories)
                                                       .Include(s => s.Students)
                                                                                .ThenInclude(st => st.StudentSchoolHistories)
+                                                      .Include(s => s.Students)
+                                                                               .ThenInclude(st => st.StudentCertificateAndMedals)
                                                       .Include(s => s.StudentSchoolHistories).FirstOrDefaultAsync(s => s.Id == _schoolId);
 
             if (school == null) return;
@@ -433,6 +437,9 @@ namespace StudentProfileSystem
 
                         // Удаляем историю школ
                         Helper.DateBase.StudentSchoolHistories.RemoveRange(student.StudentSchoolHistories);
+
+                        // Удаляем Медали
+                        Helper.DateBase.StudentCertificateAndMedals.RemoveRange(student.StudentCertificateAndMedals);
 
                         // Удаляем самого ученика
                         Helper.DateBase.Students.Remove(student);

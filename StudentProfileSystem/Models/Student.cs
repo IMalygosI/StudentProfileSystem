@@ -35,6 +35,8 @@ public partial class Student
 
     public virtual School School { get; set; } = null!;
 
+    public virtual ICollection<StudentCertificateAndMedal> StudentCertificateAndMedals { get; set; } = new List<StudentCertificateAndMedal>();
+
     public virtual ICollection<StudentClassHistory> StudentClassHistories { get; set; } = new List<StudentClassHistory>();
 
     public virtual ICollection<StudentGiaResult> StudentGiaResults { get; set; } = new List<StudentGiaResult>();

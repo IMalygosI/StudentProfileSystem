@@ -2,9 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1350" d:DesignHeight="750"
-		MaxWidth="1350" MaxHeight="750"
-		MinWidth="1350" MinHeight="750"
+        mc:Ignorable="d" d:DesignWidth="1350" d:DesignHeight="880"
+		MaxWidth="1350" MaxHeight="880"
+		MinWidth="1350" MinHeight="880"
 		WindowState="Normal"
 		xmlns:converters="clr-namespace:StudentProfileSystem.Converters"
 		x:CompileBindings="False"
@@ -300,13 +300,17 @@
 										  MaxWidth="200"
 										  VerticalAlignment="Center"
 										  HorizontalAlignment="Right"
-										  Margin="5 0 5 0"
-										  Name="ComboBox_">
+										  Margin="5 0 0 0"
+										  Name="ComboBox_Medals">
 
 									<ComboBox.ItemTemplate>
 										<DataTemplate>
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Text="{Binding }"/>
+
+												<TextBlock Text="{Binding CertificateAndMedals.Name}"/>
+												<TextBlock Text=" - "/>
+												<TextBlock Text="{Binding CertificateAndMedalsCheck.Name}"/>
+												
 											</StackPanel>
 										</DataTemplate>
 									</ComboBox.ItemTemplate>
@@ -318,12 +322,12 @@
 										   VerticalAlignment="Center"
 										   HorizontalAlignment="Right">
 
-									<Button Click=""
+									<Button Click="Button_AddMedal_Click"
 											Margin="0 0 0 0">
 										<TextBlock Text="Добавить"/>
 									</Button>
 
-									<Button Click=""
+									<Button Click="Button_RemoveMedal_Click"
 											Margin="5 0 0 0">
 										<TextBlock Text="Удалить"/>
 									</Button>
@@ -342,7 +346,7 @@
 								<ListBox Grid.Column="0"
 										 Grid.ColumnSpan="2"
 										 Grid.Row="3"
-										 Name="ListBox_"
+										 Name="ListBox_Medals"
 										 CornerRadius="5"
 										 BorderThickness="2"
 										 BorderBrush="Gray">
@@ -350,8 +354,12 @@
 									<ListBox.ItemTemplate>
 										<DataTemplate>
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Text="{Binding}"
-														   Margin="0,0,5,0"/>
+
+												<TextBlock Text="{Binding CertificateAndMedals.Name}"
+														   Margin="0 0 5 0"/>
+												<TextBlock Text="-"
+														   Margin="0 0 5 0"/>
+												<TextBlock Text="{Binding CertificateAndMedalsCheck.Name}"/>
 
 											</StackPanel>
 										</DataTemplate>
@@ -626,7 +634,7 @@
 					<DockPanel HorizontalAlignment="Right"
 							   Margin="0 0 3 0">
 
-						<TextBlock Text="Наименование образования:"
+						<TextBlock Text="Квалификация:"
 								   FontWeight="Bold"
 								   Margin="0 0 5 0"
 								   Name="EducationNameLabel"
@@ -635,7 +643,7 @@
 
 						<TextBox Text="{Binding NameProfile, Mode=TwoWay}"
 								 Name="EducationNameTextBox"
-								 Watermark="Наименование образования"
+								 Watermark="Наименование квалификации"
 								 IsEnabled="{Binding SelectedItem.Id, ElementName=ComboBox_Education, Converter={StaticResource NotZeroConverter}}"
 								 CornerRadius="10"
 								 Margin="10 5 5 0"
