@@ -65,18 +65,14 @@ namespace StudentProfileSystem.Services
                         .ThenInclude(o => o.OlympiadsItemsNavigation)
                     .ToListAsync();
 
-                var confirm = await ShowConfirmationDialog(parentWindow,
-                    "Подтверждение экспорта",
-                    "Вы уверены, что хотите экспортировать данные в Excel?");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение экспорта", "Вы уверены, что хотите экспортировать данные в Excel?");
 
                 if (!confirm) return;
 
                 var saveDialog = new SaveFileDialog
                 {
                     Title = "Сохранить Excel-файл",
-                    Filters = new List<FileDialogFilter> {
-                new() { Name = "Файлы Excel", Extensions = { "xlsx" } }
-            },
+                    Filters = new List<FileDialogFilter> { new() { Name = "Файлы Excel", Extensions = { "xlsx" } } },
                     InitialFileName = $"Экспорт_студентов_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
                 };
 
@@ -87,10 +83,7 @@ namespace StudentProfileSystem.Services
                 {
                     var worksheet = workbook.Worksheets.Add("Ученики");
                     // Формируем заголовки столбцов
-                    var headers = new List<string> {
-                "Фамилия", "Имя", "Отчество", "Класс", "Школа", "Номер школы",
-                "Претендует на медаль", "Медаль фактическая", "ГИА"
-            };
+                    var headers = new List<string> { "Фамилия", "Имя", "Отчество", "Класс", "Школа", "Номер школы", "Претендует на медаль", "Медаль фактическая", "ГИА" };
 
                     // Максимальное количество олимпиад
                     int maxOlympiads = studentsWithData.Max(s => s.StudentOlympiadParticipations?.Count ?? 0);
@@ -122,13 +115,9 @@ namespace StudentProfileSystem.Services
                         worksheet.Cell(row, 6).Value = student.School?.SchoolNumber;
 
                         // Медали (новые столбцы 7-8)
-                        var medalData = student.StudentCertificateAndMedals?
-                            .Select(m => (
-                                MedalName: m.CertificateAndMedalsFact?.CertificateAndMedals?.Name,
-                                MedalStatus: m.CertificateAndMedalsFact?.CertificateAndMedalsCheck?.Name
-                            ))
-                            .Where(m => !string.IsNullOrEmpty(m.MedalName) && !string.IsNullOrEmpty(m.MedalStatus))
-                            .ToList();
+                        var medalData = student.StudentCertificateAndMedals?.Select(m => (MedalName: m.CertificateAndMedalsFact?.CertificateAndMedals?.Name,
+                                                                                          MedalStatus: m.CertificateAndMedalsFact?.CertificateAndMedalsCheck?.Name
+                            )).Where(m => !string.IsNullOrEmpty(m.MedalName) && !string.IsNullOrEmpty(m.MedalStatus)).ToList();
 
                         if (medalData != null && medalData.Any())
                         {
@@ -137,21 +126,14 @@ namespace StudentProfileSystem.Services
                         }
 
                         // Предметы ГИА (теперь столбец 9)
-                        var giaSubjects = student.StudentGiaResults?
-                            .Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
-                            .Where(name => !string.IsNullOrEmpty(name))
-                            .Distinct() ?? Enumerable.Empty<string>();
+                        var giaSubjects = student.StudentGiaResults?.Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
+                                                                    .Where(name => !string.IsNullOrEmpty(name)).Distinct() ?? Enumerable.Empty<string>();
                         worksheet.Cell(row, 9).Value = string.Join(", ", giaSubjects);
 
                         // Обработка олимпиад (начиная со столбца 10)
-                        var olympiadData = student.StudentOlympiadParticipations?
-                            .Where(o => o.IdOlympiadsNavigation != null)
-                            .Select(o => (
-                                Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,
-                                Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
-                            ))
-                            .Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject))
-                            .ToList() ?? new List<(string Type, string Subject)>();
+                        var olympiadData = student.StudentOlympiadParticipations?.Where(o => o.IdOlympiadsNavigation != null)
+                            .Select(o => (Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
+                            )).Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject)).ToList() ?? new List<(string Type, string Subject)>();
 
                         // Записываем данные об олимпиадах
                         int col = 10;
@@ -168,13 +150,11 @@ namespace StudentProfileSystem.Services
                     workbook.SaveAs(filePath);
                 }
 
-                await ShowCustomMessage(parentWindow, "Экспорт завершен",
-                    "Данные успешно экспортированы в Excel!", Brushes.Green);
+                await ShowCustomMessage(parentWindow, "Экспорт завершен", "Данные успешно экспортированы в Excel!", Brushes.Green);
             }
             catch (Exception ex)
             {
-                await ShowCustomMessage(parentWindow, "Ошибка экспорта",
-                    $"Произошла ошибка: {ex.Message}", Brushes.Red);
+                await ShowCustomMessage(parentWindow, "Ошибка экспорта", $"Произошла ошибка: {ex.Message}", Brushes.Red);
             }
         }
 
@@ -186,9 +166,7 @@ namespace StudentProfileSystem.Services
         {
             try
             {
-                var confirm = await ShowConfirmationDialog(parentWindow,
-                    "Подтверждение экспорта",
-                    "Вы уверены, что хотите экспортировать данные всех студентов в Excel?");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение экспорта", "Вы уверены, что хотите экспортировать данные всех студентов в Excel?");
 
                 if (!confirm) return;
 
@@ -216,9 +194,7 @@ namespace StudentProfileSystem.Services
                 var saveDialog = new SaveFileDialog
                 {
                     Title = "Сохранить Excel-файл",
-                    Filters = new List<FileDialogFilter> {
-                new() { Name = "Файлы Excel", Extensions = { "xlsx" } }
-            },
+                    Filters = new List<FileDialogFilter> { new() { Name = "Файлы Excel", Extensions = { "xlsx" } } },
                     InitialFileName = $"Экспорт_всех_студентов_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
                 };
 
@@ -229,10 +205,7 @@ namespace StudentProfileSystem.Services
                 {
                     var worksheet = workbook.Worksheets.Add("Ученики");
                     // Формируем заголовки столбцов
-                    var headers = new List<string> {
-                "Фамилия", "Имя", "Отчество", "Класс", "Школа", "Номер школы",
-                "Претендует на медаль", "Медаль фактическая", "ГИА"
-            };
+                    var headers = new List<string> { "Фамилия", "Имя", "Отчество", "Класс", "Школа", "Номер школы", "Претендует на медаль", "Медаль фактическая", "ГИА"};
 
                     // Максимальное количество олимпиад
                     int maxOlympiads = students.Max(s => s.StudentOlympiadParticipations?.Count ?? 0);
@@ -264,13 +237,9 @@ namespace StudentProfileSystem.Services
                         worksheet.Cell(row, 6).Value = student.School?.SchoolNumber;
 
                         // Медали (столбцы 7-8)
-                        var medalData = student.StudentCertificateAndMedals?
-                            .Select(m => (
-                                MedalName: m.CertificateAndMedalsFact?.CertificateAndMedals?.Name,
-                                MedalStatus: m.CertificateAndMedalsFact?.CertificateAndMedalsCheck?.Name
-                            ))
-                            .Where(m => !string.IsNullOrEmpty(m.MedalName) && !string.IsNullOrEmpty(m.MedalStatus))
-                            .ToList() ?? new List<(string MedalName, string MedalStatus)>();
+                        var medalData = student.StudentCertificateAndMedals?.Select(m => (MedalName: m.CertificateAndMedalsFact?.CertificateAndMedals?.Name,
+                                                                                          MedalStatus: m.CertificateAndMedalsFact?.CertificateAndMedalsCheck?.Name
+                            )).Where(m => !string.IsNullOrEmpty(m.MedalName) && !string.IsNullOrEmpty(m.MedalStatus)).ToList() ?? new List<(string MedalName, string MedalStatus)>();
 
                         if (medalData.Any())
                         {
@@ -279,21 +248,13 @@ namespace StudentProfileSystem.Services
                         }
 
                         // Предметы ГИА (столбец 9)
-                        var giaSubjects = student.StudentGiaResults?
-                            .Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
-                            .Where(name => !string.IsNullOrEmpty(name))
-                            .Distinct() ?? Enumerable.Empty<string>();
+                        var giaSubjects = student.StudentGiaResults?.Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name).Where(name => !string.IsNullOrEmpty(name)).Distinct() ?? Enumerable.Empty<string>();
                         worksheet.Cell(row, 9).Value = string.Join(", ", giaSubjects);
 
                         // Обработка олимпиад (начиная со столбца 10)
-                        var olympiadData = student.StudentOlympiadParticipations?
-                            .Where(o => o.IdOlympiadsNavigation != null)
-                            .Select(o => (
-                                Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,
-                                Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
-                            ))
-                            .Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject))
-                            .ToList() ?? new List<(string Type, string Subject)>();
+                        var olympiadData = student.StudentOlympiadParticipations?.Where(o => o.IdOlympiadsNavigation != null)
+                              .Select(o => ( Type: o.IdOlympiadsNavigation.OlympiadsNavigation?.Name,Subject: o.IdOlympiadsNavigation.OlympiadsItemsNavigation?.Name
+                            )).Where(o => !string.IsNullOrEmpty(o.Type) && !string.IsNullOrEmpty(o.Subject)).ToList() ?? new List<(string Type, string Subject)>();
 
                         // Записываем данные об олимпиадах
                         int col = 10;
@@ -320,9 +281,6 @@ namespace StudentProfileSystem.Services
             }
         }
 
-
-
-
         /// <summary>
         /// Импортирует данные студентов из файла Excel
         /// </summary>
@@ -332,17 +290,12 @@ namespace StudentProfileSystem.Services
         {
             try
             {
-                var confirm = await ShowConfirmationDialog(parentWindow,
-                    "Подтверждение импорта",
-                    "Вы уверены, что хотите импортировать данные из Excel?");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение импорта", "Вы уверены, что хотите импортировать данные из Excel?");
                 if (!confirm) return false;
 
                 var openDialog = new OpenFileDialog
                 {
-                    Title = "Выберите файл Excel",
-                    Filters = new List<FileDialogFilter> {
-                new() { Name = "Excel Files", Extensions = { "xlsx" } }
-            },
+                    Title = "Выберите файл Excel", Filters = new List<FileDialogFilter> { new() { Name = "Excel Files", Extensions = { "xlsx" } } },
                     AllowMultiple = false
                 };
 
@@ -420,10 +373,7 @@ namespace StudentProfileSystem.Services
                                         .Include(s => s.StudentCertificateAndMedals)
                                             .ThenInclude(m => m.CertificateAndMedalsFact)
                                             .ThenInclude(m => m.CertificateAndMedalsCheck)
-                                        .FirstOrDefaultAsync(s =>
-                                            s.LastName == lastName &&
-                                            s.FirstName == firstName &&
-                                            s.Patronymic == patronymic);
+                                        .FirstOrDefaultAsync(s => s.LastName == lastName && s.FirstName == firstName &&s.Patronymic == patronymic);
 
                                     if (existingStudent != null)
                                     {
@@ -434,10 +384,7 @@ namespace StudentProfileSystem.Services
 
                                         // Обновляем основные данные
                                         existingStudent.Class = await GetOrCreateClassAsync(row.Cell(4).GetString());
-                                        existingStudent.School = await GetOrCreateSchoolAsync(
-                                            row.Cell(5).GetString(),
-                                            row.Cell(6).GetString(),
-                                            "", "");
+                                        existingStudent.School = await GetOrCreateSchoolAsync( row.Cell(5).GetString(),row.Cell(6).GetString(), "", "");
 
                                         // Обновляем медали (столбцы 7-8)
                                         await ProcessMedals(row, existingStudent.Id);
@@ -460,10 +407,7 @@ namespace StudentProfileSystem.Services
                                             FirstName = firstName,
                                             Patronymic = patronymic,
                                             Class = await GetOrCreateClassAsync(row.Cell(4).GetString()),
-                                            School = await GetOrCreateSchoolAsync(
-                                                row.Cell(5).GetString(),
-                                                row.Cell(6).GetString(),
-                                                "", "")
+                                            School = await GetOrCreateSchoolAsync( row.Cell(5).GetString(), row.Cell(6).GetString(),"", "")
                                         };
 
                                         _context.Students.Add(newStudent);
@@ -492,10 +436,8 @@ namespace StudentProfileSystem.Services
                             await transaction.CommitAsync();
 
                             // Формируем отчет
-                            string resultMessage = $"Импорт завершен:\n" +
-                                                 $"Добавлено новых студентов: {addedCount}\n" +
-                                                 $"Обновлено существующих: {updatedCount}\n\n" +
-                                                 $"Детали:\n{string.Join("\n", importResults.Take(10))}";
+                            string resultMessage = $"Импорт завершен:\n" + $"Добавлено новых студентов: {addedCount}\n" + 
+                                                   $"Обновлено существующих: {updatedCount}\n\n" + $"Детали:\n{string.Join("\n", importResults.Take(10))}";
 
                             if (importResults.Count > 10)
                                 resultMessage += $"\n...и еще {importResults.Count - 10} записей";
@@ -525,17 +467,8 @@ namespace StudentProfileSystem.Services
 
         private async Task ProcessMedals(IXLRangeRow row, int studentId)
         {
-            var medalNames = row.Cell(7).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(m => m.Trim())
-                .Where(m => !string.IsNullOrEmpty(m))
-                .ToList();
-
-            var medalStatuses = row.Cell(8).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(m => m.Trim())
-                .Where(m => !string.IsNullOrEmpty(m))
-                .ToList();
+            var medalNames = row.Cell(7).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(m => m.Trim()).Where(m => !string.IsNullOrEmpty(m)).ToList();
+            var medalStatuses = row.Cell(8).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(m => m.Trim()).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
             if (medalNames != null && medalStatuses != null && medalNames.Count == medalStatuses.Count)
             {
@@ -548,11 +481,7 @@ namespace StudentProfileSystem.Services
 
         private async Task ProcessGiaSubjects(IXLRangeRow row, int studentId)
         {
-            var giaSubjects = row.Cell(9).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
+            var giaSubjects = row.Cell(9).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
 
             if (giaSubjects != null)
             {
@@ -581,113 +510,6 @@ namespace StudentProfileSystem.Services
             }
         }
 
-
-
-        /// <summary>
-        /// Проверяет, есть ли изменения в данных студента
-        /// </summary>
-        private async Task<bool> CheckForChanges(Student student, IXLRangeRow row)
-        {
-            // Проверяем основные данные
-            var className = row.Cell(4).GetString();
-            var currentClass = student.Class?.ClassesNumber;
-            if (!string.Equals(className, currentClass, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            var schoolName = row.Cell(5).GetString();
-            var currentSchool = student.School?.Name;
-            if (!string.Equals(schoolName, currentSchool, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            // Проверяем медали
-            var medalNames = row.Cell(7).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(m => m.Trim())
-                .ToList();
-
-            var medalStatuses = row.Cell(8).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(m => m.Trim())
-                .ToList();
-
-            var currentMedals = student.StudentCertificateAndMedals?
-                .Select(m => (
-                    Name: m.CertificateAndMedalsFact?.CertificateAndMedals?.Name,
-                    Status: m.CertificateAndMedalsFact?.CertificateAndMedalsCheck?.Name
-                ))
-                .ToList() ?? new List<(string Name, string Status)>();
-
-            if (medalNames != null && medalStatuses != null)
-            {
-                if (medalNames.Count != currentMedals.Count) return true;
-
-                for (int i = 0; i < medalNames.Count; i++)
-                {
-                    var current = currentMedals.FirstOrDefault(m =>
-                        string.Equals(m.Name, medalNames[i], StringComparison.OrdinalIgnoreCase));
-
-                    if (current.Name == null ||
-                        !string.Equals(current.Status, medalStatuses[i], StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-            }
-
-            // Проверяем ГИА
-            var giaSubjects = row.Cell(9).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => s.Trim())
-                .ToList();
-
-            var currentGia = student.StudentGiaResults?
-                .Select(g => g.IdGiaSubjectsNavigation?.GiaSubjectsNavigation?.Name)
-                .ToList() ?? new List<string>();
-
-            if (giaSubjects != null)
-            {
-                if (giaSubjects.Count != currentGia.Count) return true;
-
-                foreach (var subject in giaSubjects)
-                {
-                    if (!currentGia.Any(g => string.Equals(g, subject, StringComparison.OrdinalIgnoreCase)))
-                        return true;
-                }
-            }
-
-            // Проверяем олимпиады
-            var olympiadData = new List<(string Type, string Subject)>();
-            int olympiadColumn = 10;
-            while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
-            {
-                var type = row.Cell(olympiadColumn).GetString();
-                var subject = row.Cell(olympiadColumn + 1).GetString();
-
-                if (!string.IsNullOrWhiteSpace(type) && !string.IsNullOrWhiteSpace(subject))
-                {
-                    olympiadData.Add((type.Trim(), subject.Trim()));
-                }
-                olympiadColumn += 2;
-            }
-
-            var currentOlympiads = student.StudentOlympiadParticipations?
-                .Select(o => (
-                    Type: o.IdOlympiadsNavigation?.OlympiadsNavigation?.Name,
-                    Subject: o.IdOlympiadsNavigation?.OlympiadsItemsNavigation?.Name
-                ))
-                .ToList() ?? new List<(string Type, string Subject)>();
-
-            if (olympiadData.Count != currentOlympiads.Count) return true;
-
-            foreach (var olympiad in olympiadData)
-            {
-                if (!currentOlympiads.Any(o =>
-                    string.Equals(o.Type, olympiad.Type, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(o.Subject, olympiad.Subject, StringComparison.OrdinalIgnoreCase)))
-                    return true;
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Обновляет данные студентов из Excel (поиск по ФИО, обновление только олимпиад и ГИА)
         /// </summary>
@@ -695,17 +517,12 @@ namespace StudentProfileSystem.Services
         {
             try
             {
-                var confirm = await ShowConfirmationDialog(parentWindow,
-                    "Подтверждение обновления",
-                    "Вы уверены, что хотите обновить данные студентов из Excel?");
+                var confirm = await ShowConfirmationDialog(parentWindow, "Подтверждение обновления", "Вы уверены, что хотите обновить данные студентов из Excel?");
                 if (!confirm) return false;
 
                 var openDialog = new OpenFileDialog
                 {
-                    Title = "Выберите файл Excel для обновления",
-                    Filters = new List<FileDialogFilter> {
-                new() { Name = "Excel Files", Extensions = { "xlsx" } }
-            },
+                    Title = "Выберите файл Excel для обновления", Filters = new List<FileDialogFilter> { new() { Name = "Excel Files", Extensions = { "xlsx" } } },
                     AllowMultiple = false
                 };
 
@@ -727,14 +544,10 @@ namespace StudentProfileSystem.Services
                         var firstName = row.Cell(2).GetString();
                         var patronymic = row.Cell(3).GetString();
 
-                        var student = await _context.Students
-                            .Include(s => s.StudentGiaResults)
-                            .Include(s => s.StudentOlympiadParticipations)
-                            .Include(s => s.StudentCertificateAndMedals)
-                            .FirstOrDefaultAsync(s =>
-                                s.LastName == lastName &&
-                                s.FirstName == firstName &&
-                                s.Patronymic == patronymic);
+                        var student = await _context.Students.Include(s => s.StudentGiaResults).Include(s => s.StudentOlympiadParticipations)
+                                                                                               .Include(s => s.StudentCertificateAndMedals).FirstOrDefaultAsync(s => s.LastName == lastName && 
+                                                                                                                                                                     s.FirstName == firstName &&
+                                                                                                                                                                     s.Patronymic == patronymic);
 
                         if (student != null)
                         {
@@ -744,17 +557,8 @@ namespace StudentProfileSystem.Services
                             _context.StudentCertificateAndMedals.RemoveRange(student.StudentCertificateAndMedals);
 
                             // Обновляем медали (столбцы 7-8)
-                            var medalNames = row.Cell(7).GetString()?
-                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(m => m.Trim())
-                                .Where(m => !string.IsNullOrEmpty(m))
-                                .ToList();
-
-                            var medalStatuses = row.Cell(8).GetString()?
-                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(m => m.Trim())
-                                .Where(m => !string.IsNullOrEmpty(m))
-                                .ToList();
+                            var medalNames = row.Cell(7).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(m => m.Trim()).Where(m => !string.IsNullOrEmpty(m)).ToList();
+                            var medalStatuses = row.Cell(8).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(m => m.Trim()).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
                             if (medalNames != null && medalStatuses != null &&
                                 medalNames.Count == medalStatuses.Count)
@@ -766,8 +570,7 @@ namespace StudentProfileSystem.Services
                             }
 
                             // Обновляем предметы ГИА (столбец 9)
-                            var giaSubjects = row.Cell(9).GetString()?
-                                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                            var giaSubjects = row.Cell(9).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                             if (giaSubjects != null)
                             {
@@ -807,11 +610,7 @@ namespace StudentProfileSystem.Services
 
                     if (notFoundCount > 0)
                     {
-                        errorFilePath = Path.Combine(
-                            Path.GetDirectoryName(filePaths[0]),
-                            Path.GetFileNameWithoutExtension(filePaths[0]) +
-                            "_with_errors" +
-                            Path.GetExtension(filePaths[0]));
+                        errorFilePath = Path.Combine( Path.GetDirectoryName(filePaths[0]), Path.GetFileNameWithoutExtension(filePaths[0]) + "_with_errors" + Path.GetExtension(filePaths[0]));
 
                         workbook.SaveAs(errorFilePath);
                     }
@@ -825,173 +624,14 @@ namespace StudentProfileSystem.Services
                     resultMessage += $"\n\nФайл с пометками сохранен как:\n{Path.GetFileName(errorFilePath)}";
                 }
 
-                await ShowCustomMessage(parentWindow, "Результат обновления", resultMessage,
-                    notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
+                await ShowCustomMessage(parentWindow, "Результат обновления", resultMessage, notFoundCount > 0 ? Brushes.Orange : Brushes.Green);
 
                 return true;
             }
             catch (Exception ex)
             {
-                await ShowCustomMessage(parentWindow, "Ошибка обновления",
-                    $"Произошла ошибка: {ex.Message}", Brushes.Red);
+                await ShowCustomMessage(parentWindow, "Ошибка обновления", $"Произошла ошибка: {ex.Message}", Brushes.Red);
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Обновляет данные существующего студента
-        /// </summary>
-        /// <param name="student">Объект студента для обновления</param>
-        /// <param name="row">Строка данных из Excel</param>
-        private async Task UpdateStudentData(Student student, IXLRangeRow row)
-        {
-            // Обновление основной информации
-            var className = row.Cell(4).GetString();
-            if (!string.IsNullOrEmpty(className))
-            {
-                student.Class = await GetOrCreateClassAsync(className);
-            }
-
-            var schoolName = row.Cell(5).GetString();
-            var schoolNumber = row.Cell(6).GetString();
-            if (!string.IsNullOrEmpty(schoolName))
-            {
-                student.School = await GetOrCreateSchoolAsync(schoolName, schoolNumber, "", "");
-            }
-
-            // Удаление старых данных
-            _context.StudentGiaResults.RemoveRange(student.StudentGiaResults);
-            _context.StudentOlympiadParticipations.RemoveRange(student.StudentOlympiadParticipations);
-            _context.StudentCertificateAndMedals.RemoveRange(student.StudentCertificateAndMedals);
-
-            // Добавление предметов ГИА
-            var giaSubjects = row.Cell(7).GetString()?
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (giaSubjects != null)
-            {
-                foreach (var subjectName in giaSubjects.Select(s => s.Trim()))
-                {
-                    if (!string.IsNullOrEmpty(subjectName))
-                    {
-                        var giaSubject = await GetOrCreateGiaSubjectAsync(subjectName);
-                        await AddGiaResultAsync(student.Id, giaSubject.Id);
-                    }
-                }
-            }
-
-            // Добавление олимпиад
-            int olympiadColumn = 8;
-            while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
-            {
-                var olympiadType = row.Cell(olympiadColumn).GetString();
-                var olympiadSubject = row.Cell(olympiadColumn + 1).GetString();
-
-                if (!string.IsNullOrEmpty(olympiadType) && !string.IsNullOrEmpty(olympiadSubject))
-                {
-                    var olympiad = await GetOrCreateOlympiadAsync(olympiadType, olympiadSubject);
-                    await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
-                }
-                olympiadColumn += 2;
-            }
-
-            // Добавление медалей
-            int medalColumn = olympiadColumn;
-            var medalName = row.Cell(medalColumn).GetString();
-            var medalStatus = row.Cell(medalColumn + 1).GetString();
-
-            if (!string.IsNullOrEmpty(medalName) && !string.IsNullOrEmpty(medalStatus))
-            {
-                await AddOrUpdateMedalAsync(student.Id, medalName, medalStatus);
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Создает нового студента на основе данных из Excel
-        /// </summary>
-        /// <param name="row">Строка данных из Excel</param>
-        private async Task CreateNewStudent(IXLRangeRow row)
-        {
-            try
-            {
-                // Создание школы
-                var schoolName = row.Cell(5).GetString();
-                var schoolNumber = row.Cell(6).GetString();
-                var school = await GetOrCreateSchoolAsync(schoolName, schoolNumber, "", "");
-
-                // Создание класса
-                var className = row.Cell(4).GetString();
-                var studentClass = await GetOrCreateClassAsync(className);
-
-                // Создание студента
-                var student = new Student
-                {
-                    LastName = row.Cell(1).GetString().Trim(),
-                    FirstName = row.Cell(2).GetString().Trim(),
-                    Patronymic = row.Cell(3).GetString().Trim(),
-                    ClassId = studentClass?.Id ?? 0,
-                    SchoolId = school?.Id ?? 0
-                };
-
-                _context.Students.Add(student);
-                await _context.SaveChangesAsync(); // Сохраняем сначала студента, чтобы получить ID
-
-                // Обработка медалей (столбцы 7-8)
-                var medalNamesStr = row.Cell(7).GetString();
-                var medalStatusesStr = row.Cell(8).GetString();
-
-                if (!string.IsNullOrWhiteSpace(medalNamesStr) && !string.IsNullOrWhiteSpace(medalStatusesStr))
-                {
-                    var medalNames = medalNamesStr.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                                 .Select(m => m.Trim())
-                                                 .ToList();
-
-                    var medalStatuses = medalStatusesStr.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                                       .Select(m => m.Trim())
-                                                       .ToList();
-
-                    // Обрабатываем попарно
-                    for (int i = 0; i < Math.Min(medalNames.Count, medalStatuses.Count); i++)
-                    {
-                        await AddOrUpdateMedalAsync(student.Id, medalNames[i], medalStatuses[i]);
-                    }
-                }
-
-                // Обработка предметов ГИА (столбец 9)
-                var giaSubjectsStr = row.Cell(9).GetString();
-                if (!string.IsNullOrWhiteSpace(giaSubjectsStr))
-                {
-                    var giaSubjects = giaSubjectsStr.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                                  .Select(s => s.Trim())
-                                                  .ToList();
-
-                    foreach (var subjectName in giaSubjects)
-                    {
-                        var giaSubject = await GetOrCreateGiaSubjectAsync(subjectName);
-                        await AddGiaResultAsync(student.Id, giaSubject.Id);
-                    }
-                }
-
-                // Обработка олимпиад (начиная со столбца 10)
-                int olympiadColumn = 10;
-                while (olympiadColumn <= row.Worksheet.ColumnsUsed().Count())
-                {
-                    var olympiadType = row.Cell(olympiadColumn).GetString()?.Trim();
-                    var olympiadSubject = row.Cell(olympiadColumn + 1).GetString()?.Trim();
-
-                    if (!string.IsNullOrWhiteSpace(olympiadType) && !string.IsNullOrWhiteSpace(olympiadSubject))
-                    {
-                        var olympiad = await GetOrCreateOlympiadAsync(olympiadType, olympiadSubject);
-                        await AddOlympiadParticipationAsync(student.Id, olympiad.Id);
-                    }
-                    olympiadColumn += 2;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Ошибка при создании студента: {ex.Message}");
             }
         }
 
@@ -1001,8 +641,7 @@ namespace StudentProfileSystem.Services
         private async Task AddOrUpdateMedalAsync(int studentId, string medalName, string medalStatus)
         {
             // Находим или создаем медаль
-            var medal = await _context.CertificateAndMedals
-                .FirstOrDefaultAsync(m => m.Name == medalName);
+            var medal = await _context.CertificateAndMedals.FirstOrDefaultAsync(m => m.Name == medalName);
 
             if (medal == null)
             {
@@ -1012,8 +651,7 @@ namespace StudentProfileSystem.Services
             }
 
             // Находим или создаем статус медали
-            var medalCheck = await _context.CertificateAndMedalsChecks
-                .FirstOrDefaultAsync(c => c.Name == medalStatus);
+            var medalCheck = await _context.CertificateAndMedalsChecks.FirstOrDefaultAsync(c => c.Name == medalStatus);
 
             if (medalCheck == null)
             {
@@ -1023,9 +661,7 @@ namespace StudentProfileSystem.Services
             }
 
             // Создаем факт медали
-            var medalFact = await _context.CertificateAndMedalsFacts
-                .FirstOrDefaultAsync(f => f.CertificateAndMedalsId == medal.Id &&
-                                        f.CertificateAndMedalsCheckId == medalCheck.Id);
+            var medalFact = await _context.CertificateAndMedalsFacts.FirstOrDefaultAsync(f => f.CertificateAndMedalsId == medal.Id && f.CertificateAndMedalsCheckId == medalCheck.Id);
 
             if (medalFact == null)
             {
@@ -1039,8 +675,7 @@ namespace StudentProfileSystem.Services
             }
 
             // Удаляем старые медали студента
-            var existingMedals = _context.StudentCertificateAndMedals
-                .Where(m => m.StudentsId == studentId);
+            var existingMedals = _context.StudentCertificateAndMedals.Where(m => m.StudentsId == studentId);
             _context.StudentCertificateAndMedals.RemoveRange(existingMedals);
 
             // Добавляем новую связь студента с медалью
@@ -1094,8 +729,7 @@ namespace StudentProfileSystem.Services
                         }
 
                         // Проверка предметов ГИА (столбец 9)
-                        var giaSubjects = row.Cell(9).GetString()?
-                            .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var giaSubjects = row.Cell(9).GetString()?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                         if (giaSubjects != null && giaSubjects.Any(string.IsNullOrWhiteSpace))
                         {
@@ -1154,13 +788,10 @@ namespace StudentProfileSystem.Services
                 Width = 100,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Height = 30,
-                Background = borderBrush is SolidColorBrush brush && brush.Color == Brushes.Red.Color
-                    ? Brushes.Red
-                    : Brushes.Green,
+                Background = borderBrush is SolidColorBrush brush && brush.Color == Brushes.Red.Color ? Brushes.Red : Brushes.Green,
                 Margin = new Thickness(5)
             };
 
-            // Create scrollable content if there are many errors
             var content = new StackPanel
             {
                 VerticalAlignment = VerticalAlignment.Center,
@@ -1178,8 +809,7 @@ namespace StudentProfileSystem.Services
         }
             };
 
-            // If message is long (many errors), make it scrollable
-            if (message.Count(c => c == '\n') > 5) // More than 5 lines
+            if (message.Count(c => c == '\n') > 5)
             {
                 var scrollViewer = new ScrollViewer
                 {
@@ -1208,7 +838,7 @@ namespace StudentProfileSystem.Services
             {
                 Title = title,
                 Width = 550,
-                Height = message.Count(c => c == '\n') > 5 ? 350 : 200, // Adjust height based on content
+                Height = message.Count(c => c == '\n') > 5 ? 350 : 200,
                 MinWidth = 400,
                 MinHeight = 180,
                 MaxWidth = 550,
@@ -1216,7 +846,7 @@ namespace StudentProfileSystem.Services
                 WindowState = WindowState.Normal,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 SizeToContent = SizeToContent.Manual,
-                CanResize = true, // Allow resizing for long messages
+                CanResize = true,
                 Content = new Border
                 {
                     BorderBrush = borderBrush,
@@ -1378,8 +1008,7 @@ namespace StudentProfileSystem.Services
                 await _context.SaveChangesAsync();
             }
 
-            var giaSubject = await _context.GiaSubjects
-                .FirstOrDefaultAsync(gs => gs.GiaSubjectsNavigation.Name == subjectName);
+            var giaSubject = await _context.GiaSubjects.FirstOrDefaultAsync(gs => gs.GiaSubjectsNavigation.Name == subjectName);
 
             if (giaSubject == null)
             {
@@ -1412,9 +1041,7 @@ namespace StudentProfileSystem.Services
                 await _context.SaveChangesAsync();
             }
 
-            var olympiad = await _context.Olympiads
-                .FirstOrDefaultAsync(o => o.OlympiadsNavigation.Name == typeName &&
-                                         o.OlympiadsItemsNavigation.Name == subjectName);
+            var olympiad = await _context.Olympiads.FirstOrDefaultAsync(o => o.OlympiadsNavigation.Name == typeName && o.OlympiadsItemsNavigation.Name == subjectName);
 
             if (olympiad == null)
             {
