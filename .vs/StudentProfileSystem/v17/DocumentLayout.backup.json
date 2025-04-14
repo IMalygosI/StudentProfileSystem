@@ -3,10 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\studenteditwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}",
-      "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\studenteditwindow.axaml||{6D5344A2-2FCD-49DE-A09D-6A14FD1B1224}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|c:\\users\\dimau\\source\\repos\\studentprofilesystem\\studentprofilesystem\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{29D4B5C7-C09E-459D-B178-387621E106FA}|StudentProfileSystem\\StudentProfileSystem.csproj|solutionrelative:studentprofilesystem\\excelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -31,24 +27,12 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "StudentEditWindow.axaml",
-              "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml",
-              "RelativeDocumentMoniker": "StudentProfileSystem\\StudentEditWindow.axaml",
-              "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\StudentEditWindow.axaml",
-              "RelativeToolTip": "StudentProfileSystem\\StudentEditWindow.axaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-14T11:37:21.587Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "ExcelService.cs",
               "DocumentMoniker": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\ExcelService.cs",
               "RelativeDocumentMoniker": "StudentProfileSystem\\ExcelService.cs",
               "ToolTip": "C:\\Users\\dimau\\source\\repos\\StudentProfileSystem\\StudentProfileSystem\\ExcelService.cs",
               "RelativeToolTip": "StudentProfileSystem\\ExcelService.cs",
-              "ViewState": "AgIAAC0EAAAAAAAAAAAAAIUEAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAABwAAAAAAAAAAAAuwMABAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-14T11:25:56.104Z",
               "EditorCaption": ""
