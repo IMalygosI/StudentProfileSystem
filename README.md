@@ -1,1 +1,1 @@
-<h1 align="center">Учебный проект</h1>
+<div align="center"> Учебный проект </div>
